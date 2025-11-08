@@ -31,9 +31,9 @@ public class PlayerIA : Player
 
         // 2. ACTUAR (Ejemplo de acción)
         // Ejemplo: Si tengo 2 de madera, construyo algo.
-        if (HasEnoughResources(HexTile.ResourceType.Madera, 2))
+        if (HasEnoughResources(ResourceType.Madera, 2))
         {
-            SpendResources(HexTile.ResourceType.Madera, 2);
+            SpendResources(ResourceType.Madera, 2);
             Debug.Log("IA ha decidido construir algo.");
             // Lógica para instanciar un edificio...
         }

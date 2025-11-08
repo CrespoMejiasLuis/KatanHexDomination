@@ -11,7 +11,7 @@ public class BoardManager : MonoBehaviour
     {
         if (Instance!=null && Instance !=this)
         {
-            Destroy(GameObject);
+            Destroy(gameObject);
             return;
         }
 
@@ -32,7 +32,7 @@ public class BoardManager : MonoBehaviour
         gridData[x, y] = cell;
     }
 
-    public void GetCell(Vector2Int axialCoords)
+    public CellData GetCell(Vector2Int axialCoords)
     {
         int x = axialCoords.x + (gridRadius-1);
         int y = axialCoords.y + (gridRadius-1);
