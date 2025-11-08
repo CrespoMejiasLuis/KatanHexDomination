@@ -6,7 +6,7 @@ using System.Linq;
 [System.Serializable]
 public class HexPrefabMapping
 {
-    public HexTile.ResourceType type;
+    public ResourceType type;
     public GameObject prefab;
 }
 
@@ -31,20 +31,21 @@ public class HexGridGenerator : MonoBehaviour
     public List<HexPrefabMapping> resourcePrefabs;
 
     // Los 21 tipos de recursos (ejemplo de una mezcla estandar de Catan + 2 extra).
-    private readonly List<HexTile.ResourceType> resourcePool = new List<HexTile.ResourceType>
+    private readonly List<ResourceType> resourcePool = new List<ResourceType>
     {
         // 4 Madera
-        HexTile.ResourceType.Madera, HexTile.ResourceType.Madera, HexTile.ResourceType.Madera, HexTile.ResourceType.Madera, 
+        
+        ResourceType.Madera, ResourceType.Madera, ResourceType.Madera, ResourceType.Madera, 
         // 3 Arcilla
-        HexTile.ResourceType.Arcilla, HexTile.ResourceType.Arcilla, HexTile.ResourceType.Arcilla, 
+        ResourceType.Arcilla, ResourceType.Arcilla, ResourceType.Arcilla, 
         // 4 Trigo
-        HexTile.ResourceType.Trigo, HexTile.ResourceType.Trigo, HexTile.ResourceType.Trigo, HexTile.ResourceType.Trigo, 
+        ResourceType.Trigo, ResourceType.Trigo, ResourceType.Trigo, ResourceType.Trigo, 
         // 4 Oveja
-        HexTile.ResourceType.Oveja, HexTile.ResourceType.Oveja, HexTile.ResourceType.Oveja, HexTile.ResourceType.Oveja, 
+        ResourceType.Oveja, ResourceType.Oveja, ResourceType.Oveja, ResourceType.Oveja, 
         // 3 Roca
-        HexTile.ResourceType.Roca, HexTile.ResourceType.Roca, HexTile.ResourceType.Roca, 
+        ResourceType.Roca, ResourceType.Roca, ResourceType.Roca, 
         // 3 Desierto (o casillas especiales sin recurso primario)
-        HexTile.ResourceType.Desierto, HexTile.ResourceType.Desierto, HexTile.ResourceType.Desierto
+        ResourceType.Desierto, ResourceType.Desierto, ResourceType.Desierto
     };
 
     // ---------------------------------------------------------------------
@@ -161,7 +162,7 @@ public class HexGridGenerator : MonoBehaviour
             Vector3 worldPos = AxialToWorldPosition(coord.x, coord.y);
 
             // Recurso a asignar en esta posición
-            HexTile.ResourceType currentType = resourcePool[i];
+            ResourceType currentType = resourcePool[i];
 
             // **Buscar el Prefab correcto**
             GameObject prefabToUse = resourcePrefabs

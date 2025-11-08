@@ -9,7 +9,7 @@ public abstract class Player : MonoBehaviour
     public string playerName;
 
 
-    protected Dictionary<HexTile.ResourceType, int> resources = new Dictionary<HexTile.ResourceType, int>();
+    protected Dictionary<ResourceType, int> resources = new Dictionary<ResourceType, int>();
 
 
     protected virtual void Awake()
@@ -24,10 +24,10 @@ public abstract class Player : MonoBehaviour
     private void InitializeResourceDictionary()
     {
         // Obtiene todos los valores del enum HexTile.ResourceType
-        foreach (HexTile.ResourceType resourceType in Enum.GetValues(typeof(HexTile.ResourceType)))
+        foreach (ResourceType resourceType in Enum.GetValues(typeof(ResourceType)))
         {
             // No queremos añadir 'Desierto' como un recurso acumulable
-            if (resourceType != HexTile.ResourceType.Desierto)
+            if (resourceType != ResourceType.Desierto)
             {
                 if (!resources.ContainsKey(resourceType))
                 {
@@ -46,9 +46,9 @@ public abstract class Player : MonoBehaviour
     /// <summary>
     /// Añade una cantidad de un recurso al inventario del jugador.
     /// </summary>
-    public void AddResource(HexTile.ResourceType type, int amount)
+    public void AddResource(ResourceType type, int amount)
     {
-        if (type == HexTile.ResourceType.Desierto) return;
+        if (type == ResourceType.Desierto) return;
 
         resources[type] += amount;
         Debug.Log($"Jugador {playerID} ganó {amount} de {type}. Total: {resources[type]}");
@@ -59,7 +59,7 @@ public abstract class Player : MonoBehaviour
     /// <summary>
     /// Comprueba si el jugador tiene suficientes recursos para gastar.
     /// </summary>
-    public bool HasEnoughResources(HexTile.ResourceType type, int amountNeeded)
+    public bool HasEnoughResources(ResourceType type, int amountNeeded)
     {
         return resources.ContainsKey(type) && resources[type] >= amountNeeded;
     }
@@ -68,7 +68,7 @@ public abstract class Player : MonoBehaviour
     /// Gasta (resta) recursos del inventario.
     /// </summary>
     /// <returns>True si tuvo éxito, False si no tenía suficientes recursos.</returns>
-    public bool SpendResources(HexTile.ResourceType type, int amountToSpend)
+    public bool SpendResources(ResourceType type, int amountToSpend)
     {
         if (HasEnoughResources(type, amountToSpend))
         {
