@@ -17,7 +17,7 @@ public class UIManager : MonoBehaviour
         }
 
         // Asegurarse de que esté oculto al empezar
-        HideEndTurnButton();
+        HidePlayerUI();
     }
 
     // --- Suscripción a Eventos ---
@@ -64,5 +64,5 @@ public class UIManager : MonoBehaviour
         // Llama a la función pública del Singleton GameManager
         GameManager.Instance.EndPlayerTurn();
     }
-    private void HideEndTurnButton() { }
+    
 }

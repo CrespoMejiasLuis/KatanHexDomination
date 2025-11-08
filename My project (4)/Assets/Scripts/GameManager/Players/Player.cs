@@ -1,0 +1,91 @@
+using UnityEngine;
+using System.Collections.Generic; // Necesario para Diccionarios
+using System; // Necesario para Enum.GetValues
+
+public abstract class Player : MonoBehaviour
+{
+    [Header("Identificación del Jugador")]
+    public int playerID;
+    public string playerName;
+
+
+    protected Dictionary<HexTile.ResourceType, int> resources = new Dictionary<HexTile.ResourceType, int>();
+
+
+    protected virtual void Awake()
+    {
+        InitializeResourceDictionary();
+    }
+
+    /// <summary>
+    /// Rellena el diccionario con todos los tipos de recursos, empezando en 0.
+    /// Esto evita errores de 'KeyNotFoundException' más adelante.
+    /// </summary>
+    private void InitializeResourceDictionary()
+    {
+        // Obtiene todos los valores del enum HexTile.ResourceType
+        foreach (HexTile.ResourceType resourceType in Enum.GetValues(typeof(HexTile.ResourceType)))
+        {
+            // No queremos añadir 'Desierto' como un recurso acumulable
+            if (resourceType != HexTile.ResourceType.Desierto)
+            {
+                if (!resources.ContainsKey(resourceType))
+                {
+                    resources.Add(resourceType, 0); // Empezar con 0 de cada
+                }
+            }
+        }
+
+        // Opcional: Dar recursos iniciales
+        // AddResource(HexTile.ResourceType.Madera, 2);
+        // AddResource(HexTile.ResourceType.Arcilla, 2);
+    }
+
+    // --- MÉTODOS PÚBLICOS DE GESTIÓN DE RECURSOS ---
+
+    /// <summary>
+    /// Añade una cantidad de un recurso al inventario del jugador.
+    /// </summary>
+    public void AddResource(HexTile.ResourceType type, int amount)
+    {
+        if (type == HexTile.ResourceType.Desierto) return;
+
+        resources[type] += amount;
+        Debug.Log($"Jugador {playerID} ganó {amount} de {type}. Total: {resources[type]}");
+        // Aquí llamarías a la UI para actualizarse
+        // UIManager.Instance.UpdateResourceUI(playerID, type, resources[type]);
+    }
+
+    /// <summary>
+    /// Comprueba si el jugador tiene suficientes recursos para gastar.
+    /// </summary>
+    public bool HasEnoughResources(HexTile.ResourceType type, int amountNeeded)
+    {
+        return resources.ContainsKey(type) && resources[type] >= amountNeeded;
+    }
+
+    /// <summary>
+    /// Gasta (resta) recursos del inventario.
+    /// </summary>
+    /// <returns>True si tuvo éxito, False si no tenía suficientes recursos.</returns>
+    public bool SpendResources(HexTile.ResourceType type, int amountToSpend)
+    {
+        if (HasEnoughResources(type, amountToSpend))
+        {
+            resources[type] -= amountToSpend;
+            Debug.Log($"Jugador {playerID} gastó {amountToSpend} de {type}. Restante: {resources[type]}");
+            // Actualizar UI
+            return true;
+        }
+        return false;
+    }
+
+
+    // --- LÓGICA DE TURNO ABSTRACTA ---
+
+    /// <summary>
+    /// Esta es la función que el GameManager llamará.
+    /// Cada tipo de jugador (Humano, IA) debe implementar esto de forma diferente.
+    /// </summary>
+    public abstract void BeginTurn();
+}
