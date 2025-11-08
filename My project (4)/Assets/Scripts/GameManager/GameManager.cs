@@ -1,18 +1,10 @@
 using UnityEngine;
 using System; // Necesario para usar 'Action'
-public enum GameState
-{
-    Initializing,     // El juego se está cargando, el tablero se está animando
-    PlayerTurn,       // El jugador puede realizar acciones
-    AITurn,           // La IA (enemigo) está pensando y actuando
-    EndTurnResolution, // Se calculan los recursos, se comprueban las victorias
-    GameOver          // La partida ha terminado
-}
 
 public class GameManager : MonoBehaviour
 {
     // === SINGLETON ===
-    // Un patrón 'Singleton' asegura que solo haya UN GameManager en todo el juego.
+    // Un patrï¿½n 'Singleton' asegura que solo haya UN GameManager en todo el juego.
     public static GameManager Instance { get; private set; }
 
     // === ESTADO ===
@@ -20,16 +12,29 @@ public class GameManager : MonoBehaviour
     private HexGridGenerator _gridGenerator;
 
     // === EVENTOS ===
-    // Otros scripts se suscribirán a estos eventos para saber cuándo actuar.
+    // Otros scripts se suscribiron a estos eventos para saber cuando actuar.
     public static event Action OnGameStart;
     public static event Action OnPlayerTurnStart;
     public static event Action OnPlayerTurnEnd;
     public static event Action OnAITurnStart;
     public static event Action OnAITurnEnd;
 
+    public Player humanPlayer; 
+    public Player IAPlayer;
+
+    private static readonly Vector2Int[] axialNeighborDirections = new Vector2Int[]
+    {
+        new Vector2Int(1, 0),  // Derecha
+        new Vector2Int(1, -1), // Arriba-Derecha
+        new Vector2Int(0, -1), // Arriba-Izquierda
+        new Vector2Int(-1, 0), // Izquierda
+        new Vector2Int(-1, 1), // Abajo-Izquierda
+        new Vector2Int(0, 1)   // Abajo-Derecha
+    };
+
     void Awake()
     {
-        // Configuración del Singleton
+        // Configuracion del Singleton
         if (Instance != null && Instance != this)
         {
             Destroy(gameObject);
@@ -39,15 +44,28 @@ public class GameManager : MonoBehaviour
             Instance = this;
             DontDestroyOnLoad(gameObject); // Opcional, si persiste entre escenas
         }
-        CurrentState = GameState.Initializing;
 
     }
 
+    void Start()
+    {
+        _gridGenerator = FindFirstObjectByType<HexGridGenerator>();
+
+        if(_gridGenerator == null)
+        {
+            Debug.Log("No hay un HexGridGenerator en la escena");
+            return;
+        }
+
+        SetState(GameState.Initializing);   
+    }
+
     /// <summary>
-    /// La función principal para cambiar de estado.
+    /// La funciï¿½n principal para cambiar de estado.
     /// </summary>
     public void SetState(GameState newState)
     {
+        Debug.Log(CurrentState);
         if (CurrentState == newState) return; // No cambiar al mismo estado
 
         CurrentState = newState;
@@ -57,24 +75,27 @@ public class GameManager : MonoBehaviour
         switch (newState)
         {
             case GameState.Initializing:
-                // El HexGridGenerator llamará a esto cuando termine sus animaciones
-                Debug.Log("se Inicializo wey");
-                SetUp();
-               // SetState(GameState.PlayerTurn);
+                // El HexGridGenerator llamarï¿½ a esto cuando termine sus animaciones
+                SetUp(() => {
+                    Debug.Log("ðŸŽ‰ Tablero listo. Transicionando a Turno del Jugador.");
+                    // ðŸ”‘ Solo cambiamos de estado CUANDO el generador nos avisa que ha terminado.
+                    SetState(GameState.PlayerTurn); 
+                });
                 break;
 
             case GameState.PlayerTurn:
                 OnPlayerTurnStart?.Invoke(); // Llama al evento
-                CollectTurnResources(1);     // Lógica de "Civilization": recolectar recursos al inicio del turno
+                Debug.Log("ðŸ“¢ Evento OnPlayerTurnStart disparado.");
+                CollectTurnResources(1);     // Lï¿½gica de "Civilization": recolectar recursos al inicio del turno
                 break;
 
             case GameState.AITurn:
                 OnAITurnStart?.Invoke();     // Llama al evento
-                CollectTurnResources(2);     // La IA también recolecta
+                CollectTurnResources(2);     // La IA tambiï¿½n recolecta
                 break;
 
             case GameState.EndTurnResolution:
-                // Aquí podrías comprobar condiciones de victoria
+                // Aquï¿½ podrï¿½as comprobar condiciones de victoria
                 // Y luego pasar al siguiente turno
                 if (CurrentState == GameState.PlayerTurn)
                     SetState(GameState.AITurn);
@@ -83,13 +104,13 @@ public class GameManager : MonoBehaviour
                 break;
 
             case GameState.GameOver:
-                // Lógica de fin de partida
+                // Lï¿½gica de fin de partida
                 break;
         }
     }
 
     /// <summary>
-    /// Llamado por el botón de "Terminar Turno" de la UI.
+    /// Llamado por el botï¿½n de "Terminar Turno" de la UI.
     /// </summary>
     public void EndPlayerTurn()
     {
@@ -101,17 +122,65 @@ public class GameManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Lógica de tu juego: Otorga recursos al jugador activo al inicio de su turno.
+    /// Lï¿½gica de tu juego: Otorga recursos al jugador activo al inicio de su turno.
     /// </summary>
     private void CollectTurnResources(int playerID)
     {
         Debug.Log($"Recolectando recursos para el jugador {playerID}...");
-        // 1. Encuentra todas las ciudades/asentamientos que pertenecen a 'playerID'.
-        // 2. Para cada ciudad, obtén la 'HexTile' en la que está.
-        // 3. Añade 1 recurso de 'hexTile.resourceType' al inventario del jugador.
+
+        // 1. Determinar el jugador y el 'owner ID'
+        Player currentPlayer = (playerID == 1) ? humanPlayer : IAPlayer;
+        int ownerIDToCheck = (playerID == 1) ? 0 : 1; // Asume 1->0 y 2->1
+
+        if (currentPlayer == null)
+        {
+            Debug.LogError($"GameManager no tiene una referencia para el Jugador {playerID}. Revisa el Inspector.");
+            return;
+        }
+
+        if (BoardManager.Instance == null || BoardManager.Instance.gridData == null)
+        {
+            Debug.LogError("BoardManager.gridData no estÃ¡ inicializado.");
+            return;
+        }
+        
+        // 2. Iterar por todo el tablero buscando ciudades del jugador
+        foreach (CellData cell in BoardManager.Instance.gridData)
+        {
+            // 3. Si encontramos una ciudad que pertenece al jugador actual...
+            if (cell != null && cell.owner == ownerIDToCheck && cell.hasCity)
+            {
+                Debug.Log($"Ciudad encontrada en {cell.coordinates} para Jugador {playerID}. Comprobando vecinos.");
+                
+                Vector2Int cityCoords = cell.coordinates;
+                ResourceType type = cell.resource;
+                currentPlayer.AddResource(type, 1);
+                // 4. ...iteramos por las 6 direcciones axiales
+                foreach (Vector2Int direction in axialNeighborDirections)
+                {
+                    // Calcular las coordenadas del vecino
+                    Vector2Int neighborCoords = cityCoords + direction;
+                    
+                    // 5. Obtener la celda vecina usando la funciÃ³n del BoardManager
+                    CellData neighborCell = BoardManager.Instance.GetCell(neighborCoords);
+
+                    // 6. Si la celda vecina existe (no estÃ¡ fuera del mapa)...
+                    if (neighborCell != null)
+                    {
+                        // 7. ...Â¡AÃ±adir su recurso al jugador!
+                        type = neighborCell.resource;
+                        currentPlayer.AddResource(type, 1); 
+                        // (El mÃ©todo AddResource ya imprime el log de "ganÃ³ X")
+                    }
+                }
+            }
+        }
     }
 
-    private void SetUp() {
-        _gridGenerator.SetUp();
+    private void SetUp(Action onGridReady) 
+    {
+        if(_gridGenerator!=null)
+
+            _gridGenerator.SetUp(onGridReady);
     }
 }
