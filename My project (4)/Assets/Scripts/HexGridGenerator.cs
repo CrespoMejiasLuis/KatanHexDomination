@@ -13,24 +13,24 @@ public class HexPrefabMapping
 public class HexGridGenerator : MonoBehaviour
 {
     // --- Configuración Global ---
-    [Header("Configuración Global del Tablero")]
+    [Header("Configuracion Global del Tablero")]
     public float hexRadius = 1f;    // Radio del hexágono (determina el tamaño y espaciado).
     public Transform hexParent;     // Objeto vacío para mantener el orden en la jerarquía.
 
     private const int NUM_TILES = 19;
     private const int GRID_RADIUS = 3; // Radio del patrón base.
     
-    [Header("Configuración de Animación")]
+    [Header("Configuracion de Animación")]
     public float delayBetweenTiles = 0.05f; // Tiempo de espera entre el volteo de cada casilla
 
     private List<HexTile> allGeneratedTiles = new List<HexTile>();
 
     // --- Configuración de Prefabs y Recursos ---
     [Header("Configuración de Prefabs por Recurso")]
-    // Asigna aquí los 6 Prefabs en el Inspector.
+    // Asigna aqui los 6 Prefabs en el Inspector.
     public List<HexPrefabMapping> resourcePrefabs;
 
-    // Los 21 tipos de recursos (ejemplo de una mezcla estándar de Catan + 2 extra).
+    // Los 21 tipos de recursos (ejemplo de una mezcla estandar de Catan + 2 extra).
     private readonly List<HexTile.ResourceType> resourcePool = new List<HexTile.ResourceType>
     {
         // 4 Madera
@@ -151,6 +151,9 @@ public class HexGridGenerator : MonoBehaviour
         // 1. Aleatorizar la lista de recursos
         Shuffle(resourcePool);
 
+        //Create the grid
+        BoardManager.Instance.InitialiceGrid(GRID_RADIUS);
+
         // 2. Instanciar y configurar
         for (int i = 0; i < coords.Count; i++)
         {
@@ -181,12 +184,15 @@ public class HexGridGenerator : MonoBehaviour
 
             // Inicializar la lógica de la casilla
             HexTile hexTile = newTileGO.GetComponent<HexTile>();
-            if (hexTile != null)
-            {
-                // **LLAMADA SIMPLIFICADA**: Solo se inicializa el tipo de recurso
-                hexTile.Initialize(currentType);
-                allGeneratedTiles.Add(hexTile);
-            }
+            hexTile.Initialize(currentType);            
+
+            //create cell for the board
+            CellData cell = new CellData(currentType, coord);
+
+            //Register the cell on the board
+            BoardManager.Instance.SetCell(coord, cell);
+
+            allGeneratedTiles.Add(hexTile);
         }
     }
 
