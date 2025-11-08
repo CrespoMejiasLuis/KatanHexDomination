@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System;
+using System.Collections; // Necesario para IEnumerator
 
 // Clase serializable para mapear el Tipo de Recurso con su Prefab 3D.
 [System.Serializable]
@@ -14,29 +15,32 @@ public class HexPrefabMapping
 public class HexGridGenerator : MonoBehaviour
 {
     // --- Configuración Global ---
-    [Header("Configuracion Global del Tablero")]
-    public float hexRadius = 1f;    // Radio del hexágono (determina el tamaño y espaciado).
-    public Transform hexParent;     // Objeto vacío para mantener el orden en la jerarquía.
+    [Header("Configuración Global del Tablero")]
+    [Tooltip("El número de anillos de TIERRA (sin incluir el borde de agua). 3 = 19 casillas.")]
+    public int boardRadius = 3; // ¡NUEVO! Reemplaza la constante GRID_RADIUS
+    public float hexRadius = 1f;
+    public Transform hexParent;
 
-    private const int NUM_TILES = 19;
-    private const int GRID_RADIUS = 3; // Radio del patrón base.
-    
-    [Header("Configuracion de Animación")]
-    public float delayBetweenTiles = 0.05f; // Tiempo de espera entre el volteo de cada casilla
+    // --- Constantes Eliminadas ---
+    // private const int NUM_TILES = 19; // (Reemplazado por lógica dinámica)
+    // private const int GRID_RADIUS = 3; // (Reemplazado por boardRadius)
+
+    [Header("Configuración de Animación")]
+    public float delayBetweenTiles = 0.05f;
 
     private List<HexTile> allGeneratedTiles = new List<HexTile>();
-    private GameManager gameManager;
+    // private GameManager gameManager; // (Eliminado, SetUp ahora es llamado por GameManager)
 
     // --- Configuración de Prefabs y Recursos ---
     [Header("Configuración de Prefabs por Recurso")]
-    // Asigna aqui los 6 Prefabs en el Inspector.
+    // ¡IMPORTANTE! Asegúrate de asignar un prefab para 'Agua' aquí.
     public List<HexPrefabMapping> resourcePrefabs;
 
-    // Los 21 tipos de recursos (ejemplo de una mezcla estandar de Catan + 2 extra).
-    private readonly List<ResourceType> resourcePool = new List<ResourceType>
+    // CORREGIDO: Este es ahora el "pool base" para un tablero de 19 casillas.
+    // Se repetirá o se acortará si 'boardRadius' es diferente de 3.
+    private readonly List<ResourceType> baseResourcePool = new List<ResourceType>
     {
         // 4 Madera
-        
         ResourceType.Madera, ResourceType.Madera, ResourceType.Madera, ResourceType.Madera, 
         // 3 Arcilla
         ResourceType.Arcilla, ResourceType.Arcilla, ResourceType.Arcilla, 
@@ -46,67 +50,67 @@ public class HexGridGenerator : MonoBehaviour
         ResourceType.Oveja, ResourceType.Oveja, ResourceType.Oveja, ResourceType.Oveja, 
         // 3 Roca
         ResourceType.Roca, ResourceType.Roca, ResourceType.Roca, 
-        // 3 Desierto (o casillas especiales sin recurso primario)
-        ResourceType.Desierto, ResourceType.Desierto, ResourceType.Desierto
+        // 1 Desierto
+        ResourceType.Desierto
     };
 
     // ---------------------------------------------------------------------
 
+    // Start() se usa para validaciones
     void Start()
     {
-        if (resourcePrefabs == null || resourcePrefabs.Count < 6)
+        if (resourcePrefabs == null || resourcePrefabs.Count < 7) // (6 + Agua)
         {
-            Debug.LogError("🚨 ¡Error de Configuración! Asegúrate de asignar los 6 Prefabs de recursos en el Inspector.");
+            Debug.LogError("🚨 ¡Error de Configuración! Asegúrate de asignar los 7 Prefabs (incluyendo Agua) en el Inspector.");
             return;
         }
 
-        Debug.Log($"✅ Tablero de {NUM_TILES} casillas generado aleatoriamente.");
+        if (resourcePrefabs.FirstOrDefault(m => m.type == ResourceType.Agua) == null)
+        {
+            Debug.LogError("🚨 ¡Error! No se ha asignado un prefab para 'ResourceType.Agua' en 'resourcePrefabs'.");
+        }
     }
 
+    // SetUp es llamado por el GameManager
     public void SetUp(Action onGenerationComplete)
     {
-        // 1. Generar los puntos de coordenadas (q, r)
-        List<Vector2Int> hexCoordinates = GenerateHexCoordinates(GRID_RADIUS);
-
-        // 2. Posicionar y configurar las casillas con aleatoriedad
-        PlaceAndConfigureTiles(hexCoordinates);
+        // 2. Posicionar y configurar las casillas
+        PlaceAndConfigureTiles(); // Ya no necesita 'coords'
         StartCoroutine(StartFlipSequence(onGenerationComplete));
     }
 
-    /// <summary>
-    /// Genera la lista de coordenadas axiales (q, r) para un tablero hexagonal.
-    /// </summary>
-    /// 
-
     System.Collections.IEnumerator StartFlipSequence(Action onCompleteCallback)
     {
-        // Espera un pequeño momento antes de empezar la animación (e.g., para que todo cargue)
         yield return null;
-
-        // Aleatorizar el orden de volteo para un efecto más dinámico (opcional)
-        Shuffle(allGeneratedTiles);
+         Shuffle(allGeneratedTiles); // Opcional
 
         foreach (HexTile tile in allGeneratedTiles)
         {
-            tile.StartFlipAnimation();
+            // Asumimos que tienes StartFlipAnimation() en HexTile
+            tile.StartFlipAnimation(); 
             yield return new WaitForSeconds(delayBetweenTiles);
         }
 
         onCompleteCallback?.Invoke();
-
-        // Una vez terminado, puedes iniciar la lógica del juego
-        // StartGameLogic(); 
     }
+
+    /// <summary>
+    /// Genera una lista de coordenadas para un hexágono de 'radius' anillos.
+    /// radius = 1 -> 1 casilla
+    /// radius = 2 -> 7 casillas
+    /// radius = 3 -> 19 casillas
+    /// </summary>
     private List<Vector2Int> GenerateHexCoordinates(int radius)
     {
         List<Vector2Int> coords = new List<Vector2Int>();
 
-        // Generar un patrón de panal (radio 3 genera 19 casillas)
+        // CORREGIDO: Esta fórmula genera un hexágono de 'radius' anillos (ej. 0, 1, 2)
         for (int q = -radius + 1; q < radius; q++)
         {
             for (int r = -radius + 1; r < radius; r++)
             {
                 int s = -q - r;
+                // La condición clave para un hexágono de radio 'R-1' (ej. 3-1=2)
                 if (Mathf.Abs(q) < radius && Mathf.Abs(r) < radius && Mathf.Abs(s) < radius)
                 {
                     coords.Add(new Vector2Int(q, r));
@@ -114,81 +118,97 @@ public class HexGridGenerator : MonoBehaviour
             }
         }
 
-        // Asegurarse de tener NUM_TILES (21)
-        while (coords.Count < NUM_TILES)
-        {
-            // Añade casillas en el borde (ej. en el lado de la columna q=radius-1)
-            coords.Add(new Vector2Int(radius - 1, -(radius - 1) - (coords.Count - 19)));
-        }
-
-        return coords.Take(NUM_TILES).ToList();
+        // CORREGIDO: El bucle 'while' que forzaba 21 casillas se ha eliminado.
+        return coords;
     }
 
-    /// <summary>
-    /// Convierte las coordenadas axiales (q, r) a posición de Unity (X, Z) para hexágonos "Flat Top".
-    /// </summary>
-    /// <summary>
-    /// Convierte las coordenadas axiales (q, r) a posición de Unity (X, Z) para hexágonos "Pointy Top" (Estilo Catan).
-    /// </summary>
     private Vector3 AxialToWorldPosition(int q, int r)
     {
-        // Usamos 'hexRadius' como la distancia del centro al lado (apotema), o el radio externo.
         float size = hexRadius;
-
-        // Fórmulas para Hexágonos de vértice (Pointy Top):
-
-        // El ancho horizontal (X) es lo que define las columnas.
-        float width = Mathf.Sqrt(3) * size; // ~1.732 * size
-
-        // La altura vertical (Z) es lo que define el espaciado vertical.
+        float width = Mathf.Sqrt(3) * size;
         float height = 2f * size;
-
-        // X: q se desplaza en X por el factor de ancho, y r también añade un pequeño desplazamiento.
         float x = q * width + r * width * 0.5f;
-
-        // Z: r se desplaza en Z por el factor de altura, pero con el factor de 0.75f (1.5 / 2).
         float z = r * height * 0.75f;
-
-        // La Y (altura) es 0 para un tablero plano
         return new Vector3(x, 0, z);
     }
-    /// <summary>
-    /// Instancia las casillas usando el prefab correcto y les asigna recursos.
-    /// </summary>
-    private void PlaceAndConfigureTiles(List<Vector2Int> coords)
-    {
-        // 1. Aleatorizar la lista de recursos
-        Shuffle(resourcePool);
 
-        //Create the grid
-        if (BoardManager.Instance == null)
+    /// <summary>
+    /// REESCRITO: Ahora genera casillas de tierra Y un borde de agua dinámicamente.
+    /// </summary>
+    private void PlaceAndConfigureTiles()
+    {
+        // 1. Obtener el prefab de Agua
+        GameObject waterPrefab = resourcePrefabs.FirstOrDefault(m => m.type == ResourceType.Agua)?.prefab;
+        if (waterPrefab == null)
         {
-            Debug.LogError("🚨 BoardManager.Instance es NULL. Revisa el Script Execution Order.");
+            Debug.LogError("🚨 No se encontró el prefab de Agua. Abortando generación.");
             return;
         }
-        
-        BoardManager.Instance.InitialiceGrid(GRID_RADIUS);
 
-        // 2. Instanciar y configurar
-        for (int i = 0; i < coords.Count; i++)
+        // 2. Generar coordenadas
+        // Radio total = tierra + 1 anillo de agua
+        int totalRadius = boardRadius + 1;
+        List<Vector2Int> allCoords = GenerateHexCoordinates(totalRadius);
+        // Coordenadas solo de tierra (usa un HashSet para búsquedas rápidas)
+        HashSet<Vector2Int> landCoords = new HashSet<Vector2Int>(GenerateHexCoordinates(boardRadius));
+
+        // 3. Crear el pool de recursos de tierra dinámicamente
+        List<ResourceType> landResourcePool = new List<ResourceType>();
+        int landTileCount = landCoords.Count;
+        int basePoolIndex = 0;
+        for (int i = 0; i < landTileCount; i++)
         {
-            Vector2Int coord = coords[i];
-            Vector3 worldPos = AxialToWorldPosition(coord.x, coord.y);
-
-            // Recurso a asignar en esta posición
-            ResourceType currentType = resourcePool[i];
-
-            // **Buscar el Prefab correcto**
-            GameObject prefabToUse = resourcePrefabs
-                .FirstOrDefault(m => m.type == currentType)?.prefab;
-
-            if (prefabToUse == null)
+            // Repetir el pool base si es necesario
+            if (basePoolIndex >= baseResourcePool.Count)
             {
-                Debug.LogError($"🚫 No se encontró el prefab para: {currentType}. Revisar 'resourcePrefabs'.");
-                continue;
+                basePoolIndex = 0;
+            }
+            landResourcePool.Add(baseResourcePool[basePoolIndex]);
+            basePoolIndex++;
+        }
+        Shuffle(landResourcePool); // Aleatorizar el pool de tierra
+
+        // 4. Inicializar el BoardManager con el radio TOTAL
+        if (BoardManager.Instance == null)
+        {
+            Debug.LogError("🚨 BoardManager.Instance es NULL.");
+            return;
+        }
+        BoardManager.Instance.InitialiceGrid(totalRadius);
+
+        // 5. Instanciar y configurar todas las casillas (Tierra y Agua)
+        int landPoolIndex = 0; // Índice para el pool de tierra aleatorizado
+
+        foreach (Vector2Int coord in allCoords)
+        {
+            Vector3 worldPos = AxialToWorldPosition(coord.x, coord.y);
+            GameObject prefabToUse;
+            ResourceType currentType;
+
+            // Comprobar si esta coordenada está en el set de tierra
+            if (landCoords.Contains(coord))
+            {
+                // Es TIERRA
+                currentType = landResourcePool[landPoolIndex];
+                prefabToUse = resourcePrefabs.FirstOrDefault(m => m.type == currentType)?.prefab;
+                landPoolIndex++;
+            }
+            else
+            {
+                // Es AGUA (el borde)
+                currentType = ResourceType.Agua;
+                prefabToUse = waterPrefab;
             }
 
-            // Instanciar y nombrar la casilla
+            // Fallback por si falta un prefab de tierra (usa agua en su lugar)
+            if (prefabToUse == null)
+            {
+                Debug.LogWarning($"🚫 No se encontró prefab para: {currentType}. Usando Agua por defecto.");
+                prefabToUse = waterPrefab;
+                currentType = ResourceType.Agua;
+            }
+
+            // --- Instanciación (igual que antes) ---
             GameObject newTileGO = Instantiate(prefabToUse, worldPos, Quaternion.identity);
             newTileGO.name = $"HexTile ({coord.x},{coord.y}) - {currentType}";
 
@@ -197,23 +217,19 @@ public class HexGridGenerator : MonoBehaviour
                 newTileGO.transform.SetParent(hexParent);
             }
 
-            // Inicializar la lógica de la casilla
             HexTile hexTile = newTileGO.GetComponent<HexTile>();
-            hexTile.Initialize(currentType);            
+            hexTile.Initialize(currentType);
 
-            //create cell for the board
             CellData cell = new CellData(currentType, coord);
-
-            //Register the cell on the board
             BoardManager.Instance.SetCell(coord, cell);
 
             allGeneratedTiles.Add(hexTile);
         }
+
+        Debug.Log($"✅ Tablero de {landTileCount} casillas de tierra y {allCoords.Count - landTileCount} de agua generado.");
     }
 
-    /// <summary>
-    /// Algoritmo Fisher-Yates para aleatorizar una lista (shuffle).
-    /// </summary>
+
     private void Shuffle<T>(List<T> list)
     {
         int n = list.Count;

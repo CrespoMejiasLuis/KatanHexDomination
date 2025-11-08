@@ -1,3 +1,3 @@
 using UnityEngine;
 
-public enum ResourceType { Madera, Arcilla, Trigo, Oveja, Roca, Desierto }
+public enum ResourceType { Madera, Arcilla, Trigo, Oveja, Roca, Desierto,Agua }
