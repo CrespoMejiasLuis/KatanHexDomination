@@ -32,6 +32,7 @@ public class HexTile : MonoBehaviour
     {
         if (animator != null)
         {
+            
             animator.Play(FLIP_ANIMATION_NAME);
         }
         else

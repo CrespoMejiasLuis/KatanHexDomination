@@ -24,6 +24,7 @@ public class HexGridGenerator : MonoBehaviour
     public float delayBetweenTiles = 0.05f; // Tiempo de espera entre el volteo de cada casilla
 
     private List<HexTile> allGeneratedTiles = new List<HexTile>();
+    private GameManager gameManager;
 
     // --- Configuración de Prefabs y Recursos ---
     [Header("Configuración de Prefabs por Recurso")]
@@ -50,7 +51,7 @@ public class HexGridGenerator : MonoBehaviour
 
     // ---------------------------------------------------------------------
 
-    void Start()
+    public void SetUp()
     {
         if (resourcePrefabs == null || resourcePrefabs.Count < 6)
         {
@@ -85,6 +86,8 @@ public class HexGridGenerator : MonoBehaviour
             tile.StartFlipAnimation();
             yield return new WaitForSeconds(delayBetweenTiles);
         }
+        yield return new WaitForSeconds(1f);
+        gameManager.SetState(GameState.Initializing);
 
         // Una vez terminado, puedes iniciar la lógica del juego
         // StartGameLogic(); 

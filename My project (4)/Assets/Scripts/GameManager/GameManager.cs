@@ -17,6 +17,7 @@ public class GameManager : MonoBehaviour
 
     // === ESTADO ===
     public GameState CurrentState { get; private set; }
+    private HexGridGenerator _gridGenerator;
 
     // === EVENTOS ===
     // Otros scripts se suscribirán a estos eventos para saber cuándo actuar.
@@ -38,6 +39,8 @@ public class GameManager : MonoBehaviour
             Instance = this;
             DontDestroyOnLoad(gameObject); // Opcional, si persiste entre escenas
         }
+        CurrentState = GameState.Initializing;
+
     }
 
     /// <summary>
@@ -55,6 +58,9 @@ public class GameManager : MonoBehaviour
         {
             case GameState.Initializing:
                 // El HexGridGenerator llamará a esto cuando termine sus animaciones
+                Debug.Log("se Inicializo wey");
+                SetUp();
+               // SetState(GameState.PlayerTurn);
                 break;
 
             case GameState.PlayerTurn:
@@ -103,5 +109,9 @@ public class GameManager : MonoBehaviour
         // 1. Encuentra todas las ciudades/asentamientos que pertenecen a 'playerID'.
         // 2. Para cada ciudad, obtén la 'HexTile' en la que está.
         // 3. Añade 1 recurso de 'hexTile.resourceType' al inventario del jugador.
+    }
+
+    private void SetUp() {
+        _gridGenerator.SetUp();
     }
 }
