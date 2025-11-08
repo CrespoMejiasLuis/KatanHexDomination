@@ -10,17 +10,22 @@ public class UIManager : MonoBehaviour
 
     void Start()
     {
-        // Conectar el botón de "Terminar Turno" al GameManager
+        // Conectar el botï¿½n de "Terminar Turno" al GameManager
         if (endTurnButton != null)
         {
             endTurnButton.onClick.AddListener(OnEndTurnButtonPressed);
         }
 
-        // Asegurarse de que esté oculto al empezar
-        HidePlayerUI();
+        GameManager.OnPlayerTurnStart += ShowPlayerUI;
+        GameManager.OnAITurnStart += HidePlayerUI;
+
+        if (GameManager.Instance != null && GameManager.Instance.CurrentState == GameState.PlayerTurn)
+        {
+            ShowPlayerUI();
+        }
     }
 
-    // --- Suscripción a Eventos ---
+    // --- Suscripciï¿½n a Eventos ---
 
     void OnEnable()
     {
@@ -42,7 +47,7 @@ public class UIManager : MonoBehaviour
         {
             endTurnButton.gameObject.SetActive(true);
         }
-        // Aquí también actualizarías los textos de recursos del jugador
+        // Aquï¿½ tambiï¿½n actualizarï¿½as los textos de recursos del jugador
         // UpdateResourceTexts(GameManager.Instance.PlayerInventory);
     }
 
@@ -52,16 +57,16 @@ public class UIManager : MonoBehaviour
         {
             endTurnButton.gameObject.SetActive(false);
         }
-        // Aquí podrías mostrar "Turno de la IA..."
+        // Aquï¿½ podrï¿½as mostrar "Turno de la IA..."
     }
 
     /// <summary>
-    /// Esta función es llamada por el botón de la UI.
+    /// Esta funciï¿½n es llamada por el botï¿½n de la UI.
     /// Simplemente le dice al GameManager que el jugador quiere terminar su turno.
     /// </summary>
-    private void OnEndTurnButtonPressed()
+    public void OnEndTurnButtonPressed()
     {
-        // Llama a la función pública del Singleton GameManager
+        // Llama a la funciï¿½n pï¿½blica del Singleton GameManager
         GameManager.Instance.EndPlayerTurn();
     }
     

@@ -4,8 +4,8 @@ public class BoardManager : MonoBehaviour
 {
     public static BoardManager Instance {get; private set;}
 
-    public int gridRadius;
-    public CellData[,] gridData;
+    [HideInInspector]public int gridRadius;
+    [HideInInspector]public CellData[,] gridData;
 
     private void Awake()
     {

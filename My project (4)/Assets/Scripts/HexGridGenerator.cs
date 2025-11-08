@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
+using System;
 
 // Clase serializable para mapear el Tipo de Recurso con su Prefab 3D.
 [System.Serializable]
@@ -51,7 +52,7 @@ public class HexGridGenerator : MonoBehaviour
 
     // ---------------------------------------------------------------------
 
-    public void SetUp()
+    void Start()
     {
         if (resourcePrefabs == null || resourcePrefabs.Count < 6)
         {
@@ -59,13 +60,17 @@ public class HexGridGenerator : MonoBehaviour
             return;
         }
 
+        Debug.Log($"✅ Tablero de {NUM_TILES} casillas generado aleatoriamente.");
+    }
+
+    public void SetUp(Action onGenerationComplete)
+    {
         // 1. Generar los puntos de coordenadas (q, r)
         List<Vector2Int> hexCoordinates = GenerateHexCoordinates(GRID_RADIUS);
 
         // 2. Posicionar y configurar las casillas con aleatoriedad
         PlaceAndConfigureTiles(hexCoordinates);
-        StartCoroutine(StartFlipSequence());
-        Debug.Log($"✅ Tablero de {NUM_TILES} casillas generado aleatoriamente.");
+        StartCoroutine(StartFlipSequence(onGenerationComplete));
     }
 
     /// <summary>
@@ -73,7 +78,7 @@ public class HexGridGenerator : MonoBehaviour
     /// </summary>
     /// 
 
-    System.Collections.IEnumerator StartFlipSequence()
+    System.Collections.IEnumerator StartFlipSequence(Action onCompleteCallback)
     {
         // Espera un pequeño momento antes de empezar la animación (e.g., para que todo cargue)
         yield return null;
@@ -86,7 +91,8 @@ public class HexGridGenerator : MonoBehaviour
             tile.StartFlipAnimation();
             yield return new WaitForSeconds(delayBetweenTiles);
         }
-        yield return new WaitForSeconds(1f);
+
+        onCompleteCallback?.Invoke();
 
         // Una vez terminado, puedes iniciar la lógica del juego
         // StartGameLogic(); 
@@ -155,6 +161,12 @@ public class HexGridGenerator : MonoBehaviour
         Shuffle(resourcePool);
 
         //Create the grid
+        if (BoardManager.Instance == null)
+        {
+            Debug.LogError("🚨 BoardManager.Instance es NULL. Revisa el Script Execution Order.");
+            return;
+        }
+        
         BoardManager.Instance.InitialiceGrid(GRID_RADIUS);
 
         // 2. Instanciar y configurar
@@ -208,7 +220,7 @@ public class HexGridGenerator : MonoBehaviour
         while (n > 1)
         {
             n--;
-            int k = Random.Range(0, n + 1); // Rango inclusivo
+            int k = UnityEngine.Random.Range(0, n + 1); // Rango inclusivo
             T value = list[k];
             list[k] = list[n];
             list[n] = value;
