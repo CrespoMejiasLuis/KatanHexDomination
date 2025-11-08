@@ -1,13 +1,13 @@
 using UnityEngine;
 
-public class CellData : MonoBehaviour
+public class CellData
 {
     public ResourceType resource;
     public int owner; //-1 without, 0 player, 1 IA
     public bool hasCity;
     public bool hasTroup;
     public Vector2Int coordinates;
-    public HexTile visualTile;
+    // public HexTile visualTile; // Puedes descomentar esto si lo necesitas
 
     public CellData(ResourceType resource, Vector2Int coords)
     {
@@ -17,6 +17,4 @@ public class CellData : MonoBehaviour
         this.hasTroup = false;
         this.coordinates = coords;
     }
-
-    
 }

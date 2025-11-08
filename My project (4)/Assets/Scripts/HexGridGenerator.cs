@@ -87,7 +87,6 @@ public class HexGridGenerator : MonoBehaviour
             yield return new WaitForSeconds(delayBetweenTiles);
         }
         yield return new WaitForSeconds(1f);
-        gameManager.SetState(GameState.Initializing);
 
         // Una vez terminado, puedes iniciar la lógica del juego
         // StartGameLogic(); 
