@@ -5039,7 +5039,7 @@ Transform:
   m_GameObject: {fileID: 953799442}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -140.9, y: -208.1, z: 333.4}
+  m_LocalPosition: {x: -140.9, y: -207, z: 333.4}
   m_LocalScale: {x: 8.978355, y: 8.978355, z: 8.978355}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -10368,22 +10368,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 92d7ef1eced503842b22e1e3f5e260ca, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  hexRadius: 2.6
+  hexRadius: 2.05
   hexParent: {fileID: 2053394414}
   delayBetweenTiles: 0.05
   resourcePrefabs:
   - type: 0
-    prefab: {fileID: 3962008144148359151, guid: 111967e5f55eb944d92fe59152d56f1f, type: 3}
+    prefab: {fileID: 8471372610795649428, guid: 4799cbb568f22ec499c72944eb9e6d31, type: 3}
   - type: 3
-    prefab: {fileID: 5597573091279368813, guid: 5977c7403f3ad2c42b1288c820b4a06d, type: 3}
+    prefab: {fileID: 3026073207998559248, guid: 1401eac4fc6d9eb468bd67b8f608385f, type: 3}
   - type: 1
-    prefab: {fileID: 8370688569222175350, guid: fe64619c38b7b7a48b0a01f6f3fba415, type: 3}
+    prefab: {fileID: 2646679410392348187, guid: 92761f4e7f47a01448ffe59b7fdac02b, type: 3}
   - type: 2
-    prefab: {fileID: 5088692870186755332, guid: 99d091fb141c03e40a10d616580e0f66, type: 3}
+    prefab: {fileID: 9176310742672824493, guid: f238bd0ba9ccee24b8ac5e917ff648b3, type: 3}
   - type: 5
-    prefab: {fileID: 4149878722739260285, guid: 2254e276611315b458ba7160cf9c6d1b, type: 3}
+    prefab: {fileID: 855155225210351624, guid: 66952e3c9217a7f4f8ac78beaee96c1e, type: 3}
   - type: 4
-    prefab: {fileID: 7985736434886627132, guid: 402334169321b954ebf2d2acd2b5a71a, type: 3}
+    prefab: {fileID: 5708035911201779390, guid: 7e37109a9953e6c459c1b51e280a6bd9, type: 3}
 --- !u!4 &2053394414
 Transform:
   m_ObjectHideFlags: 0
