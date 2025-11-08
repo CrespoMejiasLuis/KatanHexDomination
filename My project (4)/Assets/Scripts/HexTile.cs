@@ -2,22 +2,20 @@ using UnityEngine;
 
 public class HexTile : MonoBehaviour
 {
-    public enum ResourceType { Madera, Arcilla, Trigo, Oveja, Roca, Desierto }
-
     [Header("Propiedad del Recurso")]
     public ResourceType resourceType;
 
     // Referencia al Animator
     private Animator animator;
-    private const string FLIP_ANIMATION_NAME = "TileFlip"; // Nombre del clip de animación
+    private const string FLIP_ANIMATION_NAME = "TileFlip"; // Nombre del clip de animaciï¿½n
 
     void Awake()
     {
         // Obtener el componente Animator (adjunto al objeto principal)
         animator = GetComponent<Animator>();
 
-        // OPCIONAL: Establecer la rotación inicial del FlipContainer a 180 grados 
-        // si la animación no lo hace por defecto.
+        // OPCIONAL: Establecer la rotaciï¿½n inicial del FlipContainer a 180 grados 
+        // si la animaciï¿½n no lo hace por defecto.
     }
 
     public void Initialize(ResourceType type)
@@ -27,8 +25,8 @@ public class HexTile : MonoBehaviour
     }
 
     /// <summary>
-    /// Inicia la animación de volteo.
-    /// Esta función es llamada desde HexGridGenerator.
+    /// Inicia la animaciï¿½n de volteo.
+    /// Esta funciï¿½n es llamada desde HexGridGenerator.
     /// </summary>
     public void StartFlipAnimation()
     {
