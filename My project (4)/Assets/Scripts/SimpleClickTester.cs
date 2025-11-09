@@ -1,5 +1,5 @@
-// 📁 SimpleClickTester.cs (Script de PRUEBA)
 using UnityEngine;
+using UnityEngine.EventSystems; 
 
 public class SimpleClickTester : MonoBehaviour
 {
@@ -23,6 +23,12 @@ public class SimpleClickTester : MonoBehaviour
         // 2. Detectar el clic izquierdo
         if (Input.GetMouseButtonDown(0)) 
         {
+            // Si el ratón está sobre un objeto de la UI (un botón, un panel, etc.), no hagas nada.
+            if (EventSystem.current.IsPointerOverGameObject())
+            {
+                return; // Salir de la función
+            }
+    
             // 3. Lanzar un rayo desde la cámara
             Ray rayo = camaraPrincipal.ScreenPointToRay(Input.mousePosition);
             RaycastHit hit;
@@ -46,6 +52,32 @@ public class SimpleClickTester : MonoBehaviour
                     }
                 }
             }
+        }
+    }
+
+    /// <summary>
+    /// Esta función es pública para que un botón de la UI pueda llamarla.
+    /// </summary>
+    public void BotonConstruirPulsado()
+    {
+        // 1. ¿Tenemos una unidad seleccionada?
+        if (unidadSeleccionada == null)
+        {
+            Debug.Log("¡No hay ninguna unidad seleccionada para construir!");
+            return;
+        }
+
+        // 2. ¿Esa unidad es un Colono (tiene el script UnitBuilder)?
+        UnitBuilder builder = unidadSeleccionada.GetComponent<UnitBuilder>();
+
+        if (builder != null)
+        {
+            // 3. ¡Sí! Le damos la orden de construir
+            builder.IntentarConstruirPoblado();
+        }
+        else
+        {
+            Debug.Log("¡La unidad seleccionada (" + unidadSeleccionada.name + ") no puede construir!");
         }
     }
 }

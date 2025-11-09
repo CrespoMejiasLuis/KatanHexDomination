@@ -627,6 +627,7 @@ GameObject:
   - component: {fileID: 453301839884892152}
   - component: {fileID: 3396348329464971616}
   - component: {fileID: -5341502137504353999}
+  - component: {fileID: -2938653989942490364}
   m_Layer: 0
   m_Name: Colono
   m_TagString: Untagged
@@ -705,6 +706,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a9f1f56906a868541a5bf5942ea2881e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  moveSpeed: 5
+  rotationSpeed: 10
+--- !u!114 &-2938653989942490364
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1921159432317833422}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 07f72b252c9c7254eb05f9b27a42f468, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  pobladoPrefab: {fileID: 2719055414579701877, guid: 92684202a5be8fc48898751fc7033884, type: 3}
 --- !u!1 &2104160984075575710
 GameObject:
   m_ObjectHideFlags: 0
