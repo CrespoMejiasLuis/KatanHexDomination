@@ -10368,6 +10368,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 92d7ef1eced503842b22e1e3f5e260ca, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  boardRadius: 6
   hexRadius: 2.05
   hexParent: {fileID: 2053394414}
   delayBetweenTiles: 0.05
@@ -10384,6 +10385,8 @@ MonoBehaviour:
     prefab: {fileID: 855155225210351624, guid: 66952e3c9217a7f4f8ac78beaee96c1e, type: 3}
   - type: 4
     prefab: {fileID: 5708035911201779390, guid: 7e37109a9953e6c459c1b51e280a6bd9, type: 3}
+  - type: 6
+    prefab: {fileID: 3009424146418806817, guid: 83b61ad0085e3984486e6c735c7a1951, type: 3}
 --- !u!4 &2053394414
 Transform:
   m_ObjectHideFlags: 0
