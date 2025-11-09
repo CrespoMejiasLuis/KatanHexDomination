@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 1314694555995821669}
   - component: {fileID: 8065721433355373783}
   - component: {fileID: -3813874818790072863}
+  - component: {fileID: -9089709572760690424}
   m_Layer: 0
   m_Name: sea
   m_TagString: Untagged
@@ -100,3 +101,25 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   resourceType: 3
+--- !u!64 &-9089709572760690424
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3009424146418806817}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 5
+  m_Convex: 0
+  m_CookingOptions: 30
+  m_Mesh: {fileID: -6938098055697063911, guid: ce6deee8cf7725a45bae3fec3626adcd, type: 3}

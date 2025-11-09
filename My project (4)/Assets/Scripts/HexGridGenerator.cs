@@ -221,6 +221,7 @@ public class HexGridGenerator : MonoBehaviour
             hexTile.Initialize(currentType);
 
             CellData cell = new CellData(currentType, coord);
+            cell.visualTile = hexTile;
             BoardManager.Instance.SetCell(coord, cell);
 
             allGeneratedTiles.Add(hexTile);

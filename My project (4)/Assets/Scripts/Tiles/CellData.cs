@@ -7,7 +7,7 @@ public class CellData
     public bool hasCity;
     public bool hasTroup;
     public Vector2Int coordinates;
-    // public HexTile visualTile; // Puedes descomentar esto si lo necesitas
+    public HexTile visualTile; // Puedes descomentar esto si lo necesitas
 
     public CellData(ResourceType resource, Vector2Int coords)
     {
