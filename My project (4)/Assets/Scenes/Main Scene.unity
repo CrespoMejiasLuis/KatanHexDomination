@@ -10912,6 +10912,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 453301839884892152, guid: ad180da489fdff0458b48dd98d8a7689, type: 3}
+      propertyPath: m_Controller
+      value: 
+      objectReference: {fileID: 9100000, guid: e57d3e342491e10408b04904801dd4a5, type: 2}
     - target: {fileID: 1921159432317833422, guid: ad180da489fdff0458b48dd98d8a7689, type: 3}
       propertyPath: m_Name
       value: Colono

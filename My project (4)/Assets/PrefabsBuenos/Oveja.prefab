@@ -99,6 +99,7 @@ GameObject:
   - component: {fileID: 2101823935005205263}
   - component: {fileID: -6091821874108166573}
   - component: {fileID: -2289432455391691886}
+  - component: {fileID: -53452419504067770}
   m_Layer: 0
   m_Name: Oveja
   m_TagString: Untagged
@@ -211,6 +212,28 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!64 &-53452419504067770
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3026073207998559248}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 5
+  m_Convex: 0
+  m_CookingOptions: 30
+  m_Mesh: {fileID: 6381491069144428855, guid: ce6deee8cf7725a45bae3fec3626adcd, type: 3}
 --- !u!1001 &4956361218348164034
 PrefabInstance:
   m_ObjectHideFlags: 0

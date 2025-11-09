@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 4347743625267089864}
   - component: {fileID: 6772934432969164659}
   - component: {fileID: -6809814589312032956}
+  - component: {fileID: -5491287855756795771}
   m_Layer: 0
   m_Name: dessert
   m_TagString: Untagged
@@ -125,6 +126,28 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!64 &-5491287855756795771
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 855155225210351624}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 5
+  m_Convex: 0
+  m_CookingOptions: 30
+  m_Mesh: {fileID: -519019674923018047, guid: ce6deee8cf7725a45bae3fec3626adcd, type: 3}
 --- !u!1 &2838858621024497062
 GameObject:
   m_ObjectHideFlags: 0
