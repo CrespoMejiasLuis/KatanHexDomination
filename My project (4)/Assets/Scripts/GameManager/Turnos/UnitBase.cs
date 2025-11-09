@@ -11,6 +11,9 @@ public abstract class UnitBase : MonoBehaviour // O simplemente public class Uni
     public int CurrentHealth = 100;
     public int MaxMovementPoints = 3;
     public int MovementPointsRemaining = 3;
+    public int Range = 3;
+    public int Attack = 3;
+
     // ... más atributos ...
 
     public virtual bool CanAttack() { return false; }

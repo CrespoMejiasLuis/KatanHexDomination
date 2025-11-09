@@ -28,16 +28,29 @@ public class UIManager : MonoBehaviour
     public TextMeshProUGUI unitNameText;
     public TextMeshProUGUI unitHealthText;
     public TextMeshProUGUI unitMovementText;
+    public TextMeshProUGUI unitRangeText;
+    public TextMeshProUGUI unitAttackText;
 
     // Botones de acción
-    public Button actionAttackButton;
-    public Button actionMoveButton;
+    public Button actionAttackButton;    
+    public Button actionMoveButton;        
+    public Button actionPassButton;
     public Button actionSpecialButton;
     public TextMeshProUGUI actionSpecialButtonText;
 
     // Usaremos 'Component' temporalmente si UnitBase no existe.
     // Una vez que UnitBase exista, cambia 'Component' a 'UnitBase'.
     private UnitBase selectedUnit = null;
+
+    [Header("Panel de Construcción")]
+    public GameObject constructionPanelContainer; // Contenedor del nuevo panel
+    public Button buildRoadButton;
+    public Button buildSettlementButton;
+    public Button upgradeCityButton;
+    public Button recruitArtilleroButton;   // Artillero
+    public Button recruitCaballeroButton;   // Caballero
+    public Button recruitCaballeriaButton;  // Caballería
+    public Button recruitColonoButton;      // Colono
 
     void Awake()
     {
@@ -167,7 +180,11 @@ public class UIManager : MonoBehaviour
         unitNameText.text = unit.UnitName;
         unitHealthText.text = $"Vida: {unit.CurrentHealth}/{unit.MaxHealth}";
         unitMovementText.text = $"Movimiento: {unit.MovementPointsRemaining}/{unit.MaxMovementPoints}";
+        if (unitRangeText != null)
+            unitRangeText.text = $"Rango: {unit.Range}"; // Asume que unit tiene una propiedad 'Range'
 
+        if (unitAttackText != null)
+            unitAttackText.text = $"Ataque: {unit.Attack}"; // Asume que unit tiene una propiedad 'Attack'
         // --- 2. Configurar Botones Estándar ---
         actionAttackButton.interactable = unit.CanAttack();
         actionMoveButton.interactable = unit.MovementPointsRemaining > 0;
@@ -183,12 +200,15 @@ public class UIManager : MonoBehaviour
         if (unit is ColonoUnit colono) 
         {
             actionSpecialButton.gameObject.SetActive(true);
-            actionSpecialButtonText.text = "Fundar Poblado";
+            actionSpecialButtonText.text = "Construir";
+                
+            bool canBuild = colono.MovementPointsRemaining > 0;
 
-            bool canPlace = colono.CanPlaceSettlement() && GameManager.Instance.ActivePlayer.HasCostForSettlement();
+            actionSpecialButton.interactable = canBuild;
 
+            
             actionSpecialButton.interactable = canPlace;
-            actionSpecialButton.onClick.AddListener(() => GameManager.Instance.ActionFundarPoblado(colono));
+            actionSpecialButton.onClick.AddListener(() => ShowConstructionPanel(colono));
         }
         else if (unit is CaballeroUnit)
         {
@@ -219,7 +239,27 @@ public class UIManager : MonoBehaviour
         //  FIN DE BLOQUE COMENTADO TEMPORALMENTE
         // -------------------------------------------------------------
     }
+    /*
+    public void ShowConstructionPanel(ColonoUnit colono)
+    {
+        // Ocultar el panel de unidad normal y mostrar el de construcción
+        HideUnitPanel();
+        if (constructionPanelContainer != null)
+        {
+            constructionPanelContainer.SetActive(true);
+        }
 
+        // Conectar botones a la lógica del GameManager y verificar costos
+        ConfigureConstructionButtons(colono);
+    }
+    */
+    public void HideConstructionPanel()
+    {
+        if (constructionPanelContainer != null)
+        {
+            constructionPanelContainer.SetActive(false);
+        }
+    }
     public void HideUnitPanel()
     {
         selectedUnit = null; // Limpiar la referencia
@@ -228,5 +268,105 @@ public class UIManager : MonoBehaviour
             unitPanelContainer.SetActive(false);
         }
     }
+    // Dentro de UIManager.cs
+
+    /*
+    private void ConfigureConstructionButtons(ColonoUnit colono)
+    {
+        HideUnitPanel();
+
+        // Asume que tienes una referencia al jugador activo
+       // Player activePlayer = GameManager.Instance.ActivePlayer;
+
+        // --- 1. Definición de Costos (Basado en tu lista) ---
+
+        // Estructuras
+        var roadCost = new Dictionary<ResourceType, int> { { ResourceType.Madera, 1 }, { ResourceType.Arcilla, 1 } };
+        var settlementCost = new Dictionary<ResourceType, int> { { ResourceType.Madera, 1 }, { ResourceType.Arcilla, 1 }, { ResourceType.Oveja, 1 }, { ResourceType.Trigo, 1 } };
+        var cityUpgradeCost = new Dictionary<ResourceType, int> { { ResourceType.Roca, 3 }, { ResourceType.Trigo, 2 } };
+
+        // Unidades
+        var soldierCost = new Dictionary<ResourceType, int> { { ResourceType.Oveja, 1 }, { ResourceType.Trigo, 1 } };
+        var artilleroCost = new Dictionary<ResourceType, int> { { ResourceType.Oveja, 2 }, { ResourceType.Trigo, 1 } };
+        var caballeroCost = new Dictionary<ResourceType, int> { { ResourceType.Oveja, 2 }, { ResourceType.Trigo, 2 } };
+        var caballeriaCost = new Dictionary<ResourceType, int> { { ResourceType.Oveja, 3 }, { ResourceType.Trigo, 3 } };
+        var colonoRecruitCost = new Dictionary<ResourceType, int> { { ResourceType.Oveja, 1 }, { ResourceType.Trigo, 1 } }; // Asumiendo que 'Soldado' es la unidad genérica de infantería.
+
+        // --- 2. Lógica y Conexión de Botones ---
+        
+        // Botones de Estructura
+        ConfigureButton(buildRoadButton, roadCost, activePlayer,
+                        () => colono.CanPlaceRoad(),
+                        () => GameManager.Instance.ActionBuildRoad(colono, roadCost));
+
+        ConfigureButton(buildSettlementButton, settlementCost, activePlayer,
+                        () => colono.CanPlaceSettlement(),
+                        () => GameManager.Instance.ActionBuildSettlement(colono, settlementCost));
+
+        // El botón de Ciudad se debe hacer en una ciudad, no por el colono, pero lo conectamos:
+        ConfigureButton(upgradeCityButton, cityUpgradeCost, activePlayer,
+                        () => false, // Cambiar a lógica de 'adyacente a ciudad' si aplica
+                        () => Debug.Log("Upgrade City action called."));
+
+
+        // Botones de Reclutamiento
+        ConfigureButton(recruitSoldierButton, soldierCost, activePlayer,
+                        () => true, // Reclutar no necesita chequeo de posición, solo costos
+                        () => GameManager.Instance.ActionRecruitUnit(UnitType.Soldier, soldierCost));
+
+        ConfigureButton(recruitArtilleroButton, artilleroCost, activePlayer,
+                        () => true,
+                        () => GameManager.Instance.ActionRecruitUnit(UnitType.Artillero, artilleroCost));
+
+        ConfigureButton(recruitCaballeroButton, caballeroCost, activePlayer,
+                        () => true,
+                        () => GameManager.Instance.ActionRecruitUnit(UnitType.Caballero, caballeroCost));
+
+        ConfigureButton(recruitCaballeriaButton, caballeriaCost, activePlayer,
+                        () => true,
+                        () => GameManager.Instance.ActionRecruitUnit(UnitType.Caballeria, caballeriaCost));
+
+        ConfigureButton(recruitColonoButton, colonoRecruitCost, activePlayer,
+                        () => true,
+                        () => GameManager.Instance.ActionRecruitUnit(UnitType.Colono, colonoRecruitCost));
+   
+    }
+    */
+
+    /// <summary>
+    /// Helper para configurar un botón de acción/construcción.
+    /// </summary>
+    private void ConfigureButton(
+        Button button,
+        Dictionary<ResourceType, int> cost,
+        Player player,
+        Func<bool> positionCheck, // Delegate para lógica de posición (si aplica)
+        Action action) // Delegate para la acción a ejecutar
+    {
+        if (button == null) return;
+
+        bool canAfford = player.CanAfford(cost);
+        bool isValidPosition = positionCheck.Invoke();
+
+        // El botón es interactuable solo si se tienen recursos Y la posición es válida
+        button.interactable = canAfford && isValidPosition;
+
+        button.onClick.RemoveAllListeners();
+
+        // Solo añadimos el listener si el botón es potencialmente interactuable (buena práctica)
+        if (canAfford)
+        {
+            button.onClick.AddListener(() => {
+                // Se puede añadir un chequeo final de posición aquí antes de llamar a la acción
+                if (isValidPosition)
+                {
+                    action.Invoke();
+                    HideConstructionPanel(); // Cerrar el panel después de la acción
+                }
+            });
+        }
+    }
+
+
 }
 
