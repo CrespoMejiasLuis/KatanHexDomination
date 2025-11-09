@@ -4,6 +4,8 @@ using System; // Necesario para Enum.GetValues
 
 public abstract class Player : MonoBehaviour
 {
+    public static event Action<Dictionary<ResourceType, int>> OnPlayerResourcesUpdated;
+    public static event Action<int> OnPlayerVictoryPointsUpdated; // Para los Puntos de Victoria
     [Header("Identificación del Jugador")]
     public int playerID;
     public string playerName;
@@ -54,6 +56,7 @@ public abstract class Player : MonoBehaviour
         Debug.Log($"Jugador {playerID} ganó {amount} de {type}. Total: {resources[type]}");
         // Aquí llamarías a la UI para actualizarse
         // UIManager.Instance.UpdateResourceUI(playerID, type, resources[type]);
+        OnPlayerResourcesUpdated?.Invoke(resources);
     }
 
     /// <summary>
