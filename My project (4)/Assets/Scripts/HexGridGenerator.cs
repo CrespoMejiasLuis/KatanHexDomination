@@ -221,6 +221,7 @@ public class HexGridGenerator : MonoBehaviour
             hexTile.Initialize(currentType);
 
             CellData cell = new CellData(currentType, coord);
+            cell.visualTile = hexTile;
 
             // Solo guardamos en la matriz si es una celda de tierra
             if (landCoords.Contains(coord))
