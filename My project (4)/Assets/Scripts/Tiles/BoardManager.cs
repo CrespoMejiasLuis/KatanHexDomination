@@ -41,4 +41,33 @@ public class BoardManager : MonoBehaviour
 
         return gridData[x, y];
     }
+
+    public void PrintGridData()
+    {
+        if (gridData == null)
+        {
+            Debug.LogError("⚠️ gridData está vacío o no inicializado.");
+            return;
+        }
+
+        int width = gridData.GetLength(0);
+        int height = gridData.GetLength(1);
+
+        Debug.Log($"📋 Imprimiendo tablero {width}x{height}");
+
+        for (int x = 0; x < width; x++)
+        {
+            string row = "";
+            for (int y = 0; y < height; y++)
+            {
+                CellData cell = gridData[x, y];
+                if (cell != null)
+                    row += $"{cell.resource.ToString()[0]} ";  // Solo primera letra del tipo (M, A, T...)
+                else
+                    row += "_ "; // vacío
+            }
+            Debug.Log($"Fila {x}: {row}");
+        }
+    }
+
 }
