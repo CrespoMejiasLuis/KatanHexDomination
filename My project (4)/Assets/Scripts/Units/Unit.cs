@@ -17,7 +17,7 @@ public class Unit : MonoBehaviour
 
     // 3. REFERENCIAS A OTROS COMPONENTES
     // (Los añadiremos después, pero los preparamos)
-    //private UnitMovement moveComponent;
+    private UnitMovement moveComponent;
     //private UnitAttack attackComponent;
     //private UnitBuilder builderComponent; // <-- Especial para el colono
 
@@ -25,7 +25,7 @@ public class Unit : MonoBehaviour
     void Awake()
     {
         // Busca sus otros "brazos" y "piernas"
-        //moveComponent = GetComponent<UnitMovement>();
+        moveComponent = GetComponent<UnitMovement>();
         //attackComponent = GetComponent<UnitAttack>();
         //builderComponent = GetComponent<UnitBuilder>();
     }
@@ -43,6 +43,8 @@ public class Unit : MonoBehaviour
         {
             Debug.LogError("¡La unidad " + gameObject.name + " no tiene statsBase asignado!");
         }
+
+        GameManager.OnPlayerTurnStart += OnTurnStart;
     }
 
     // (Aquí irán métodos para gestionar el turno, recibir daño, etc.)
@@ -82,5 +84,10 @@ public class Unit : MonoBehaviour
         // Lógica de muerte (animación, notificar al juego, etc.)
         Debug.Log(statsBase.nombreUnidad + " ha muerto.");
         Destroy(gameObject);
+    }
+
+    void OnDestroy()
+    {
+        GameManager.OnPlayerTurnStart -= OnTurnStart;
     }
 }
