@@ -1,10 +1,12 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using System.Collections.Generic; // Necesario para Diccionarios
 using System; // Necesario para Enum.GetValues
 
 public abstract class Player : MonoBehaviour
 {
-    [Header("Identificación del Jugador")]
+    public static event Action<Dictionary<ResourceType, int>> OnPlayerResourcesUpdated;
+    public static event Action<int> OnPlayerVictoryPointsUpdated; // Para los Puntos de Victoria
+    [Header("IdentificaciÃ³n del Jugador")]
     public int playerID;
     public string playerName;
 
@@ -19,14 +21,14 @@ public abstract class Player : MonoBehaviour
 
     /// <summary>
     /// Rellena el diccionario con todos los tipos de recursos, empezando en 0.
-    /// Esto evita errores de 'KeyNotFoundException' más adelante.
+    /// Esto evita errores de 'KeyNotFoundException' mÃ¡s adelante.
     /// </summary>
     private void InitializeResourceDictionary()
     {
         // Obtiene todos los valores del enum HexTile.ResourceType
         foreach (ResourceType resourceType in Enum.GetValues(typeof(ResourceType)))
         {
-            // No queremos añadir 'Desierto' como un recurso acumulable
+            // No queremos aÃ±adir 'Desierto' como un recurso acumulable
             if (resourceType != ResourceType.Desierto)
             {
                 if (!resources.ContainsKey(resourceType))
@@ -41,19 +43,20 @@ public abstract class Player : MonoBehaviour
         // AddResource(HexTile.ResourceType.Arcilla, 2);
     }
 
-    // --- MÉTODOS PÚBLICOS DE GESTIÓN DE RECURSOS ---
+    // --- MÃ‰TODOS PÃšBLICOS DE GESTIÃ“N DE RECURSOS ---
 
     /// <summary>
-    /// Añade una cantidad de un recurso al inventario del jugador.
+    /// AÃ±ade una cantidad de un recurso al inventario del jugador.
     /// </summary>
     public void AddResource(ResourceType type, int amount)
     {
         if (type == ResourceType.Desierto) return;
 
         resources[type] += amount;
-        Debug.Log($"Jugador {playerID} ganó {amount} de {type}. Total: {resources[type]}");
-        // Aquí llamarías a la UI para actualizarse
+        Debug.Log($"Jugador {playerID} ganÃ³ {amount} de {type}. Total: {resources[type]}");
+        // AquÃ­ llamarÃ­as a la UI para actualizarse
         // UIManager.Instance.UpdateResourceUI(playerID, type, resources[type]);
+        OnPlayerResourcesUpdated?.Invoke(resources);
     }
 
     /// <summary>
@@ -67,24 +70,70 @@ public abstract class Player : MonoBehaviour
     /// <summary>
     /// Gasta (resta) recursos del inventario.
     /// </summary>
-    /// <returns>True si tuvo éxito, False si no tenía suficientes recursos.</returns>
+    /// <returns>True si tuvo Ã©xito, False si no tenÃ­a suficientes recursos.</returns>
     public bool SpendResources(ResourceType type, int amountToSpend)
     {
         if (HasEnoughResources(type, amountToSpend))
         {
             resources[type] -= amountToSpend;
-            Debug.Log($"Jugador {playerID} gastó {amountToSpend} de {type}. Restante: {resources[type]}");
+            Debug.Log($"Jugador {playerID} gastÃ³ {amountToSpend} de {type}. Restante: {resources[type]}");
             // Actualizar UI
             return true;
         }
         return false;
     }
+    public bool CanAfford(Dictionary<ResourceType, int> costs)
+    {
+        if (costs == null) return true;
 
+        foreach (var cost in costs)
+        {
+            ResourceType requiredType = cost.Key;
+            int requiredAmount = cost.Value;
 
-    // --- LÓGICA DE TURNO ABSTRACTA ---
+            if (!resources.ContainsKey(requiredType) || resources[requiredType] < requiredAmount)
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    // NOTA: Tu mÃ©todo HasEnoughResources(ResourceType type, int amountNeeded) sigue siendo Ãºtil para cheques individuales.
 
     /// <summary>
-    /// Esta es la función que el GameManager llamará.
+    
+    public bool SpendResources(Dictionary<ResourceType, int> costs)
+    {
+        // 1. VerificaciÃ³n final (seguridad)
+        if (!CanAfford(costs))
+        {
+            Debug.LogWarning($"Jugador {playerID} no puede pagar el costo. Recursos insuficientes.");
+            return false;
+        }
+
+        // 2. Ejecutar gasto
+        foreach (var cost in costs)
+        {
+            resources[cost.Key] -= cost.Value;
+            Debug.Log($"Jugador {playerID} gastÃ³ {cost.Value} de {cost.Key}.");
+        }
+
+        // 3. ðŸ“¢ Notificar a la UI despuÃ©s del gasto
+        OnPlayerResourcesUpdated?.Invoke(resources);
+
+        return true;
+    }
+
+    // --- MÃ‰TODOS DE PUNTOS DE VICTORIA (PV) ---
+
+    
+   
+
+    // --- LÃ“GICA DE TURNO ABSTRACTA ---
+
+    /// <summary>
+    /// Esta es la funciÃ³n que el GameManager llamarÃ¡.
     /// Cada tipo de jugador (Humano, IA) debe implementar esto de forma diferente.
     /// </summary>
     public abstract void BeginTurn();

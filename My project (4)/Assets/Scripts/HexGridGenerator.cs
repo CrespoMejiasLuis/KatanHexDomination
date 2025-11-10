@@ -174,7 +174,7 @@ public class HexGridGenerator : MonoBehaviour
             Debug.LogError("🚨 BoardManager.Instance es NULL.");
             return;
         }
-        BoardManager.Instance.InitialiceGrid(totalRadius);
+        BoardManager.Instance.InitialiceGrid(boardRadius);
 
         // 5. Instanciar y configurar todas las casillas (Tierra y Agua)
         int landPoolIndex = 0; // Índice para el pool de tierra aleatorizado
@@ -221,13 +221,19 @@ public class HexGridGenerator : MonoBehaviour
             hexTile.Initialize(currentType);
 
             CellData cell = new CellData(currentType, coord);
-            cell.visualTile = hexTile;
-            BoardManager.Instance.SetCell(coord, cell);
+
+            // Solo guardamos en la matriz si es una celda de tierra
+            if (landCoords.Contains(coord))
+            {
+                BoardManager.Instance.SetCell(coord, cell);
+            }
 
             allGeneratedTiles.Add(hexTile);
         }
 
         Debug.Log($"✅ Tablero de {landTileCount} casillas de tierra y {allCoords.Count - landTileCount} de agua generado.");
+
+        BoardManager.Instance.PrintGridData();
     }
 
 

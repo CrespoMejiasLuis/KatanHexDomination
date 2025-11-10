@@ -19,6 +19,10 @@ public class GameManager : MonoBehaviour
     public static event Action OnAITurnStart;
     public static event Action OnAITurnEnd;
 
+    // === NUEVOS EVENTOS DE INTERACCIÓN (Para la UI de Unidad) ===
+    public static event Action<UnitBase> OnUnitSelected; // Notifica que una unidad ha sido seleccionada
+    public static event Action OnDeselected; // Notifica que no hay nada seleccionado
+
     public Player humanPlayer; 
     public Player IAPlayer;
 
@@ -92,6 +96,8 @@ public class GameManager : MonoBehaviour
             case GameState.AITurn:
                 OnAITurnStart?.Invoke();     // Llama al evento
                 CollectTurnResources(2);     // La IA tambi�n recolecta
+
+                StartCoroutine(AIPlayTurn());
                 break;
 
             case GameState.EndTurnResolution:
@@ -175,6 +181,23 @@ public class GameManager : MonoBehaviour
                 }
             }
         }
+    }
+
+    //Corutina donde se hacen las acciones de la IA -por ajora- pa que salte el turno
+    private System.Collections.IEnumerator AIPlayTurn()
+    {
+        Debug.Log("🤖 La IA está jugando su turno...");
+
+        // Esperar 2 segundos simulando que la IA “piensa”
+        yield return new WaitForSeconds(2f);
+
+        // Aquí podrías meter lógica real de IA (mover, atacar, etc.)
+
+        Debug.Log("🤖 La IA ha terminado su turno. Pasando al jugador...");
+        OnAITurnEnd?.Invoke();
+
+        // Cambiar de nuevo al jugador
+        SetState(GameState.PlayerTurn);
     }
 
     private void SetUp(Action onGridReady) 
