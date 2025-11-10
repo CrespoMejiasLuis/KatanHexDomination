@@ -82,7 +82,6 @@ public class HexGridGenerator : MonoBehaviour
     System.Collections.IEnumerator StartFlipSequence(Action onCompleteCallback)
     {
         yield return null;
-         Shuffle(allGeneratedTiles); // Opcional
 
         foreach (HexTile tile in allGeneratedTiles)
         {

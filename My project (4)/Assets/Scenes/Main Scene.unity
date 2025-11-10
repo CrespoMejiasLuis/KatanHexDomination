@@ -5330,7 +5330,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: 0, y: -22.348}
+  m_AnchoredPosition: {x: 0, y: -22.348022}
   m_SizeDelta: {x: 800, y: 44.696}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &664187725
@@ -13110,10 +13110,21 @@ MonoBehaviour:
   unitNameText: {fileID: 992754435}
   unitHealthText: {fileID: 1552411199}
   unitMovementText: {fileID: 744069770}
+  unitRangeText: {fileID: 0}
+  unitAttackText: {fileID: 0}
   actionAttackButton: {fileID: 88312815}
   actionMoveButton: {fileID: 830477255}
+  actionPassButton: {fileID: 0}
   actionSpecialButton: {fileID: 1933744297}
   actionSpecialButtonText: {fileID: 0}
+  constructionPanelContainer: {fileID: 0}
+  buildRoadButton: {fileID: 0}
+  buildSettlementButton: {fileID: 0}
+  upgradeCityButton: {fileID: 0}
+  recruitArtilleroButton: {fileID: 0}
+  recruitCaballeroButton: {fileID: 0}
+  recruitCaballeriaButton: {fileID: 0}
+  recruitColonoButton: {fileID: 0}
 --- !u!4 &1700657190 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 1364609063565767726, guid: 3e03224e2da992946af83b6979daf271, type: 3}
@@ -15299,7 +15310,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 92d7ef1eced503842b22e1e3f5e260ca, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  boardRadius: 3
+  boardRadius: 5
   hexRadius: 2.05
   hexParent: {fileID: 2053394414}
   delayBetweenTiles: 0.05
