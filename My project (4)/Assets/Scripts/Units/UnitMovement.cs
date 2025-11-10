@@ -1,4 +1,3 @@
-// 📁 UnitMovement.cs (VERSIÓN 2.1 - Con rotación)
 using UnityEngine;
 using System.Collections; // Necesario para las Corutinas
 
