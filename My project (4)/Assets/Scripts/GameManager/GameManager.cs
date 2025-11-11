@@ -6,6 +6,8 @@ public class GameManager : MonoBehaviour
     // === SINGLETON ===
     // Un patr�n 'Singleton' asegura que solo haya UN GameManager en todo el juego.
     public static GameManager Instance { get; private set; }
+    [Header("Referencias de Otros Scripts")]
+    public CameraManager cameraManager;
 
     // === ESTADO ===
     public GameState CurrentState { get; private set; }
@@ -54,8 +56,16 @@ public class GameManager : MonoBehaviour
     void Start()
     {
         _gridGenerator = FindFirstObjectByType<HexGridGenerator>();
+        if (cameraManager == null)
+        {
+            cameraManager = FindFirstObjectByType<CameraManager>();
+            if (cameraManager == null)
+            {
+                Debug.LogError("CameraManager no encontrado en la escena. La cámara no rotará.");
+            }
+        }
 
-        if(_gridGenerator == null)
+        if (_gridGenerator == null)
         {
             Debug.Log("No hay un HexGridGenerator en la escena");
             return;
@@ -74,6 +84,19 @@ public class GameManager : MonoBehaviour
 
         CurrentState = newState;
         Debug.Log("Nuevo estado del juego: " + newState);
+
+        if (cameraManager != null)
+        {
+            // 🔑 Llamada clave: Mover la cámara antes de que empiece el turno
+            if (newState == GameState.PlayerTurn)
+            {
+                cameraManager.ChangePerspective(true); // true = vista del Jugador
+            }
+            else if (newState == GameState.AITurn)
+            {
+                cameraManager.ChangePerspective(false); // false = vista de la IA
+            }
+        }
 
         // Dispara el evento correspondiente al nuevo estado
         switch (newState)
