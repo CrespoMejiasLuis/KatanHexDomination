@@ -1,11 +1,14 @@
+// 📁 SimpleClickTester.cs (Modificado)
 using UnityEngine;
-using UnityEngine.EventSystems; 
+using UnityEngine.EventSystems; // (Esta ya la deberías tener)
 
 public class SimpleClickTester : MonoBehaviour
 {
-    public Unit unidadSeleccionada; // Arrastra tu Colono de la escena aquí
-
+    public Unit unidadSeleccionada;
     private Camera camaraPrincipal;
+
+    [Header("Configuración de Capas")]
+    public LayerMask gridLayerMask; // Máscara para la capa del tablero
 
     void Start()
     {
@@ -14,29 +17,17 @@ public class SimpleClickTester : MonoBehaviour
 
     void Update()
     {
-        // 1. Si no hay unidad seleccionada, no hacer nada
-        if (unidadSeleccionada == null)
-        {
-            return;
-        }
+        if (unidadSeleccionada == null) { return; }
 
-        // 2. Detectar el clic izquierdo
-        if (Input.GetMouseButtonDown(0)) 
+        if (Input.GetMouseButtonDown(0))
         {
-            // Si el ratón está sobre un objeto de la UI (un botón, un panel, etc.), no hagas nada.
-            if (EventSystem.current.IsPointerOverGameObject())
-            {
-                return; // Salir de la función
-            }
-    
-            // 3. Lanzar un rayo desde la cámara
+            if (EventSystem.current.IsPointerOverGameObject()) { return; }
+
             Ray rayo = camaraPrincipal.ScreenPointToRay(Input.mousePosition);
             RaycastHit hit;
 
-            // 4. Si el rayo golpea algo...
-            if (Physics.Raycast(rayo, out hit))
+            if (Physics.Raycast(rayo, out hit, float.MaxValue, gridLayerMask))
             {
-                // 5. ...comprobar si ese algo es una HexTile
                 HexTile casillaClicada = hit.collider.GetComponentInParent<HexTile>();
 
                 if (casillaClicada != null)

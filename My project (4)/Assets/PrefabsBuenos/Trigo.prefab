@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 2591311293249042147}
   - component: {fileID: 5991529716047730964}
   - component: {fileID: 5774555595170137457}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: tile  crop Farm.001
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -100,7 +100,7 @@ GameObject:
   - component: {fileID: -7357512432353696437}
   - component: {fileID: 581359727300984752}
   - component: {fileID: 858537054478042579}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Trigo
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -301,6 +301,10 @@ PrefabInstance:
     - target: {fileID: 2253684356889293062, guid: a748754456bdb304eacf81ccba2ba1fd, type: 3}
       propertyPath: m_Name
       value: NegroCulo
+      objectReference: {fileID: 0}
+    - target: {fileID: 2253684356889293062, guid: a748754456bdb304eacf81ccba2ba1fd, type: 3}
+      propertyPath: m_Layer
+      value: 8
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

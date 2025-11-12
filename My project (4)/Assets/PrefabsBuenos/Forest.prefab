@@ -359,7 +359,7 @@ GameObject:
   - component: {fileID: 929675512491041580}
   - component: {fileID: 7190272661758590856}
   - component: {fileID: 2674336291052240938}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Forest
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -563,6 +563,10 @@ PrefabInstance:
     - target: {fileID: 2253684356889293062, guid: a748754456bdb304eacf81ccba2ba1fd, type: 3}
       propertyPath: m_Name
       value: NegroCulo
+      objectReference: {fileID: 0}
+    - target: {fileID: 2253684356889293062, guid: a748754456bdb304eacf81ccba2ba1fd, type: 3}
+      propertyPath: m_Layer
+      value: 8
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

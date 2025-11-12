@@ -69,8 +69,8 @@ public class UnitMovement : MonoBehaviour
     private IEnumerator MoveCoroutine(HexTile casillaDestino)
     {
         // --- INICIO DEL MOVIMIENTO ---
-        isMoving = true; 
-        animator.SetBool("isWalking", true); 
+        isMoving = true;
+        animator.SetBool("isWalking", true);
 
         Vector3 targetPosition = casillaDestino.transform.position;
 
@@ -82,7 +82,7 @@ public class UnitMovement : MonoBehaviour
             Vector3 direction = (targetPosition - transform.position).normalized;
 
             // 2. Asegurarse de que el vector de dirección no tenga componente Y (para evitar que la unidad se incline)
-            direction.y = 0; 
+            direction.y = 0;
 
             // 3. Si la dirección no es cero (es decir, no estamos ya en el destino)
             if (direction != Vector3.zero)
@@ -92,25 +92,67 @@ public class UnitMovement : MonoBehaviour
 
                 // 5. Interpolar suavemente desde la rotación actual a la rotación objetivo
                 transform.rotation = Quaternion.Slerp(
-                    transform.rotation, 
-                    targetRotation, 
+                    transform.rotation,
+                    targetRotation,
                     rotationSpeed * Time.deltaTime
                 );
             }
-            
+
             // --- LÓGICA DE MOVIMIENTO (Existente) ---
             transform.position = Vector3.MoveTowards(
                 transform.position,
                 targetPosition,
-                moveSpeed * Time.deltaTime 
+                moveSpeed * Time.deltaTime
             );
-            
+
             yield return null; // Pausar la función hasta el siguiente frame
         }
 
         // --- FIN DEL MOVIMIENTO ---
-        transform.position = targetPosition; 
+        transform.position = targetPosition;
         animator.SetBool("isWalking", false);
-        isMoving = false; 
+
+        CellData cellLogica = GetCellDataFromTile(casillaDestino);
+
+        if (cellLogica != null)
+        {
+            // ¡Encontrada! Actualizamos el cerebro con las coordenadas CORRECTAS
+            unitCerebro.misCoordenadasActuales = cellLogica.coordinates;
+            // Debug.Log($"Movimiento completado. Nuevas coordenadas lógicas: {unitCerebro.misCoordenadasActuales}");
+        }
+        else
+        {
+            // Esto solo pasaría si el enlace 'visualTile' en CellData falló
+            Debug.LogError("¡No se pudo encontrar la CellData para este HexTile! " + casillaDestino.name);
+        }
+        // --- FIN DE LÓGICA NUEVA ---
+
+        isMoving = false;
+    }
+    
+    private CellData GetCellDataFromTile(HexTile targetTile)
+    {
+        // 1. Comprobaciones de seguridad
+        if (targetTile == null) return null;
+        if (BoardManager.Instance == null || BoardManager.Instance.gridData == null)
+        {
+            Debug.LogError("BoardManager o gridData no están listos.");
+            return null;
+        }
+
+        // 2. Recorremos toda la cuadrícula de datos lógicos
+        // (gridData es un array 2D, así que 'foreach' es la forma más fácil)
+        foreach (CellData cell in BoardManager.Instance.gridData)
+        {
+            // 3. Si la celda existe, tiene un visualTile asignado,
+            //    y ese visualTile es EXACTAMENTE el mismo que nuestra casillaDestino...
+            if (cell != null && cell.visualTile != null && cell.visualTile == targetTile)
+            {
+                return cell; // ¡La hemos encontrado! Devolvemos la CellData.
+            }
+        }
+
+        // 4. Si el bucle termina, no se encontró ninguna coincidencia
+        return null; 
     }
 }

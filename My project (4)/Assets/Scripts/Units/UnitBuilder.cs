@@ -1,68 +1,75 @@
-// 📁 UnitBuilder.cs (VERSIÓN 2.0 - Con Lógica)
+// 📁 UnitBuilder.cs (VERSIÓN 5.0 - Lógica de Juego Completa)
 using UnityEngine;
+// (Ya no necesitamos Corutinas, la animación está en el prefab)
 
 [RequireComponent(typeof(Unit))]
 public class UnitBuilder : MonoBehaviour
 {
     [Header("Configuración de Construcción")]
-    [Tooltip("Arrastra aquí el Prefab de tu 'Poblado' o 'Ciudad'")]
-    public GameObject pobladoPrefab; // ¡Crea este campo!
+    [Tooltip("Arrastra aquí el Prefab de tu 'Poblado' (que ya tiene Unit.cs)")]
+    public GameObject pobladoPrefab; 
 
-    // Referencia al cerebro de la unidad
     private Unit unitCerebro;
+    private bool isBuilding = false;
 
     void Awake()
     {
         unitCerebro = GetComponent<Unit>();
     }
 
-    /// <summary>
-    /// Esta es la función principal que será llamada por un botón de la UI.
-    /// </summary>
     public void IntentarConstruirPoblado()
     {
-        // 1. Comprobación de seguridad: ¿Tenemos un prefab de poblado asignado?
-        if (pobladoPrefab == null)
+        if (isBuilding) return; 
+        if (pobladoPrefab == null) { /* ... error ... */ return; }
+        if (unitCerebro.ownerID == -1)
         {
-            Debug.LogError("¡No hay un 'pobladoPrefab' asignado en el UnitBuilder!");
+            Debug.LogError("¡Este Colono no tiene dueño (ownerID)! No puede construir.");
             return;
         }
 
-        // (Aquí irán las comprobaciones de recursos: ¿Tengo 5 de madera y 2 de trigo?)
-        // (if (GameManager.Instance.humanPlayer.TieneRecursos(...)) { ... }
-
-        // 2. Obtener la casilla LÓGICA donde estamos
-        // Usamos el BoardManager (que es un Singleton) para pedir la celda
+        // 1. OBTENER DATOS DE LA CASILLA ACTUAL
         CellData cellDondeEstamos = BoardManager.Instance.GetCell(unitCerebro.misCoordenadasActuales);
-
-        if (cellDondeEstamos == null)
+        if (cellDondeEstamos == null) { /* ... error ... */ return; }
+        if (cellDondeEstamos.hasCity)
         {
-            Debug.LogError("Error: La unidad no parece estar en una casilla válida.");
+            Debug.Log("¡Ya hay una ciudad en esta casilla!");
             return;
         }
 
-        // (Aquí irán más comprobaciones: ¿Ya hay una ciudad en esta casilla?)
-        // (if (cellDondeEstamos.hasCity) { ... }
-
-        // 3. ¡Todo correcto! Procedemos a construir.
+        // --- ¡ACCIÓN! ---
+        isBuilding = true; 
+        HexTile tileVisual = cellDondeEstamos.visualTile;
         
-        // 4. Obtenemos la casilla VISUAL (el HexTile)
-        HexTile tileVisual = cellDondeEstamos.visualTile; // ¡Por esto era tan importante enlazarlo!
+        // 2. OCULTAR LA CASILLA VIEJA
+        // Desactiva todos los Renderers (modelos 3D) de la casilla de terreno
+        foreach (Renderer r in tileVisual.GetComponentsInChildren<Renderer>())
+        {
+            r.enabled = false;
+        }
+        
+        // 3. CREAR EL POBLADO NUEVO
+        GameObject nuevoPobladoGO = Instantiate(
+            pobladoPrefab, 
+            tileVisual.transform.position, 
+            Quaternion.identity
+        );
+        
+        // 4. ASIGNAR DUEÑO AL NUEVO POBLADO
+        // Le pasamos la propiedad del Colono al nuevo Poblado
+        Unit pobladoUnit = nuevoPobladoGO.GetComponent<Unit>();
+        if (pobladoUnit != null)
+        {
+            pobladoUnit.ownerID = unitCerebro.ownerID;
+        }
 
-        // 5. Instanciamos el poblado
-        // Lo creamos en la misma posición que la casilla y con su misma rotación
-        Instantiate(pobladoPrefab, tileVisual.transform.position, tileVisual.transform.rotation);
+        // 5. ACTUALIZAR EL BOARDMANAGER (¡LO MÁS IMPORTANTE!)
+        // Esto es lo que hablaréis mañana, pero esta es la lógica:
+        cellDondeEstamos.hasCity = true;
+        cellDondeEstamos.owner = unitCerebro.ownerID;
+        // Asumimos que el colono era la 'tropa' en esta casilla
+        cellDondeEstamos.hasTroup = false; 
 
-        // 6. ¡Lanzamos la animación de la casilla!
-        // Tu script HexTile.cs ya tiene esta función pública
-        tileVisual.StartFlipAnimation();
-
-        // 7. (Lógica de tu juego) Actualizar el estado lógico de la casilla
-        // Mañana, cuando lo habléis, aquí es donde iría la llamada:
-        // BoardManager.Instance.SetCellAsCity(unitCerebro.misCoordenadasActuales);
-
-        // 8. El colono se consume (¡Adiós!)
-        //Debug.Log("¡Poblado construido! El colono se ha consumido.");
-        //Destroy(gameObject);
+        // 6. CONSUMIR EL COLONO
+        Destroy(gameObject);
     }
 }

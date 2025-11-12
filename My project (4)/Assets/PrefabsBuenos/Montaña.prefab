@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 3364193781702062459}
   - component: {fileID: 2291322312748976502}
   - component: {fileID: -6230846708726499100}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: "Monta\xF1a"
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -159,7 +159,7 @@ GameObject:
   - component: {fileID: 1592246928523553147}
   - component: {fileID: 8639131773311293038}
   - component: {fileID: 3795135011016978800}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Landscape.019
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -301,6 +301,10 @@ PrefabInstance:
     - target: {fileID: 2253684356889293062, guid: a748754456bdb304eacf81ccba2ba1fd, type: 3}
       propertyPath: m_Name
       value: NegroCulo
+      objectReference: {fileID: 0}
+    - target: {fileID: 2253684356889293062, guid: a748754456bdb304eacf81ccba2ba1fd, type: 3}
+      propertyPath: m_Layer
+      value: 8
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

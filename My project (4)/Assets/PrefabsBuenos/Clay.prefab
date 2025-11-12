@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 3009979078709303655}
   - component: {fileID: -3493696793123953910}
   - component: {fileID: -7166968202272861265}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Clay
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -93,7 +93,7 @@ MeshCollider:
   serializedVersion: 5
   m_Convex: 0
   m_CookingOptions: 30
-  m_Mesh: {fileID: 0}
+  m_Mesh: {fileID: 2543320275062095922, guid: ce6deee8cf7725a45bae3fec3626adcd, type: 3}
 --- !u!1 &4734863725702188347
 GameObject:
   m_ObjectHideFlags: 0
@@ -105,7 +105,7 @@ GameObject:
   - component: {fileID: 1888572464348433467}
   - component: {fileID: 1991015294879855302}
   - component: {fileID: 1718150657405955455}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: clay pit
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -421,6 +421,10 @@ PrefabInstance:
     - target: {fileID: 2253684356889293062, guid: a748754456bdb304eacf81ccba2ba1fd, type: 3}
       propertyPath: m_Name
       value: NegroCulo
+      objectReference: {fileID: 0}
+    - target: {fileID: 2253684356889293062, guid: a748754456bdb304eacf81ccba2ba1fd, type: 3}
+      propertyPath: m_Layer
+      value: 8
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
