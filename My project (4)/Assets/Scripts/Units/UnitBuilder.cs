@@ -67,7 +67,7 @@ public class UnitBuilder : MonoBehaviour
         cellDondeEstamos.hasCity = true;
         cellDondeEstamos.owner = unitCerebro.ownerID;
         // Asumimos que el colono era la 'tropa' en esta casilla
-        cellDondeEstamos.hasTroup = false; 
+        cellDondeEstamos.unitOnCell = null; 
 
         // 6. CONSUMIR EL COLONO
         Destroy(gameObject);
