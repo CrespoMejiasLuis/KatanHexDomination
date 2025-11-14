@@ -5006,37 +5006,6 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 1601090918}
   m_SourcePrefab: {fileID: 100100000, guid: add042306713f2c4b8147dc5c2a11527, type: 3}
---- !u!1 &623908406
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 623908407}
-  m_Layer: 0
-  m_Name: Builder
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &623908407
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 623908406}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -3.5755723, y: 1.2671207, z: -6.125788}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &645373732
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -6668,7 +6637,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 677d26576f5047b4cadbac50235ec9f5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  unidadSeleccionada: {fileID: 1666950390}
+  unidadSeleccionada: {fileID: 0}
+  unitActionMenu: {fileID: 796229086}
+  unitLayerMask:
+    serializedVersion: 2
+    m_Bits: 512
   gridLayerMask:
     serializedVersion: 2
     m_Bits: 256
@@ -7055,7 +7028,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 830477256}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 810131142}
+        m_TargetAssemblyTypeName: SimpleClickTester, Assembly-CSharp
+        m_MethodName: BotonMoverPulsado
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &830477256
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -13093,17 +13078,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: ad180da489fdff0458b48dd98d8a7689, type: 3}
---- !u!114 &1666950390 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 3396348329464971616, guid: ad180da489fdff0458b48dd98d8a7689, type: 3}
-  m_PrefabInstance: {fileID: 1666950389}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f8c4d4b1f41228245870a82f3f63a436, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &1666950391 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: -2938653989942490364, guid: ad180da489fdff0458b48dd98d8a7689, type: 3}
@@ -14932,7 +14906,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1933744298}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 810131142}
+        m_TargetAssemblyTypeName: SimpleClickTester, Assembly-CSharp
+        m_MethodName: BotonConstruirPulsado
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1933744298
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -16462,4 +16448,3 @@ SceneRoots:
   - {fileID: 771533938}
   - {fileID: 1666950389}
   - {fileID: 810131143}
-  - {fileID: 623908407}

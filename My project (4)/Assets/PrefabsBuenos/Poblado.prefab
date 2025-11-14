@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 3593686841459085445}
   - component: {fileID: 6570167864006053833}
   - component: {fileID: 8928817831528890690}
+  - component: {fileID: 1769342562565149422}
   m_Layer: 9
   m_Name: Poblado
   m_TagString: Untagged
@@ -87,6 +88,28 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!64 &1769342562565149422
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4215465954535193114}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 5
+  m_Convex: 0
+  m_CookingOptions: 30
+  m_Mesh: {fileID: -631039661909041552, guid: ce6deee8cf7725a45bae3fec3626adcd, type: 3}
 --- !u!1 &8530877068906648645
 GameObject:
   m_ObjectHideFlags: 0
@@ -141,7 +164,7 @@ MeshCollider:
   m_LayerOverridePriority: 0
   m_IsTrigger: 0
   m_ProvidesContacts: 0
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 5
   m_Convex: 0
   m_CookingOptions: 30
@@ -196,6 +219,7 @@ GameObject:
   - component: {fileID: 6863209913601585593}
   - component: {fileID: 1258808319715591654}
   - component: {fileID: 8630081715242280544}
+  - component: {fileID: 5831394475926570196}
   m_Layer: 9
   m_Name: poblado2
   m_TagString: Untagged
@@ -271,6 +295,28 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!64 &5831394475926570196
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8938343010813689107}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 5
+  m_Convex: 0
+  m_CookingOptions: 30
+  m_Mesh: {fileID: -6452088047264602930, guid: ce6deee8cf7725a45bae3fec3626adcd, type: 3}
 --- !u!1001 &7302058914332211235
 PrefabInstance:
   m_ObjectHideFlags: 0
