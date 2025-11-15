@@ -22,7 +22,7 @@ public class GameManager : MonoBehaviour
     public static event Action OnAITurnEnd;
 
     // === NUEVOS EVENTOS DE INTERACCIÓN (Para la UI de Unidad) ===
-    public static event Action<UnitBase> OnUnitSelected; // Notifica que una unidad ha sido seleccionada
+    public static event Action<Unit> OnUnitSelected; // Notifica que una unidad ha sido seleccionada
     public static event Action OnDeselected; // Notifica que no hay nada seleccionado
 
     public Player humanPlayer; 
