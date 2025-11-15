@@ -247,17 +247,21 @@ public class GameManager : MonoBehaviour
             UnitSpawner.Instance.SpawnInitialUnits();
     }
 
+    // --- Dentro de GameManager.cs ---
+
+    // ¡¡CORREGIDO!!
+    // Esta función ahora selecciona ALIADOS y ENEMIGOS
+    // y SIEMPRE dispara el evento.
     public void SelectUnit(Unit unitClicked)
     {
-        // ¿Clic en una unidad enemiga?
-        if (unitClicked.ownerID != 0) // Asumimos 0 = Humano
+        // Si ya estaba seleccionada, no hacer nada (o deseleccionar)
+        if (selectedUnit == unitClicked)
         {
-            // Clic en unidad enemiga. Deselecciona la actual.
             DeselectAll();
             return;
         }
 
-        // Es una unidad aliada.
+        // Seleccionar la nueva unidad
         selectedUnit = unitClicked;
 
         // ¡Dispara el evento para que la UI reaccione!
@@ -265,8 +269,14 @@ public class GameManager : MonoBehaviour
         Debug.Log($"[GameManager] Unidad seleccionada: {selectedUnit.statsBase.nombreUnidad}");
     }
 
+    // ¡CORREGIDO!
+    // Esta función se llama al clicar en el grid o en el vacío.
+    // También la usaremos para cancelar el modo "Mover".
     public void DeselectAll()
     {
+        // Si estábamos en modo "Mover", cancelarlo
+
+        // Si hay una unidad seleccionada, limpiarla y notificar a la UI
         if (selectedUnit != null)
         {
             selectedUnit = null;

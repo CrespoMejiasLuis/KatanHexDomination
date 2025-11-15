@@ -7048,7 +7048,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 830477256}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1095691863}
+        m_TargetAssemblyTypeName: SimpleClickTester, Assembly-CSharp
+        m_MethodName: BotonMoverPulsado
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &830477256
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9474,6 +9486,7 @@ MonoBehaviour:
   gridLayerMask:
     serializedVersion: 2
     m_Bits: 256
+  ciudadPrefab: {fileID: 0}
 --- !u!1 &1104196340
 GameObject:
   m_ObjectHideFlags: 0
@@ -13572,10 +13585,10 @@ MonoBehaviour:
   unitAttackText: {fileID: 0}
   actionAttackButton: {fileID: 88312815}
   actionMoveButton: {fileID: 830477255}
-  actionPassButton: {fileID: 0}
+  actionPassButton: {fileID: 1238049449}
   actionSpecialButton: {fileID: 1933744297}
   actionSpecialButtonText: {fileID: 0}
-  constructionPanelContainer: {fileID: 0}
+  constructionPanelContainer: {fileID: 2124222313}
   buildRoadButton: {fileID: 0}
   buildSettlementButton: {fileID: 0}
   upgradeCityButton: {fileID: 0}
@@ -15099,7 +15112,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1933744298}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1095691863}
+        m_TargetAssemblyTypeName: SimpleClickTester, Assembly-CSharp
+        m_MethodName: BotonConstruirPulsado
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1933744298
 MonoBehaviour:
   m_ObjectHideFlags: 0
