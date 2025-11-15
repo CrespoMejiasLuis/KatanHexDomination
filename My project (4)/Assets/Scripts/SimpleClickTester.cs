@@ -207,4 +207,20 @@ public class SimpleClickTester : MonoBehaviour
             Debug.Log("¡Esta unidad no se puede mover o no tiene puntos de movimiento!");
         }
     }
+
+    public void UpgradeCiudad()
+    {
+        if(unidadSeleccionada == null)
+        {
+            Debug.Log("No hay unidad seleccionada");
+            return;
+        }
+
+        SettlementUnit pobladoLogic = unidadSeleccionada.GetComponent<SettlementUnit>();
+
+        if(pobladoLogic !=null && unidadSeleccionada.statsBase.nombreUnidad == TypeUnit.Poblado)
+        {
+            pobladoLogic.TryUpgradeToCity()
+        }
+    }
 }

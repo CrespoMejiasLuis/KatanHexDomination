@@ -6,6 +6,9 @@ public class SettlementUnit : MonoBehaviour
     [Header("Componentes de poblado")]
     public GameObject tradeMenu;
 
+    [Header("Prefabs para construir")]
+    public GameObject ciudadPrefab;
+
     private Unit unitCerebro;
 
     void Awake()
@@ -38,5 +41,18 @@ public class SettlementUnit : MonoBehaviour
         {
             tradeMenu.SetActive(true);
         }
+    }
+
+    public void TryUpgradeToCity()
+    {
+        if(ciudadPrefab == null) return;
+        
+        //datos casilla
+        CellData cellDondeEstamos = BoardManager.Instance.GetCell(unitCerebro.misCoordenadasActuales);
+        if (cellDondeEstamos == null) { /* ... error ... */ return; }
+
+        //Necesitamos el Unit del prefab
+        Unit ciudadUnitPrefab = ciudadPrefab.GetComponent<Uni>();
+        bool RecursosNecesarios = 
     }
 }
