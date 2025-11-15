@@ -104,11 +104,9 @@ public class GameManager : MonoBehaviour
         {
             case GameState.Initializing:
                 // El HexGridGenerator llamar� a esto cuando termine sus animaciones
-                SetUp(() => {
-                    Debug.Log("🎉 Tablero listo. Transicionando a Turno del Jugador.");
-                    // 🔑 Solo cambiamos de estado CUANDO el generador nos avisa que ha terminado.
-                    SetState(GameState.PlayerTurn); 
-                });
+                SetUp();
+                SetState(GameState.PlayerTurn); 
+                
                 break;
 
             case GameState.PlayerTurn:
@@ -239,13 +237,18 @@ public class GameManager : MonoBehaviour
         SetState(GameState.PlayerTurn);
     }
 
-    private void SetUp(Action onGridReady) 
+    private void SetUp() 
     {
-        if(_gridGenerator!=null)
-
-            _gridGenerator.SetUp(onGridReady);
+        GenerateGrid(() => {
+            Debug.Log("🎉 Tablero listo. Transicionando a Turno del Jugador.");
+            // 🔑 Solo cambiamos de estado CUANDO el generador nos avisa que ha terminado.
             UnitSpawner.Instance.SpawnInitialUnits();
+
+        });
     }
+
+    private void GenerateGrid(Action onGridReady) {  if (_gridGenerator != null)
+            _gridGenerator.SetUp(onGridReady); }
 
     // --- Dentro de GameManager.cs ---
 
