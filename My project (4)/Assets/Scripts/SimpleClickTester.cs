@@ -109,8 +109,9 @@ public class SimpleClickTester : MonoBehaviour
         DeseleccionarUnit(); // Deselecciona la anterior
 
         unidadSeleccionada = unitClickada;
+        GameManager.Instance.SelectUnit(unitClickada);
 
-        if(unitClickada.ownerID == PLAYER_ID)
+        if (unitClickada.ownerID == PLAYER_ID)
         {
             SettlementUnit pobladoLogic = unitClickada.GetComponent<SettlementUnit>(); 
         
@@ -156,6 +157,7 @@ public class SimpleClickTester : MonoBehaviour
 
         // ¡Importante! Si no hay nada seleccionado, volvemos al modo Selección
         currentMode = PlayerInputMode.Selection;
+        GameManager.Instance.DeselectAll();
     }
 
     /// <summary>

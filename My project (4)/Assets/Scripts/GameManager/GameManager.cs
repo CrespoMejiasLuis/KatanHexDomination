@@ -25,6 +25,7 @@ public class GameManager : MonoBehaviour
     public static event Action<Unit> OnUnitSelected; // Notifica que una unidad ha sido seleccionada
     public static event Action OnDeselected; // Notifica que no hay nada seleccionado
 
+    public Unit selectedUnit { get; private set; }
     public Player humanPlayer; 
     public Player IAPlayer;
 
@@ -244,5 +245,32 @@ public class GameManager : MonoBehaviour
 
             _gridGenerator.SetUp(onGridReady);
             UnitSpawner.Instance.SpawnInitialUnits();
+    }
+
+    public void SelectUnit(Unit unitClicked)
+    {
+        // ¿Clic en una unidad enemiga?
+        if (unitClicked.ownerID != 0) // Asumimos 0 = Humano
+        {
+            // Clic en unidad enemiga. Deselecciona la actual.
+            DeselectAll();
+            return;
+        }
+
+        // Es una unidad aliada.
+        selectedUnit = unitClicked;
+
+        // ¡Dispara el evento para que la UI reaccione!
+        OnUnitSelected?.Invoke(selectedUnit);
+        Debug.Log($"[GameManager] Unidad seleccionada: {selectedUnit.statsBase.nombreUnidad}");
+    }
+
+    public void DeselectAll()
+    {
+        if (selectedUnit != null)
+        {
+            selectedUnit = null;
+            OnDeselected?.Invoke(); // ¡Dispara el evento para que la UI se oculte!
+        }
     }
 }
