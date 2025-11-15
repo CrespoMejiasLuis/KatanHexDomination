@@ -6,7 +6,7 @@ public class Unit : MonoBehaviour
     // 1. EL ENLACE A LOS DATOS
     // Arrastra aquí tu asset "Stats_Colono.asset"
     public UnitStats statsBase;
-
+    public event Action<Unit> OnUnitDied;
     [Header("Propiedad")]
     // 0 = Jugador Humano, 1 = IA
     public int ownerID = 0;
@@ -89,6 +89,7 @@ public class Unit : MonoBehaviour
     private void Morir()
     {
         // Lógica de muerte (animación, notificar al juego, etc.)
+        OnUnitDied?.Invoke(this);
         Debug.Log(statsBase.nombreUnidad + " ha muerto.");
         Destroy(gameObject);
     }
