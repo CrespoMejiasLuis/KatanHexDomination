@@ -7,7 +7,7 @@ using System.Collections.Generic;
 public class UnitStats : ScriptableObject // <- Fíjate que hereda de ScriptableObject
 {
     [Header("Identificación")]
-    public string nombreUnidad;
+    public TypeUnit nombreUnidad;
     public GameObject prefabModelo; // Para el modelo visual
 
     [Header("Estadísticas de Combate")]
