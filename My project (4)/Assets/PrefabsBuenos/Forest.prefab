@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 448315842300722457}
   - component: {fileID: 1361748713863902100}
   - component: {fileID: 8423307432706124308}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: normal forest.001
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -121,7 +121,7 @@ GameObject:
   - component: {fileID: 6308119425824597432}
   - component: {fileID: 7208932679761620032}
   - component: {fileID: 8107673445478185594}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: normal forest.003
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -230,7 +230,7 @@ GameObject:
   - component: {fileID: 5740496313677232242}
   - component: {fileID: 6844025774015918765}
   - component: {fileID: 1663740970232972965}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: normal forest.004
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -339,7 +339,7 @@ GameObject:
   - component: {fileID: 7545606251152445013}
   - component: {fileID: 1225665498489912792}
   - component: {fileID: 7344208115474715723}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: newtree.005
   m_TagString: Untagged
   m_Icon: {fileID: 0}
