@@ -217,7 +217,7 @@ public class HexGridGenerator : MonoBehaviour
             }
 
             HexTile hexTile = newTileGO.GetComponent<HexTile>();
-            hexTile.Initialize(currentType);
+            hexTile.Initialize(currentType, coord);
 
             CellData cell = new CellData(currentType, coord);
             cell.visualTile = hexTile;

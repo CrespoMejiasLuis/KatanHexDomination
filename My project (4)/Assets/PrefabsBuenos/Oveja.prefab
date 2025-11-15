@@ -11,7 +11,8 @@ GameObject:
   - component: {fileID: 1461811354332840563}
   - component: {fileID: 7617812282215875235}
   - component: {fileID: 4048366603819865430}
-  m_Layer: 0
+  - component: {fileID: 3432929978629097311}
+  m_Layer: 8
   m_Name: tile animalFarm.001
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -86,6 +87,28 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!64 &3432929978629097311
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3024431751176641769}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 5
+  m_Convex: 0
+  m_CookingOptions: 30
+  m_Mesh: {fileID: -5122031158359568262, guid: ce6deee8cf7725a45bae3fec3626adcd, type: 3}
 --- !u!1 &3026073207998559248
 GameObject:
   m_ObjectHideFlags: 0
@@ -100,7 +123,7 @@ GameObject:
   - component: {fileID: -6091821874108166573}
   - component: {fileID: -2289432455391691886}
   - component: {fileID: -53452419504067770}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Oveja
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -190,6 +213,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   resourceType: 3
+  AxialCoordinates: {x: 0, y: 0}
 --- !u!95 &-2289432455391691886
 Animator:
   serializedVersion: 7
@@ -301,6 +325,10 @@ PrefabInstance:
     - target: {fileID: 2253684356889293062, guid: a748754456bdb304eacf81ccba2ba1fd, type: 3}
       propertyPath: m_Name
       value: NegroCulo
+      objectReference: {fileID: 0}
+    - target: {fileID: 2253684356889293062, guid: a748754456bdb304eacf81ccba2ba1fd, type: 3}
+      propertyPath: m_Layer
+      value: 8
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

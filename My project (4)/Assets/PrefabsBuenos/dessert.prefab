@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 6772934432969164659}
   - component: {fileID: -6809814589312032956}
   - component: {fileID: -5491287855756795771}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: dessert
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -159,7 +159,7 @@ GameObject:
   - component: {fileID: 8587928270463934910}
   - component: {fileID: 6327759300949124495}
   - component: {fileID: 7606561119626012631}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Cylinder.008
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -301,6 +301,10 @@ PrefabInstance:
     - target: {fileID: 2253684356889293062, guid: a748754456bdb304eacf81ccba2ba1fd, type: 3}
       propertyPath: m_Name
       value: NegroCulo
+      objectReference: {fileID: 0}
+    - target: {fileID: 2253684356889293062, guid: a748754456bdb304eacf81ccba2ba1fd, type: 3}
+      propertyPath: m_Layer
+      value: 8
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

@@ -11,7 +11,8 @@ GameObject:
   - component: {fileID: 5252972484667728001}
   - component: {fileID: 7926578291680970020}
   - component: {fileID: 7286378965693341274}
-  m_Layer: 0
+  - component: {fileID: 2749643275569388319}
+  m_Layer: 9
   m_Name: Cylinder.003
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -88,6 +89,28 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!64 &2749643275569388319
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 273526018530106067}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 5
+  m_Convex: 0
+  m_CookingOptions: 30
+  m_Mesh: {fileID: 6239881831769578202, guid: ce6deee8cf7725a45bae3fec3626adcd, type: 3}
 --- !u!1 &2719055414579701877
 GameObject:
   m_ObjectHideFlags: 0
@@ -100,7 +123,9 @@ GameObject:
   - component: {fileID: 3143210901737474863}
   - component: {fileID: 1564392956006535046}
   - component: {fileID: 835614266452587887}
-  m_Layer: 0
+  - component: {fileID: 5462790164019119449}
+  - component: {fileID: 4461004456554925958}
+  m_Layer: 9
   m_Name: Ciudad
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -199,3 +224,42 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: -3543548132757546731, guid: ce6deee8cf7725a45bae3fec3626adcd, type: 3}
+--- !u!95 &5462790164019119449
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2719055414579701877}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 4078c59e6cc1b2d4886361b62ecfcb95, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &4461004456554925958
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2719055414579701877}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f8c4d4b1f41228245870a82f3f63a436, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  statsBase: {fileID: 0}
+  ownerID: 0
+  vidaActual: 0
+  movimientosRestantes: 0
+  misCoordenadasActuales: {x: 0, y: 0}

@@ -7,6 +7,10 @@ public class Unit : MonoBehaviour
     // Arrastra aquí tu asset "Stats_Colono.asset"
     public UnitStats statsBase;
 
+    [Header("Propiedad")]
+    // 0 = Jugador Humano, 1 = IA
+    public int ownerID = 0;
+
     // 2. ESTADO ACTUAL DE LA UNIDAD
     // Estas son las variables que cambian durante el juego
     [Header("Estado Actual")]
@@ -25,7 +29,10 @@ public class Unit : MonoBehaviour
     void Awake()
     {
         // Busca sus otros "brazos" y "piernas"
-        moveComponent = GetComponent<UnitMovement>();
+        if(GetComponent<UnitMovement>() != null)
+        {
+            moveComponent = GetComponent<UnitMovement>();
+        }
         //attackComponent = GetComponent<UnitAttack>();
         //builderComponent = GetComponent<UnitBuilder>();
     }
@@ -70,7 +77,7 @@ public class Unit : MonoBehaviour
         }
     }
 
-    public void RecibirDaño(int cantidad)
+    public void RecibirDano(int cantidad)
     {
         vidaActual -= cantidad;
         if (vidaActual <= 0)

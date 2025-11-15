@@ -9,6 +9,7 @@ public abstract class Player : MonoBehaviour
     [Header("Identificación del Jugador")]
     public int playerID;
     public string playerName;
+    public int victoryPoints;
 
 
     protected Dictionary<ResourceType, int> resources = new Dictionary<ResourceType, int>();
@@ -16,8 +17,10 @@ public abstract class Player : MonoBehaviour
 
     protected virtual void Awake()
     {
+        victoryPoints = 0;
         InitializeResourceDictionary();
     }
+
 
     /// <summary>
     /// Rellena el diccionario con todos los tipos de recursos, empezando en 0.
@@ -38,9 +41,13 @@ public abstract class Player : MonoBehaviour
             }
         }
 
-        // Opcional: Dar recursos iniciales
-        // AddResource(HexTile.ResourceType.Madera, 2);
-        // AddResource(HexTile.ResourceType.Arcilla, 2);
+        // Pone los recursos de poblado para construir el primero
+        resources[ResourceType.Madera] = 1;
+        resources[ResourceType.Arcilla] = 1;
+        resources[ResourceType.Oveja] = 1;
+        resources[ResourceType.Trigo] = 1;
+
+        OnPlayerResourcesUpdated?.Invoke(resources);
     }
 
     // --- MÉTODOS PÚBLICOS DE GESTIÓN DE RECURSOS ---

@@ -10,16 +10,16 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6fc73d60226d2e741a725e4f61cbcc98, type: 3}
-  m_Name: Stats_Colono
+  m_Name: Stats_Ciudad
   m_EditorClassIdentifier: 
-  nombreUnidad: Colono
-  prefabModelo: {fileID: 4160640604598999419, guid: 42453f5144d619b44918565ff725ba12, type: 3}
-  vidaMaxima: 20
-  ataque: 0
+  nombreUnidad: Ciudad
+  prefabModelo: {fileID: 2719055414579701877, guid: 92684202a5be8fc48898751fc7033884, type: 3}
+  vidaMaxima: 100
+  ataque: 40
   rangoAtaque: 0
-  puntosMovimiento: 1
+  puntosMovimiento: 0
   costeMadera: 0
   costePiedra: 0
-  costeTrigo: 1
+  costeTrigo: 0
   costeArcilla: 0
-  costeOveja: 1
+  costeOveja: 0

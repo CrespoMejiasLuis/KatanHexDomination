@@ -5,6 +5,8 @@ public class HexTile : MonoBehaviour
     [Header("Propiedad del Recurso")]
     public ResourceType resourceType;
 
+    [HideInInspector] public Vector2Int AxialCoordinates;
+
     // Referencia al Animator
     private Animator animator;
     private const string FLIP_ANIMATION_NAME = "TileFlip"; // Nombre del clip de animaci�n
@@ -18,9 +20,10 @@ public class HexTile : MonoBehaviour
         // si la animaci�n no lo hace por defecto.
     }
 
-    public void Initialize(ResourceType type)
+    public void Initialize(ResourceType type, Vector2Int coordinates)
     {
         this.resourceType = type;
+        this.AxialCoordinates = coordinates;
         this.gameObject.name = $"HexTile - {type}";
     }
 
