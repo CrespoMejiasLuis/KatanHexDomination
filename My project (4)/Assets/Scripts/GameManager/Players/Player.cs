@@ -9,6 +9,7 @@ public abstract class Player : MonoBehaviour
     [Header("Identificación del Jugador")]
     public int playerID;
     public string playerName;
+    public int victoryPoints;
 
 
     protected Dictionary<ResourceType, int> resources = new Dictionary<ResourceType, int>();
@@ -16,6 +17,7 @@ public abstract class Player : MonoBehaviour
 
     protected virtual void Awake()
     {
+        victoryPoints = 0;
         InitializeResourceDictionary();
     }
 
