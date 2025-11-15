@@ -48,7 +48,8 @@ public abstract class Player : MonoBehaviour
         resources[ResourceType.Madera] = 1;
         resources[ResourceType.Arcilla] = 1;
         resources[ResourceType.Oveja] = 1;
-        resources[ResourceType.Trigo] = 1;
+        resources[ResourceType.Trigo] = 3;
+        resources[ResourceType.Roca] = 3;
 
         OnPlayerResourcesUpdated?.Invoke(resources);
     }
