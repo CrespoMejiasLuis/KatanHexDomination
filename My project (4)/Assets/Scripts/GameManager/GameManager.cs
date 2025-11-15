@@ -180,7 +180,7 @@ public class GameManager : MonoBehaviour
             // 3. Si encontramos una ciudad que pertenece al jugador actual...
             if (cell != null && cell.owner == ownerIDToCheck && cell.hasCity)
             {
-                int yieldAmount = 1;
+                int yieldAmount = 0;
                 Unit unitOnCell = cell.unitOnCell;
 
                 if(unitOnCell !=null && unitOnCell.statsBase !=null)
@@ -214,7 +214,7 @@ public class GameManager : MonoBehaviour
                     {
                         // 7. ...¡Añadir su recurso al jugador!
                         type = neighborCell.resource;
-                        currentPlayer.AddResource(type, 1); 
+                        currentPlayer.AddResource(type, yieldAmount); 
                         // (El método AddResource ya imprime el log de "ganó X")
                     }
                 }
@@ -244,6 +244,6 @@ public class GameManager : MonoBehaviour
         if(_gridGenerator!=null)
 
             _gridGenerator.SetUp(onGridReady);
-            _spawner.SpawnInitialUnits();
+            //_spawner.SpawnInitialUnits();
     }
 }

@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
+using System.Collections.Generic;
 
 public class SimpleClickTester : MonoBehaviour
 {
@@ -12,6 +13,9 @@ public class SimpleClickTester : MonoBehaviour
     [Header("Configuracion de Capas")]
     public LayerMask unitLayerMask;
     public LayerMask gridLayerMask;
+
+    [Header("Prefabs construccion")]
+    public GameObject ciudadPrefab;
 
     private readonly int PLAYER_ID = 0; //human player
 
@@ -220,7 +224,55 @@ public class SimpleClickTester : MonoBehaviour
 
         if(pobladoLogic !=null && unidadSeleccionada.statsBase.nombreUnidad == TypeUnit.Poblado)
         {
-            pobladoLogic.TryUpgradeToCity()
+            if(ciudadPrefab == null) return;
+
+            Unit unitCerebro = pobladoLogic.getUnitCerebro();
+
+            //datos casilla
+            CellData cellDondeEstamos = BoardManager.Instance.GetCell(unitCerebro.misCoordenadasActuales);
+            if (cellDondeEstamos == null) { /* ... error ... */ return; }
+
+            //Necesitamos el Unit del prefab
+            Unit ciudadUnitPrefab = ciudadPrefab.GetComponent<Unit>();
+            bool recursosNecesarios = unitCerebro.RecursosNecesarios(ciudadUnitPrefab);
+            if(!recursosNecesarios) return; //si no tienes materiales suficientes no construye
+
+            //Gastar recursos
+            Player jugador = GameManager.Instance.humanPlayer;
+            Dictionary<ResourceType, int> productionCost = ciudadUnitPrefab.statsBase.GetProductCost();
+
+            bool recursosGastados = jugador.SpendResources(productionCost);
+            if(!recursosGastados) return; 
+
+            //Accion
+            HexTile tileVisual = cellDondeEstamos.visualTile;
+
+            // 2. OCULTAR LA CASILLA VIEJA
+            // Desactiva todos los Renderers (modelos 3D) de la casilla de terreno
+            foreach (Renderer r in tileVisual.GetComponentsInChildren<Renderer>())
+            {
+                r.enabled = false;
+            }
+
+            //Crear ciudad
+            GameObject nuevaCiudad = Instantiate(ciudadPrefab, tileVisual.transform.position, Quaternion.identity);
+
+            //Dueno ciudad
+            Unit ciudad = nuevaCiudad.GetComponent<Unit>();
+            if(ciudad!=null)
+            {
+                ciudad.ownerID = unitCerebro.ownerID;
+                //jugador.ArmyManager.RegisterUnit(ciudad);
+            }
+
+            cellDondeEstamos.hasCity = true;
+            cellDondeEstamos.typeUnitOnCell = TypeUnit.Ciudad;
+            cellDondeEstamos.owner = unitCerebro.ownerID;
+            cellDondeEstamos.unitOnCell = ciudad;
+            jugador.victoryPoints ++;
+            UIManager.Instance.UpdateVictoryPointsText(jugador.victoryPoints);
+
+            //jugador.ArmyManager.DeregisterUnit(unitCerebro);
         }
     }
 }
