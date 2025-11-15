@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6fc73d60226d2e741a725e4f61cbcc98, type: 3}
   m_Name: Stats_Ciudad
   m_EditorClassIdentifier: 
-  nombreUnidad: Ciudad
+  nombreUnidad: 2
   prefabModelo: {fileID: 2719055414579701877, guid: 92684202a5be8fc48898751fc7033884, type: 3}
   vidaMaxima: 100
   ataque: 40

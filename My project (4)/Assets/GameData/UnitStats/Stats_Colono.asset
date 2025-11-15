@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6fc73d60226d2e741a725e4f61cbcc98, type: 3}
   m_Name: Stats_Colono
   m_EditorClassIdentifier: 
-  nombreUnidad: Colono
+  nombreUnidad: 7
   prefabModelo: {fileID: 4160640604598999419, guid: 42453f5144d619b44918565ff725ba12, type: 3}
   vidaMaxima: 20
   ataque: 0

@@ -98,7 +98,7 @@ public class UnitBuilder : MonoBehaviour
 
         // 5. ACTUALIZAR EL BOARDMANAGER (¡LO MÁS IMPORTANTE!)
         // Esto es lo que hablaréis mañana, pero esta es la lógica:
-        cellDondeEstamos.hasCity = true;
+        cellDondeEstamos.hasCity = false;
         cellDondeEstamos.owner = unitCerebro.ownerID;
         // Asumimos que el colono era la 'tropa' en esta casilla
         cellDondeEstamos.unitOnCell = unitCerebro.statsBase.nombreUnidad; 

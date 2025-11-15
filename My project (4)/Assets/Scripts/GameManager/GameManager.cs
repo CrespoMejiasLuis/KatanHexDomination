@@ -179,11 +179,26 @@ public class GameManager : MonoBehaviour
             // 3. Si encontramos una ciudad que pertenece al jugador actual...
             if (cell != null && cell.owner == ownerIDToCheck && cell.hasCity)
             {
+                int yieldAmount = 1;
+                Unit unitOnCell = cell.unitOnCell;
+
+                if(unitOnCell !=null && unitOnCell.statsBase !=null)
+                {
+                    if(unitOnCell.statsBase.nombreUnidad == TypeUnit.Ciudad)
+                    {
+                        yieldAmount = 2;
+                    }
+                    else if(unitOnCell.statsBase.nombreUnidad == TypeUnit.Poblado)
+                    {
+                        yieldAmount = 1;
+                    }
+                }
+
                 Debug.Log($"Ciudad encontrada en {cell.coordinates} para Jugador {playerID}. Comprobando vecinos.");
                 
                 Vector2Int cityCoords = cell.coordinates;
                 ResourceType type = cell.resource;
-                currentPlayer.AddResource(type, 1);
+                currentPlayer.AddResource(type, yieldAmount);
                 // 4. ...iteramos por las 6 direcciones axiales
                 foreach (Vector2Int direction in axialNeighborDirections)
                 {
