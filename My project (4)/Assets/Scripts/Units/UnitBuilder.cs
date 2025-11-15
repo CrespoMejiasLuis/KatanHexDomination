@@ -102,6 +102,8 @@ public class UnitBuilder : MonoBehaviour
         cellDondeEstamos.owner = unitCerebro.ownerID;
         // Asumimos que el colono era la 'tropa' en esta casilla
         cellDondeEstamos.unitOnCell = null; 
+        jugador.victoryPoints +=1;
+        UIManager.Instance.UpdateVictoryPointsText(jugador.victoryPoints);
 
         // 6. CONSUMIR EL COLONO
         Destroy(gameObject);
