@@ -103,7 +103,8 @@ public class UnitBuilder : MonoBehaviour
         cellDondeEstamos.hasCity = false;
         cellDondeEstamos.owner = unitCerebro.ownerID;
         // Asumimos que el colono era la 'tropa' en esta casilla
-        cellDondeEstamos.unitOnCell = unitCerebro.statsBase.nombreUnidad; 
+        cellDondeEstamos.typeUnitOnCell = unitCerebro.statsBase.nombreUnidad; 
+        cellDondeEstamos.unitOnCell = null;
         jugador.victoryPoints +=1;
         UIManager.Instance.UpdateVictoryPointsText(jugador.victoryPoints);
 
