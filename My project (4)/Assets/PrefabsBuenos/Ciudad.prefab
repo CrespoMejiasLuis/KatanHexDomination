@@ -125,6 +125,7 @@ GameObject:
   - component: {fileID: 835614266452587887}
   - component: {fileID: 5462790164019119449}
   - component: {fileID: 4461004456554925958}
+  - component: {fileID: 1082364847712477750}
   m_Layer: 9
   m_Name: Ciudad
   m_TagString: Untagged
@@ -258,8 +259,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f8c4d4b1f41228245870a82f3f63a436, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  statsBase: {fileID: 0}
+  statsBase: {fileID: 11400000, guid: ebf11c038c72d264b8d1c3db9236a802, type: 2}
   ownerID: 0
   vidaActual: 0
   movimientosRestantes: 0
   misCoordenadasActuales: {x: 0, y: 0}
+--- !u!114 &1082364847712477750
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2719055414579701877}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1a10878b57984204db80bf58e21d7aa6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  tradeMenu: {fileID: 0}

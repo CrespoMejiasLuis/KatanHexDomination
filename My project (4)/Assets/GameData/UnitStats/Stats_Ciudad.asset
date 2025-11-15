@@ -12,14 +12,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6fc73d60226d2e741a725e4f61cbcc98, type: 3}
   m_Name: Stats_Ciudad
   m_EditorClassIdentifier: 
-  nombreUnidad: 2
+  nombreUnidad: 3
   prefabModelo: {fileID: 2719055414579701877, guid: 92684202a5be8fc48898751fc7033884, type: 3}
-  vidaMaxima: 100
-  ataque: 40
+  vidaMaxima: 200
+  ataque: 60
   rangoAtaque: 0
   puntosMovimiento: 0
   costeMadera: 0
-  costePiedra: 0
-  costeTrigo: 0
+  costePiedra: 3
+  costeTrigo: 2
   costeArcilla: 0
   costeOveja: 0
