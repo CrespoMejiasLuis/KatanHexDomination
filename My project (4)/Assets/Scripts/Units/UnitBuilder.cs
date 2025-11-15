@@ -1,5 +1,6 @@
 // 📁 UnitBuilder.cs (VERSIÓN 5.0 - Lógica de Juego Completa)
 using UnityEngine;
+using System.Collections.Generic;
 // (Ya no necesitamos Corutinas, la animación está en el prefab)
 
 [RequireComponent(typeof(Unit))]
@@ -15,6 +16,27 @@ public class UnitBuilder : MonoBehaviour
     void Awake()
     {
         unitCerebro = GetComponent<Unit>();
+    }
+
+    public bool RecursosNecesarios(Unit unitPrefabToRecruit)
+    {
+        //1.Obtener referenccia al jugador
+        Player activePlayer = GameManager.Instance.humanPlayer;
+
+        if(activePlayer == null) return false;
+
+        //2.Obtener estadisticas de unidad
+        UnitStats stats = unitPrefabToRecruit.statsBase;
+
+        if(stats == null)
+        {
+            Debug.Log($"No tiene unitStats el prefab {unitPrefabToRecruit.name}");
+            return false;
+        }
+
+        Dictionary<ResourceType, int> productionCost = stats.GetProductCost();
+
+        return activePlayer.CanAfford(productionCost);
     }
 
     public void IntentarConstruirPoblado()
@@ -35,6 +57,18 @@ public class UnitBuilder : MonoBehaviour
             Debug.Log("¡Ya hay una ciudad en esta casilla!");
             return;
         }
+
+        //Necesitamos el componente Unit del prefab
+        Unit pobladoUnitPrefab = pobladoPrefab.GetComponent<Unit>();
+        bool recursosNecesarios = RecursosNecesarios(pobladoUnitPrefab);
+        if(!recursosNecesarios) return;
+        
+        //Gastar recursos
+        Player jugador = GameManager.Instance.humanPlayer;
+        Dictionary<ResourceType, int> productionCost = pobladoUnitPrefab.statsBase.GetProductCost();
+
+        bool recursosGastados = jugador.SpendResources(productionCost);
+        if(!recursosGastados) return; 
 
         // --- ¡ACCIÓN! ---
         isBuilding = true; 

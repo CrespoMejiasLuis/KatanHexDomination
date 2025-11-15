@@ -19,6 +19,7 @@ public abstract class Player : MonoBehaviour
         InitializeResourceDictionary();
     }
 
+
     /// <summary>
     /// Rellena el diccionario con todos los tipos de recursos, empezando en 0.
     /// Esto evita errores de 'KeyNotFoundException' más adelante.
@@ -38,9 +39,13 @@ public abstract class Player : MonoBehaviour
             }
         }
 
-        // Opcional: Dar recursos iniciales
-        // AddResource(HexTile.ResourceType.Madera, 2);
-        // AddResource(HexTile.ResourceType.Arcilla, 2);
+        // Pone los recursos de poblado para construir el primero
+        resources[ResourceType.Madera] = 1;
+        resources[ResourceType.Arcilla] = 1;
+        resources[ResourceType.Oveja] = 1;
+        resources[ResourceType.Trigo] = 1;
+
+        OnPlayerResourcesUpdated?.Invoke(resources);
     }
 
     // --- MÉTODOS PÚBLICOS DE GESTIÓN DE RECURSOS ---
