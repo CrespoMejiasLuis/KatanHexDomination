@@ -1,15 +1,6 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-
-public enum PlayerInputMode
-{
-    Selection,      // Modo por defecto: seleccionar unidades
-    MoveTargeting   // Modo de acción: esperando clic en una casilla para moverse
-    // (En el futuro, podrías añadir AttackTargeting, BuildTargeting, etc.)
-}
-
-
 public class SimpleClickTester : MonoBehaviour
 {
     [HideInInspector] public Unit unidadSeleccionada;
@@ -25,6 +16,7 @@ public class SimpleClickTester : MonoBehaviour
     private readonly int PLAYER_ID = 0; //human player
 
     private PlayerInputMode currentMode = PlayerInputMode.Selection;
+    private SettlementUnit activePoblado = null;
 
     void Start()
     {
@@ -116,8 +108,19 @@ public class SimpleClickTester : MonoBehaviour
 
         if(unitClickada.ownerID == PLAYER_ID)
         {
+            SettlementUnit pobladoLogic = unitClickada.GetComponent<SettlementUnit>(); 
+        
+            if(pobladoLogic != null) 
+            {
+                // Es un poblado. Llamamos a su acción específica.
+                activePoblado = pobladoLogic;
+                pobladoLogic.OpenTradeMenu();
+                Debug.Log("Poblado seleccionado. Menú de Intercambio activado.");
+                return;
+            }
+
             if(unitActionMenu != null) unitActionMenu.SetActive(true);
-            // Aquí irá la lógica de "qué botones mostrar"
+            
         }
         else
         {
@@ -131,6 +134,12 @@ public class SimpleClickTester : MonoBehaviour
     // MODIFICADA: Ahora también resetea el modo
     private void DeseleccionarUnit()
     {
+        if(activePoblado!=null && activePoblado.tradeMenu!=null)
+        {
+            activePoblado.tradeMenu.SetActive(false);
+            activePoblado = null;
+        }
+
         if(unidadSeleccionada != null)
         {
             unidadSeleccionada = null;

@@ -14,12 +14,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   nombreUnidad: Poblado
   prefabModelo: {fileID: 0}
-  vidaMaxima: 0
-  ataque: 0
+  vidaMaxima: 100
+  ataque: 40
   rangoAtaque: 0
   puntosMovimiento: 0
-  costeMadera: 0
+  costeMadera: 1
   costePiedra: 0
-  costeTrigo: 0
-  costeArcilla: 0
-  costeOveja: 0
+  costeTrigo: 1
+  costeArcilla: 1
+  costeOveja: 1

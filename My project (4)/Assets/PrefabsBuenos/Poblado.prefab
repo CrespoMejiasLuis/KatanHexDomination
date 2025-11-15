@@ -122,6 +122,7 @@ GameObject:
   - component: {fileID: 1848255032555102909}
   - component: {fileID: 2201141573886333792}
   - component: {fileID: 1020878558829663055}
+  - component: {fileID: 4227531386470192683}
   m_Layer: 9
   m_Name: Poblado
   m_TagString: Untagged
@@ -208,6 +209,24 @@ MonoBehaviour:
   vidaActual: 0
   movimientosRestantes: 0
   misCoordenadasActuales: {x: 0, y: 0}
+--- !u!114 &4227531386470192683
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8530877068906648645}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1a10878b57984204db80bf58e21d7aa6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  statsBase: {fileID: 11400000, guid: 74fa39c520d0c1d45b4dec0ff0137646, type: 2}
+  ownerID: 0
+  vidaActual: 0
+  movimientosRestantes: 0
+  misCoordenadasActuales: {x: 0, y: 0}
+  tradeMenu: {fileID: 0}
 --- !u!1 &8938343010813689107
 GameObject:
   m_ObjectHideFlags: 0

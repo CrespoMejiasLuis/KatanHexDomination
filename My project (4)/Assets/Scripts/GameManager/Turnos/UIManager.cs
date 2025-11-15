@@ -62,6 +62,8 @@ public class UIManager : MonoBehaviour
         {
             Destroy(gameObject);
         }
+        
+        if(constructionPanelContainer!=null) constructionPanelContainer.SetActive(false);
     }
 
     void Start()
@@ -91,7 +93,7 @@ public class UIManager : MonoBehaviour
 
         
         Player.OnPlayerResourcesUpdated += UpdateResourceTexts;
-         Player.OnPlayerVictoryPointsUpdated += UpdateVictoryPointsText; // Descomentar al implementar
+        Player.OnPlayerVictoryPointsUpdated += UpdateVictoryPointsText; // Descomentar al implementar
 
         GameManager.OnUnitSelected += ShowUnitPanel;
         GameManager.OnDeselected += HideUnitPanel;
@@ -103,7 +105,7 @@ public class UIManager : MonoBehaviour
         GameManager.OnAITurnStart -= HidePlayerUI;
 
         Player.OnPlayerResourcesUpdated -= UpdateResourceTexts;
-         Player.OnPlayerVictoryPointsUpdated -= UpdateVictoryPointsText;
+        Player.OnPlayerVictoryPointsUpdated -= UpdateVictoryPointsText;
 
         //GameManager.OnUnitSelected -= HideUnitPanel; // No es 'ShowUnitPanel'
         GameManager.OnDeselected -= HideUnitPanel;

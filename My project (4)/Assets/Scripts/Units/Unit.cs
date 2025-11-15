@@ -77,7 +77,7 @@ public class Unit : MonoBehaviour
         }
     }
 
-    public void RecibirDaño(int cantidad)
+    public void RecibirDano(int cantidad)
     {
         vidaActual -= cantidad;
         if (vidaActual <= 0)

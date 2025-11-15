@@ -13396,14 +13396,14 @@ MonoBehaviour:
   actionPassButton: {fileID: 0}
   actionSpecialButton: {fileID: 1933744297}
   actionSpecialButtonText: {fileID: 0}
-  constructionPanelContainer: {fileID: 0}
-  buildRoadButton: {fileID: 0}
-  buildSettlementButton: {fileID: 0}
-  upgradeCityButton: {fileID: 0}
-  recruitArtilleroButton: {fileID: 0}
-  recruitCaballeroButton: {fileID: 0}
-  recruitCaballeriaButton: {fileID: 0}
-  recruitColonoButton: {fileID: 0}
+  constructionPanelContainer: {fileID: 2124222313}
+  buildRoadButton: {fileID: 1857520691}
+  buildSettlementButton: {fileID: 287253752}
+  upgradeCityButton: {fileID: 1042051418}
+  recruitArtilleroButton: {fileID: 1767304926}
+  recruitCaballeroButton: {fileID: 1643049564}
+  recruitCaballeriaButton: {fileID: 1217073972}
+  recruitColonoButton: {fileID: 2128319702}
 --- !u!4 &1700657190 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 1364609063565767726, guid: 3e03224e2da992946af83b6979daf271, type: 3}
