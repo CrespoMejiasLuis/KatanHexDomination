@@ -29,7 +29,11 @@ public class UnitSpawner : MonoBehaviour
         // 1. Obtener referencias
         Player humanPlayer = GameManager.Instance.humanPlayer;
         Player aiPlayer = GameManager.Instance.IAPlayer;
-
+        if (humanPlayer == null || aiPlayer == null)
+        {
+            Debug.LogError("¡Faltan referencias a humanPlayer o IAPlayer en el GameManager!");
+            return;
+        }
         // 2. Encontrar el radio de tierra (lo leemos del generador)
         HexGridGenerator gridGenerator = FindObjectOfType<HexGridGenerator>();
         if (gridGenerator == null)
@@ -53,8 +57,8 @@ public class UnitSpawner : MonoBehaviour
         if (spawnOffset < 0) spawnOffset = 0;
 
         // Coordenadas opuestas y centradas: (0, offset) y (0, -offset)
-        Vector2Int humanStartCoords = new Vector2Int(0, spawnOffset); // "Abajo" y centrado
-        Vector2Int aiStartCoords = new Vector2Int(0, -spawnOffset);   // "Arriba" y centrado
+        Vector2Int aiStartCoords = new Vector2Int(0, spawnOffset); // "Abajo" y centrado
+        Vector2Int humanStartCoords = new Vector2Int(0, -spawnOffset);   // "Arriba" y centrado
 
         // Caso especial: si el radio es 1, ambos spawns son (0,0).
         // Debemos mover a la IA a una casilla adyacente.
@@ -112,15 +116,11 @@ public class UnitSpawner : MonoBehaviour
         GameObject unitGO = Instantiate(colonoPrefab, visualTile.transform.position, Quaternion.identity);
         Unit unit = unitGO.GetComponent<Unit>();
 
-        if (unit == null)
-        {
-            Debug.LogError($"Spawn fallido ({owner.playerName}): El 'colonoPrefab' no tiene un componente 'Unit'.");
-            Destroy(unitGO); // Limpiar
-            return;
-        }
+ 
 
         // --- 5. Configurar la Unidad (Script Unit.cs) ---
         unit.misCoordenadasActuales = coords;
+        unit.ownerID = owner.playerID;
         unitGO.name = $"Colono_{owner.playerName}";
 
         // --- 6. Actualizar la Celda Lógica (Script CellData.cs) ---

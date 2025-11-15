@@ -12,7 +12,6 @@ public class GameManager : MonoBehaviour
     // === ESTADO ===
     public GameState CurrentState { get; private set; }
     private HexGridGenerator _gridGenerator;
-    private UnitSpawner _spawner;
 
     // === EVENTOS ===
     // Otros scripts se suscribiron a estos eventos para saber cuando actuar.
@@ -244,6 +243,6 @@ public class GameManager : MonoBehaviour
         if(_gridGenerator!=null)
 
             _gridGenerator.SetUp(onGridReady);
-            _spawner.SpawnInitialUnits();
+            UnitSpawner.Instance.SpawnInitialUnits();
     }
 }
