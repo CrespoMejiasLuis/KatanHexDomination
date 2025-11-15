@@ -69,5 +69,13 @@ public class BoardManager : MonoBehaviour
             Debug.Log($"Fila {x}: {row}");
         }
     }
+    public int Distance(Vector2Int a, Vector2Int b)
+    {
+        int dx = a.x - b.x;
+        int dy = a.y - b.y;
+        int dz = -(a.x + a.y) - -(b.x + b.y);
+
+        return (Mathf.Abs(dx) + Mathf.Abs(dy) + Mathf.Abs(dz)) / 2;
+    }
 
 }

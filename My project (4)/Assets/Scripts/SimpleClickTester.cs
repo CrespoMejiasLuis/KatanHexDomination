@@ -207,4 +207,32 @@ public class SimpleClickTester : MonoBehaviour
             Debug.Log("¡Esta unidad no se puede mover o no tiene puntos de movimiento!");
         }
     }
+
+    public void BotonCrearArtilleroPulsado()
+    {
+        // 1. Comprobar si hay unidad seleccionada
+        if (unidadSeleccionada == null)
+        {
+            Debug.Log("¡No hay ninguna unidad seleccionada para crear Artillero!");
+            return;
+        }
+
+        // 2. Comprobar si la unidad seleccionada tiene un UnitRecruiter (o SettlementUnit con reclutamiento)
+        UnitRecruiter recruiter = unidadSeleccionada.GetComponent<UnitRecruiter>();
+
+        if (recruiter != null)
+        {
+            // 3. Llamar a la función de reclutamiento, pasando la unidad seleccionada
+            recruiter.ConstruirArtillero(unidadSeleccionada);
+
+            // 4. Cerrar menú de acciones
+            if (unitActionMenu != null)
+                unitActionMenu.SetActive(false);
+        }
+        else
+        {
+            Debug.Log("¡La unidad seleccionada (" + unidadSeleccionada.name + ") no puede crear Artillero!");
+        }
+    }
+
 }
