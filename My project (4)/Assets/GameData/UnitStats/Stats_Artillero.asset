@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   nombreUnidad: 5
   prefabModelo: {fileID: 7520341672977643540, guid: b0e8c80702d87fb4f9c231b669dcffd3, type: 3}
-  vidaMaxima: 40
+  vidaMaxima: 30
   ataque: 30
   rangoAtaque: 2
   puntosMovimiento: 2

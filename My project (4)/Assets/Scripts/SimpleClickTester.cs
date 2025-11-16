@@ -43,24 +43,6 @@ public class SimpleClickTester : MonoBehaviour
 
         Ray rayo = camaraPrincipal.ScreenPointToRay(Input.mousePosition);
         RaycastHit hit;
-        if (Physics.Raycast(rayo, out hit, float.MaxValue, gridLayerMask))
-        {
-            HexTile casillaClicada = hit.collider.GetComponentInParent<HexTile>();
-            if (casillaClicada != null)
-            {
-                switch (currentMode)
-                {
-                    case PlayerInputMode.AbilityTargeting:
-                        IntentarSaqueo(casillaClicada);
-                        return;
-
-                    case PlayerInputMode.MoveTargeting:
-                        HandleGridClick(casillaClicada);
-                        return;
-                }
-            }
-        }
-
 
         // --- LÓGICA DE CLIC EN EL MUNDO ---
         if (Physics.Raycast(rayo, out hit, float.MaxValue, unitLayerMask))
@@ -253,42 +235,7 @@ public class SimpleClickTester : MonoBehaviour
             Debug.Log("¡Esta unidad no se puede mover o no tiene puntos de movimiento!");
         }
     }
-    private void IntentarSaqueo(HexTile casilla)
-    {
-        if (unidadSeleccionada == null || casilla == null) return;
 
-        Ability ability = unidadSeleccionada.GetComponent<Ability>();
-        if (ability == null) return;
-
-        // Usamos las coordenadas de la casilla para obtener la celda
-        CellData cellData = BoardManager.Instance.GetCell(casilla.AxialCoordinates);
-        if (cellData == null) return;
-
-        ability.Saquear(cellData);
-
-        // Volver al modo selección
-        currentMode = PlayerInputMode.Selection;
-    }
-
-
-
-    public void BotonSaqueoPulsado()
-    {
-        if (unidadSeleccionada == null) return;
-
-        Ability ability = unidadSeleccionada.GetComponent<Ability>();
-        if (ability == null)
-        {
-            Debug.Log("La unidad seleccionada no tiene la habilidad de saquear.");
-            return;
-        }
-
-        // Cambiar al modo selección de casilla para saquear
-        currentMode = PlayerInputMode.AbilityTargeting;
-        if (unitActionMenu != null) unitActionMenu.SetActive(false);
-
-        Debug.Log("Modo saquear: selecciona una casilla enemiga o neutral.");
-    }
     public void BotonCrearArtilleroPulsado()
     {
         // 1. Comprobar si hay unidad seleccionada
@@ -430,7 +377,5 @@ public class SimpleClickTester : MonoBehaviour
             //jugador.ArmyManager.DeregisterUnit(unitCerebro);
         }
     }
-    
-
 
 }
