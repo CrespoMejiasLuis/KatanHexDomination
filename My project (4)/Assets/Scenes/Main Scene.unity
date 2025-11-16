@@ -7063,19 +7063,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 830477256}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 1095691863}
-        m_TargetAssemblyTypeName: SimpleClickTester, Assembly-CSharp
-        m_MethodName: BotonMoverPulsado
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!114 &830477256
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9453,59 +9441,6 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1095126038}
   m_Mesh: {fileID: 7990792381412873844, guid: f7bc0304a6fba4c47adf2633b5d03c12, type: 3}
---- !u!1 &1095691860
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1095691862}
-  - component: {fileID: 1095691863}
-  m_Layer: 0
-  m_Name: Clicker
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &1095691862
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1095691860}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 220.7999, y: 705.33545, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1095691863
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1095691860}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 677d26576f5047b4cadbac50235ec9f5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  unidadSeleccionada: {fileID: 0}
-  unitActionMenu: {fileID: 796229086}
-  unitLayerMask:
-    serializedVersion: 2
-    m_Bits: 512
-  gridLayerMask:
-    serializedVersion: 2
-    m_Bits: 256
-  ciudadPrefab: {fileID: 0}
 --- !u!1 &1104196340
 GameObject:
   m_ObjectHideFlags: 0
@@ -12768,51 +12703,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 6d6b2e0253263264ebba8c8921fed9d5, type: 3}
---- !u!1 &1583139274
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1583139276}
-  - component: {fileID: 1583139275}
-  m_Layer: 0
-  m_Name: UnitSpawner
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &1583139275
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1583139274}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1a58e88f27c07324baf6fbad83bc22d3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  colonoPrefab: {fileID: 1921159432317833422, guid: ad180da489fdff0458b48dd98d8a7689, type: 3}
---- !u!4 &1583139276
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1583139274}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 31.644825, y: -52.130684, z: -60.52367}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1591795861
 GameObject:
   m_ObjectHideFlags: 0
@@ -13608,10 +13498,10 @@ MonoBehaviour:
   unitAttackText: {fileID: 0}
   actionAttackButton: {fileID: 88312815}
   actionMoveButton: {fileID: 830477255}
-  actionPassButton: {fileID: 1238049449}
+  actionPassButton: {fileID: 0}
   actionSpecialButton: {fileID: 1933744297}
   actionSpecialButtonText: {fileID: 0}
-  constructionPanelContainer: {fileID: 2124222313}
+  constructionPanelContainer: {fileID: 0}
   buildRoadButton: {fileID: 0}
   buildSettlementButton: {fileID: 0}
   upgradeCityButton: {fileID: 0}
@@ -14216,7 +14106,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1782166223}
   - component: {fileID: 1782166224}
-  - component: {fileID: 1782166225}
   m_Layer: 0
   m_Name: humanPlayer
   m_TagString: Untagged
@@ -14254,21 +14143,6 @@ MonoBehaviour:
   playerID: 0
   playerName: 
   victoryPoints: 0
-<<<<<<< HEAD
-=======
---- !u!114 &1782166225
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1782166222}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 33b546c2f2e3ab64f9168b1e2ce1fc63, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
->>>>>>> main
 --- !u!4 &1794137526 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 1467389877776429767, guid: 8e86f903db7c55740b38edd37797d9f2, type: 3}
@@ -15140,19 +15014,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1933744298}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 1095691863}
-        m_TargetAssemblyTypeName: SimpleClickTester, Assembly-CSharp
-        m_MethodName: BotonConstruirPulsado
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!114 &1933744298
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -16439,7 +16301,6 @@ GameObject:
   m_Component:
   - component: {fileID: 2109579503}
   - component: {fileID: 2109579504}
-  - component: {fileID: 2109579505}
   m_Layer: 0
   m_Name: IAPlayer
   m_TagString: Untagged
@@ -16477,21 +16338,6 @@ MonoBehaviour:
   playerID: 1
   playerName: 
   victoryPoints: 0
-<<<<<<< HEAD
-=======
---- !u!114 &2109579505
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2109579502}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 33b546c2f2e3ab64f9168b1e2ce1fc63, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
->>>>>>> main
 --- !u!1 &2124222313
 GameObject:
   m_ObjectHideFlags: 0
@@ -16774,6 +16620,4 @@ SceneRoots:
   - {fileID: 1888579872}
   - {fileID: 195838382}
   - {fileID: 1104196341}
-  - {fileID: 1583139276}
   - {fileID: 771533938}
-  - {fileID: 1095691862}

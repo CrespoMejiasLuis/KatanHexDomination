@@ -18,6 +18,27 @@ public class UnitBuilder : MonoBehaviour
         unitCerebro = GetComponent<Unit>();
     }
 
+    public bool RecursosNecesarios(Unit unitPrefabToRecruit)
+    {
+        //1.Obtener referenccia al jugador
+        Player activePlayer = GameManager.Instance.humanPlayer;
+
+        if(activePlayer == null) return false;
+
+        //2.Obtener estadisticas de unidad
+        UnitStats stats = unitPrefabToRecruit.statsBase;
+
+        if(stats == null)
+        {
+            Debug.Log($"No tiene unitStats el prefab {unitPrefabToRecruit.name}");
+            return false;
+        }
+
+        Dictionary<ResourceType, int> productionCost = stats.GetProductCost();
+
+        return activePlayer.CanAfford(productionCost);
+    }
+
     public void IntentarConstruirPoblado()
     {
         if (isBuilding) return; 
@@ -39,7 +60,7 @@ public class UnitBuilder : MonoBehaviour
 
         //Necesitamos el componente Unit del prefab
         Unit pobladoUnitPrefab = pobladoPrefab.GetComponent<Unit>();
-        bool recursosNecesarios = unitCerebro.RecursosNecesarios(pobladoUnitPrefab);
+        bool recursosNecesarios = RecursosNecesarios(pobladoUnitPrefab);
         if(!recursosNecesarios) return;
         
         //Gastar recursos
@@ -52,12 +73,6 @@ public class UnitBuilder : MonoBehaviour
         // --- ¡ACCIÓN! ---
         isBuilding = true; 
         HexTile tileVisual = cellDondeEstamos.visualTile;
-
-        if (tileVisual == null) 
-        {
-            Debug.LogError($"Error: La CellData en {cellDondeEstamos.coordinates} no tiene referencia a la HexTile visual. Construcción cancelada.");
-            return;
-        }
         
         // 2. OCULTAR LA CASILLA VIEJA
         // Desactiva todos los Renderers (modelos 3D) de la casilla de terreno
@@ -79,21 +94,18 @@ public class UnitBuilder : MonoBehaviour
         if (pobladoUnit != null)
         {
             pobladoUnit.ownerID = unitCerebro.ownerID;
-            //jugador.ArmyManager.RegisterUnit(pobladoUnit);
         }
 
         // 5. ACTUALIZAR EL BOARDMANAGER (¡LO MÁS IMPORTANTE!)
         // Esto es lo que hablaréis mañana, pero esta es la lógica:
-        cellDondeEstamos.hasCity = false;
+        cellDondeEstamos.hasCity = true;
         cellDondeEstamos.owner = unitCerebro.ownerID;
         // Asumimos que el colono era la 'tropa' en esta casilla
-        cellDondeEstamos.typeUnitOnCell = unitCerebro.statsBase.nombreUnidad; 
-        cellDondeEstamos.unitOnCell = pobladoUnit;
+        cellDondeEstamos.unitOnCell = unitCerebro.statsBase.nombreUnidad; 
         jugador.victoryPoints +=1;
         UIManager.Instance.UpdateVictoryPointsText(jugador.victoryPoints);
 
         // 6. CONSUMIR EL COLONO
-        //jugador.ArmyManager.DeregisterUnit(unitCerebro);
         Destroy(gameObject);
     }
 }

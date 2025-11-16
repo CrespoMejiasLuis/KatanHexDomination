@@ -4,6 +4,8 @@ using UnityEngine.UI;
 using System.Collections.Generic;
 using System;
 
+// Nota: Necesitas definir el enum ResourceType en un archivo separado.
+
 public class UIManager : MonoBehaviour
 {
     // Singleton para acceso global
@@ -30,24 +32,25 @@ public class UIManager : MonoBehaviour
     public TextMeshProUGUI unitAttackText;
 
     // Botones de acción
-    public Button actionAttackButton;
-    public Button actionMoveButton;
+    public Button actionAttackButton;    
+    public Button actionMoveButton;        
     public Button actionPassButton;
     public Button actionSpecialButton;
     public TextMeshProUGUI actionSpecialButtonText;
 
-    // Referencia a la unidad seleccionada (del tipo correcto 'Unit')
-    private Unit selectedUnit = null;
+    // Usaremos 'Component' temporalmente si UnitBase no existe.
+    // Una vez que UnitBase exista, cambia 'Component' a 'UnitBase'.
+    private UnitBase selectedUnit = null;
 
-    [Header("Panel de Construcción (Poblado)")]
-    public GameObject constructionPanelContainer; // Contenedor del menú del poblado
+    [Header("Panel de Construcción")]
+    public GameObject constructionPanelContainer; // Contenedor del nuevo panel
     public Button buildRoadButton;
     public Button buildSettlementButton;
     public Button upgradeCityButton;
-    public Button recruitArtilleroButton;
-    public Button recruitCaballeroButton;
-    public Button recruitCaballeriaButton;
-    public Button recruitColonoButton;
+    public Button recruitArtilleroButton;   // Artillero
+    public Button recruitCaballeroButton;   // Caballero
+    public Button recruitCaballeriaButton;  // Caballería
+    public Button recruitColonoButton;      // Colono
 
     void Awake()
     {
@@ -59,8 +62,8 @@ public class UIManager : MonoBehaviour
         {
             Destroy(gameObject);
         }
-
-        if (constructionPanelContainer != null) constructionPanelContainer.SetActive(false);
+        
+        if(constructionPanelContainer!=null) constructionPanelContainer.SetActive(false);
     }
 
     void Start()
@@ -75,7 +78,7 @@ public class UIManager : MonoBehaviour
             unitPanelContainer.SetActive(false);
         }
 
-        // Inicialización de la UI al empezar el juego
+        // Inicialización de la UI al empezar el juego (si es el turno del jugador)
         if (GameManager.Instance != null && GameManager.Instance.CurrentState == GameState.PlayerTurn)
         {
             ShowPlayerUI();
@@ -85,33 +88,30 @@ public class UIManager : MonoBehaviour
     // --- Suscripción a Eventos ---
     void OnEnable()
     {
-        // Eventos de Turno
         GameManager.OnPlayerTurnStart += ShowPlayerUI;
         GameManager.OnAITurnStart += HidePlayerUI;
 
-        // Eventos de Recursos
+        
         Player.OnPlayerResourcesUpdated += UpdateResourceTexts;
-        Player.OnPlayerVictoryPointsUpdated += UpdateVictoryPointsText;
+        Player.OnPlayerVictoryPointsUpdated += UpdateVictoryPointsText; // Descomentar al implementar
 
-        // Eventos de Selección (¡Usando 'Unit'!)
         GameManager.OnUnitSelected += ShowUnitPanel;
         GameManager.OnDeselected += HideUnitPanel;
     }
 
     void OnDisable()
     {
-        // Darse de baja de todos los eventos
         GameManager.OnPlayerTurnStart -= ShowPlayerUI;
         GameManager.OnAITurnStart -= HidePlayerUI;
 
         Player.OnPlayerResourcesUpdated -= UpdateResourceTexts;
         Player.OnPlayerVictoryPointsUpdated -= UpdateVictoryPointsText;
 
-        GameManager.OnUnitSelected -= ShowUnitPanel;
+        //GameManager.OnUnitSelected -= HideUnitPanel; // No es 'ShowUnitPanel'
         GameManager.OnDeselected -= HideUnitPanel;
     }
 
-    // --- Métodos de Actualización de la UI Superior ---
+    // --- Métodos de Actualización de la UI Superior (Recursos y PV) ---
 
     public void UpdateResourceTexts(Dictionary<ResourceType, int> resources)
     {
@@ -119,12 +119,19 @@ public class UIManager : MonoBehaviour
 
         if (woodAmountText != null && resources.ContainsKey(ResourceType.Madera))
             woodAmountText.text = resources[ResourceType.Madera].ToString();
+
+        // ✅ CORRECCIÓN: Usar ResourceType.Piedra o el nombre correcto de tu enum.
+        // Si tu enum usa 'Roca', está bien, pero 'Piedra' era el que discutimos como estándar.
+        // Asumiendo que tu enum actualmente tiene 'Roca':
         if (stoneAmountText != null && resources.ContainsKey(ResourceType.Roca))
             stoneAmountText.text = resources[ResourceType.Roca].ToString();
+
         if (wheatAmountText != null && resources.ContainsKey(ResourceType.Trigo))
             wheatAmountText.text = resources[ResourceType.Trigo].ToString();
+
         if (clayAmountText != null && resources.ContainsKey(ResourceType.Arcilla))
             clayAmountText.text = resources[ResourceType.Arcilla].ToString();
+
         if (sheepAmountText != null && resources.ContainsKey(ResourceType.Oveja))
             sheepAmountText.text = resources[ResourceType.Oveja].ToString();
     }
@@ -153,7 +160,6 @@ public class UIManager : MonoBehaviour
             endTurnButton.gameObject.SetActive(false);
         }
         HideUnitPanel();
-        HideConstructionPanel(); // Asegurarse de cerrar todo al pasar turno
     }
 
     public void OnEndTurnButtonPressed()
@@ -163,98 +169,92 @@ public class UIManager : MonoBehaviour
 
     // --- Lógica de Panel de Unidad (UI Inferior) ---
 
-    /// <summary>
-    /// Esta función es llamada por el evento GameManager.OnUnitSelected
-    /// y acepta una 'Unit'.
-    /// </summary>
-    public void ShowUnitPanel(Unit unit)
+    public void ShowUnitPanel(UnitBase unit)
     {
-        // 1. COMPROBAR SI ES UN POBLADO (Lógica especial)
-        SettlementUnit pobladoLogic = unit.GetComponent<SettlementUnit>();
-        if (pobladoLogic != null)
-        {
-            // Solo abrimos el menú si es NUESTRO poblado
-            if (unit.ownerID == 0) // Asumimos 0 = Humano
-            {
-                pobladoLogic.OpenTradeMenu();
-                Debug.Log("Poblado aliado seleccionado. Abriendo menú de construcción.");
-                return; // No mostramos el panel de unidad estándar
-            }
-            // Si es un poblado enemigo, continuará y mostrará el panel de stats
-        }
-
-        // 2. ES UNA UNIDAD MÓVIL (O UN POBLADO ENEMIGO)
         selectedUnit = unit;
         if (unitPanelContainer != null)
         {
             unitPanelContainer.SetActive(true);
         }
 
-        // 3. ACTUALIZAR STATS (Se muestra para aliados y enemigos)
-        if (unit.statsBase == null)
+     
+        // --- 1. Actualizar Stats ---
+        unitNameText.text = unit.UnitName;
+        unitHealthText.text = $"Vida: {unit.CurrentHealth}/{unit.MaxHealth}";
+        unitMovementText.text = $"Movimiento: {unit.MovementPointsRemaining}/{unit.MaxMovementPoints}";
+        if (unitRangeText != null)
+            unitRangeText.text = $"Rango: {unit.Range}"; // Asume que unit tiene una propiedad 'Range'
+
+        if (unitAttackText != null)
+            unitAttackText.text = $"Ataque: {unit.Attack}"; // Asume que unit tiene una propiedad 'Attack'
+        // --- 2. Configurar Botones Estándar ---
+        actionAttackButton.interactable = unit.CanAttack();
+        actionMoveButton.interactable = unit.MovementPointsRemaining > 0;
+
+        actionSpecialButton.onClick.RemoveAllListeners();
+        // -------------------------------------------------------------
+        // ❌ TEMPORALMENTE COMENTADO: DESCOMENTAR AL TENER CLASE UNITBASE
+        // -------------------------------------------------------------
+
+        /*
+
+        // --- 3. Configurar Acción Especial (Lógica de subclases) ---
+        if (unit is ColonoUnit colono) 
         {
-            Debug.LogError($"¡La unidad {unit.name} no tiene UnitStats asignado!");
-            return;
+            actionSpecialButton.gameObject.SetActive(true);
+            actionSpecialButtonText.text = "Construir";
+                
+            bool canBuild = colono.MovementPointsRemaining > 0;
+
+            actionSpecialButton.interactable = canBuild;
+
+            
+            actionSpecialButton.interactable = canPlace;
+            actionSpecialButton.onClick.AddListener(() => ShowConstructionPanel(colono));
         }
-
-        // ¡CORREGIDO! Leemos de 'statsBase', 'vidaActual' y 'movimientosRestantes'
-        unitNameText.text = unit.statsBase.nombreUnidad.ToString();
-        unitHealthText.text = $"Vida: {unit.vidaActual}/{unit.statsBase.vidaMaxima}";
-        unitMovementText.text = $"Movimiento: {unit.movimientosRestantes}/{unit.statsBase.puntosMovimiento}";
-        if (unitRangeText != null) unitRangeText.text = $"Rango: {unit.statsBase.rangoAtaque}";
-        if (unitAttackText != null) unitAttackText.text = $"Ataque: {unit.statsBase.ataque}";
-
-        // --- 4. Lógica de Botones Basada en el Dueño ---
-
-        // Comprobar si la unidad es del jugador (asumimos ID 0)
-        if (unit.ownerID == 0)
+        else if (unit is CaballeroUnit)
         {
-            // ES NUESTRA: Mostrar y configurar botones
-            actionAttackButton.gameObject.SetActive(true);
-            actionMoveButton.gameObject.SetActive(true);
-            if (actionPassButton != null) actionPassButton.gameObject.SetActive(true);
-
-            // Configurar interactividad
-            actionAttackButton.interactable = unit.statsBase.ataque > 0;
-            actionMoveButton.interactable = unit.movimientosRestantes > 0;
-            if (actionPassButton != null) actionPassButton.interactable = true;
-
-            // Configurar Botón Especial (Colono)
-            UnitBuilder colonoLogic = unit.GetComponent<UnitBuilder>();
-            actionSpecialButton.onClick.RemoveAllListeners(); // Limpiar listeners antiguos
-
-            if (colonoLogic != null)
-            {
-                actionSpecialButton.gameObject.SetActive(true);
-                actionSpecialButtonText.text = "Construir";
-                actionSpecialButton.interactable = true; // El UnitBuilder comprobará los recursos
-
-                // Conectamos el botón al SimpleClickTester
-                SimpleClickTester clickTester = FindObjectOfType<SimpleClickTester>();
-                if (clickTester != null)
-                {
-                    actionSpecialButton.onClick.AddListener(clickTester.BotonConstruirPulsado);
-                }
-            }
-            else
-            {
-                // No es un colono, ocultar botón especial
-                actionSpecialButton.gameObject.SetActive(false);
-            }
+            actionSpecialButton.gameObject.SetActive(true);
+            actionSpecialButtonText.text = "Fortificar";
+            actionSpecialButton.interactable = true;
+            actionSpecialButton.onClick.AddListener(() => GameManager.Instance.ActionFortificar(unit));
+        }
+        else if (unit is ArtilleroUnit artillero) // Asume que ArtilleroUnit hereda de UnitBase
+        {
+            actionSpecialButton.gameObject.SetActive(true);
+            actionSpecialButtonText.text = "Preparar Asedio"; // Nombre de la habilidad
+    
+            // Asumimos que Asedio solo se puede hacer si no ha movido
+            bool canSiege = artillero.MovementPointsRemaining == artillero.MaxMovementPoints; 
+    
+            actionSpecialButton.interactable = canSiege;
+            // Conectar el botón a la acción del GameManager
+            actionSpecialButton.onClick.AddListener(() => GameManager.Instance.ActionPrepararAsedio(artillero));
         }
         else
         {
-            // ES ENEMIGA: Ocultar TODOS los botones de acción
-            actionAttackButton.gameObject.SetActive(false);
-            actionMoveButton.gameObject.SetActive(false);
             actionSpecialButton.gameObject.SetActive(false);
-            if (actionPassButton != null)
-            {
-                actionPassButton.gameObject.SetActive(false);
-            }
         }
-    }
+        */
 
+        // -------------------------------------------------------------
+        //  FIN DE BLOQUE COMENTADO TEMPORALMENTE
+        // -------------------------------------------------------------
+    }
+    /*
+    public void ShowConstructionPanel(ColonoUnit colono)
+    {
+        // Ocultar el panel de unidad normal y mostrar el de construcción
+        HideUnitPanel();
+        if (constructionPanelContainer != null)
+        {
+            constructionPanelContainer.SetActive(true);
+        }
+
+        // Conectar botones a la lógica del GameManager y verificar costos
+        ConfigureConstructionButtons(colono);
+    }
+    */
     public void HideConstructionPanel()
     {
         if (constructionPanelContainer != null)
@@ -262,10 +262,6 @@ public class UIManager : MonoBehaviour
             constructionPanelContainer.SetActive(false);
         }
     }
-
-    /// <summary>
-    /// Esta función es llamada por el evento GameManager.OnDeselected
-    /// </summary>
     public void HideUnitPanel()
     {
         selectedUnit = null; // Limpiar la referencia
@@ -274,11 +270,75 @@ public class UIManager : MonoBehaviour
             unitPanelContainer.SetActive(false);
         }
     }
+    // Dentro de UIManager.cs
 
-    // ... (Tu función ConfigureButton (comentada) y el resto del código) ...
-    // ... (Asegúrate de copiarla de tu archivo si la necesitas) ...
+    /*
+    private void ConfigureConstructionButtons(ColonoUnit colono)
+    {
+        HideUnitPanel();
 
-private void ConfigureButton(
+        // Asume que tienes una referencia al jugador activo
+       // Player activePlayer = GameManager.Instance.ActivePlayer;
+
+        // --- 1. Definición de Costos (Basado en tu lista) ---
+
+        // Estructuras
+        var roadCost = new Dictionary<ResourceType, int> { { ResourceType.Madera, 1 }, { ResourceType.Arcilla, 1 } };
+        var settlementCost = new Dictionary<ResourceType, int> { { ResourceType.Madera, 1 }, { ResourceType.Arcilla, 1 }, { ResourceType.Oveja, 1 }, { ResourceType.Trigo, 1 } };
+        var cityUpgradeCost = new Dictionary<ResourceType, int> { { ResourceType.Roca, 3 }, { ResourceType.Trigo, 2 } };
+
+        // Unidades
+        var soldierCost = new Dictionary<ResourceType, int> { { ResourceType.Oveja, 1 }, { ResourceType.Trigo, 1 } };
+        var artilleroCost = new Dictionary<ResourceType, int> { { ResourceType.Oveja, 2 }, { ResourceType.Trigo, 1 } };
+        var caballeroCost = new Dictionary<ResourceType, int> { { ResourceType.Oveja, 2 }, { ResourceType.Trigo, 2 } };
+        var caballeriaCost = new Dictionary<ResourceType, int> { { ResourceType.Oveja, 3 }, { ResourceType.Trigo, 3 } };
+        var colonoRecruitCost = new Dictionary<ResourceType, int> { { ResourceType.Oveja, 1 }, { ResourceType.Trigo, 1 } }; // Asumiendo que 'Soldado' es la unidad genérica de infantería.
+
+        // --- 2. Lógica y Conexión de Botones ---
+        
+        // Botones de Estructura
+        ConfigureButton(buildRoadButton, roadCost, activePlayer,
+                        () => colono.CanPlaceRoad(),
+                        () => GameManager.Instance.ActionBuildRoad(colono, roadCost));
+
+        ConfigureButton(buildSettlementButton, settlementCost, activePlayer,
+                        () => colono.CanPlaceSettlement(),
+                        () => GameManager.Instance.ActionBuildSettlement(colono, settlementCost));
+
+        // El botón de Ciudad se debe hacer en una ciudad, no por el colono, pero lo conectamos:
+        ConfigureButton(upgradeCityButton, cityUpgradeCost, activePlayer,
+                        () => false, // Cambiar a lógica de 'adyacente a ciudad' si aplica
+                        () => Debug.Log("Upgrade City action called."));
+
+
+        // Botones de Reclutamiento
+        ConfigureButton(recruitSoldierButton, soldierCost, activePlayer,
+                        () => true, // Reclutar no necesita chequeo de posición, solo costos
+                        () => GameManager.Instance.ActionRecruitUnit(UnitType.Soldier, soldierCost));
+
+        ConfigureButton(recruitArtilleroButton, artilleroCost, activePlayer,
+                        () => true,
+                        () => GameManager.Instance.ActionRecruitUnit(UnitType.Artillero, artilleroCost));
+
+        ConfigureButton(recruitCaballeroButton, caballeroCost, activePlayer,
+                        () => true,
+                        () => GameManager.Instance.ActionRecruitUnit(UnitType.Caballero, caballeroCost));
+
+        ConfigureButton(recruitCaballeriaButton, caballeriaCost, activePlayer,
+                        () => true,
+                        () => GameManager.Instance.ActionRecruitUnit(UnitType.Caballeria, caballeriaCost));
+
+        ConfigureButton(recruitColonoButton, colonoRecruitCost, activePlayer,
+                        () => true,
+                        () => GameManager.Instance.ActionRecruitUnit(UnitType.Colono, colonoRecruitCost));
+   
+    }
+    */
+
+    /// <summary>
+    /// Helper para configurar un botón de acción/construcción.
+    /// </summary>
+    private void ConfigureButton(
         Button button,
         Dictionary<ResourceType, int> cost,
         Player player,

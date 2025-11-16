@@ -22,10 +22,9 @@ public class GameManager : MonoBehaviour
     public static event Action OnAITurnEnd;
 
     // === NUEVOS EVENTOS DE INTERACCIÓN (Para la UI de Unidad) ===
-    public static event Action<Unit> OnUnitSelected; // Notifica que una unidad ha sido seleccionada
+    public static event Action<UnitBase> OnUnitSelected; // Notifica que una unidad ha sido seleccionada
     public static event Action OnDeselected; // Notifica que no hay nada seleccionado
 
-    public Unit selectedUnit { get; private set; }
     public Player humanPlayer; 
     public Player IAPlayer;
 
@@ -104,9 +103,11 @@ public class GameManager : MonoBehaviour
         {
             case GameState.Initializing:
                 // El HexGridGenerator llamar� a esto cuando termine sus animaciones
-                SetUp();
-                SetState(GameState.PlayerTurn); 
-                
+                SetUp(() => {
+                    Debug.Log("🎉 Tablero listo. Transicionando a Turno del Jugador.");
+                    // 🔑 Solo cambiamos de estado CUANDO el generador nos avisa que ha terminado.
+                    SetState(GameState.PlayerTurn); 
+                });
                 break;
 
             case GameState.PlayerTurn:
@@ -178,26 +179,11 @@ public class GameManager : MonoBehaviour
             // 3. Si encontramos una ciudad que pertenece al jugador actual...
             if (cell != null && cell.owner == ownerIDToCheck && cell.hasCity)
             {
-                int yieldAmount = 1;
-                Unit unitOnCell = cell.unitOnCell;
-
-                if(unitOnCell !=null && unitOnCell.statsBase !=null)
-                {
-                    if(unitOnCell.statsBase.nombreUnidad == TypeUnit.Ciudad)
-                    {
-                        yieldAmount = 2;
-                    }
-                    else if(unitOnCell.statsBase.nombreUnidad == TypeUnit.Poblado)
-                    {
-                        yieldAmount = 1;
-                    }
-                }
-
                 Debug.Log($"Ciudad encontrada en {cell.coordinates} para Jugador {playerID}. Comprobando vecinos.");
                 
                 Vector2Int cityCoords = cell.coordinates;
                 ResourceType type = cell.resource;
-                currentPlayer.AddResource(type, yieldAmount);
+                currentPlayer.AddResource(type, 1);
                 // 4. ...iteramos por las 6 direcciones axiales
                 foreach (Vector2Int direction in axialNeighborDirections)
                 {
@@ -237,53 +223,10 @@ public class GameManager : MonoBehaviour
         SetState(GameState.PlayerTurn);
     }
 
-    private void SetUp() 
+    private void SetUp(Action onGridReady) 
     {
-        GenerateGrid(() => {
-            Debug.Log("🎉 Tablero listo. Transicionando a Turno del Jugador.");
-            // 🔑 Solo cambiamos de estado CUANDO el generador nos avisa que ha terminado.
-            UnitSpawner.Instance.SpawnInitialUnits();
+        if(_gridGenerator!=null)
 
-        });
-    }
-
-    private void GenerateGrid(Action onGridReady) {  if (_gridGenerator != null)
-            _gridGenerator.SetUp(onGridReady); }
-
-    // --- Dentro de GameManager.cs ---
-
-    // ¡¡CORREGIDO!!
-    // Esta función ahora selecciona ALIADOS y ENEMIGOS
-    // y SIEMPRE dispara el evento.
-    public void SelectUnit(Unit unitClicked)
-    {
-        // Si ya estaba seleccionada, no hacer nada (o deseleccionar)
-        if (selectedUnit == unitClicked)
-        {
-            DeselectAll();
-            return;
-        }
-
-        // Seleccionar la nueva unidad
-        selectedUnit = unitClicked;
-
-        // ¡Dispara el evento para que la UI reaccione!
-        OnUnitSelected?.Invoke(selectedUnit);
-        Debug.Log($"[GameManager] Unidad seleccionada: {selectedUnit.statsBase.nombreUnidad}");
-    }
-
-    // ¡CORREGIDO!
-    // Esta función se llama al clicar en el grid o en el vacío.
-    // También la usaremos para cancelar el modo "Mover".
-    public void DeselectAll()
-    {
-        // Si estábamos en modo "Mover", cancelarlo
-
-        // Si hay una unidad seleccionada, limpiarla y notificar a la UI
-        if (selectedUnit != null)
-        {
-            selectedUnit = null;
-            OnDeselected?.Invoke(); // ¡Dispara el evento para que la UI se oculte!
-        }
+            _gridGenerator.SetUp(onGridReady);
     }
 }
