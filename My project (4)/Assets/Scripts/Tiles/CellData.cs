@@ -11,6 +11,8 @@ public class CellData
     public Vector2Int coordinates;
     public HexTile visualTile; // Puedes descomentar esto si lo necesitas
 
+    public bool isRaided = false;
+
     public CellData(ResourceType resource, Vector2Int coords)
     {
         this.resource = resource;
@@ -27,4 +29,6 @@ public class CellData
         else
             cost = 1;
     }
+
+
 }

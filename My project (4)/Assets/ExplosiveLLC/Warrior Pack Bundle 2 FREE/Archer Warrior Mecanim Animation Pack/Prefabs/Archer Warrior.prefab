@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 7520341672977343540}
   - component: {fileID: 6266743376539110695}
   - component: {fileID: 6266743376539110692}
+  - component: {fileID: 6669208753736843025}
   - component: {fileID: 4943391100800171832}
   - component: {fileID: 6083535912646536806}
   - component: {fileID: 449259083448730446}
@@ -88,6 +89,18 @@ CapsuleCollider:
   m_Height: 2.5
   m_Direction: 1
   m_Center: {x: 0, y: 1.25, z: 0}
+--- !u!114 &6669208753736843025
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7520341672977643540}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c8baa53fb1238624b902ed95d8920d56, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &4943391100800171832
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -105,6 +118,7 @@ MonoBehaviour:
   vidaActual: 0
   movimientosRestantes: 0
   misCoordenadasActuales: {x: 0, y: 0}
+  spawnInDuration: 1.5
 --- !u!114 &6083535912646536806
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -117,6 +131,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 463fcf1b92c37a349b6062352a665459, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  attackDuration: 0.5
 --- !u!95 &449259083448730446
 Animator:
   serializedVersion: 7
@@ -128,7 +143,7 @@ Animator:
   m_Enabled: 1
   m_Avatar: {fileID: 9000000, guid: 6113d0ea44252774db53fa756483807d, type: 3}
   m_Controller: {fileID: 9100000, guid: 1bd48d36d3280cc4f966198224c78b9c, type: 2}
-  m_CullingMode: 0
+  m_CullingMode: 1
   m_UpdateMode: 0
   m_ApplyRootMotion: 1
   m_LinearVelocityBlending: 0
