@@ -103,11 +103,8 @@ public class GameManager : MonoBehaviour
         {
             case GameState.Initializing:
                 // El HexGridGenerator llamar� a esto cuando termine sus animaciones
-                SetUp(() => {
-                    Debug.Log("🎉 Tablero listo. Transicionando a Turno del Jugador.");
-                    // 🔑 Solo cambiamos de estado CUANDO el generador nos avisa que ha terminado.
-                    SetState(GameState.PlayerTurn); 
-                });
+                SetUp();
+                SetState(GameState.PlayerTurn);
                 break;
 
             case GameState.PlayerTurn:
@@ -236,17 +233,24 @@ public class GameManager : MonoBehaviour
         // Cambiar de nuevo al jugador
         SetState(GameState.PlayerTurn);
     }
-
-    private void SetUp(Action onGridReady) 
+    private void GenerateGrid(Action onGridReady)
     {
-        if(_gridGenerator!=null)
-
+        if (_gridGenerator != null)
             _gridGenerator.SetUp(onGridReady);
+    }
+    private void SetUp() 
+    {
+        GenerateGrid(() => {
+            Debug.Log("🎉 Tablero listo. Transicionando a Turno del Jugador.");
+            // 🔑 Solo cambiamos de estado CUANDO el generador nos avisa que ha terminado.
+            UnitSpawner.Instance.SpawnInitialUnits();
+
+        });
     }
     public void SelectUnit(Unit unitClicked)
     {
         // ¿Clic en una unidad enemiga?
-        if (unitClicked.ownerID != 0) // Asumimos 0 = Humano
+        if (selectedUnit == unitClicked)
         {
             // Clic en unidad enemiga. Deselecciona la actual.
             DeselectAll();

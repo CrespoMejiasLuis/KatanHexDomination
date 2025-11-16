@@ -81,6 +81,8 @@ public class UnitBuilder : MonoBehaviour
         if (pobladoUnit != null)
         {
             pobladoUnit.ownerID = unitCerebro.ownerID;
+            jugador.ArmyManager.RegisterUnit(pobladoUnit);
+            jugador.ArmyManager.RegisterUnit(pobladoUnit);
             //jugador.ArmyManager.RegisterUnit(pobladoUnit);
         }
 
@@ -95,6 +97,7 @@ public class UnitBuilder : MonoBehaviour
         UIManager.Instance.UpdateVictoryPointsText(jugador.victoryPoints);
         //jugador.ArmyManager.DeregisterUnit(unitCerebro);
         // 6. CONSUMIR EL COLONO
+        jugador.ArmyManager.DeregisterUnit(unitCerebro);
         Destroy(gameObject);
     }
 }
