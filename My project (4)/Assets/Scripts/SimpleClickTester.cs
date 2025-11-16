@@ -215,7 +215,6 @@ public class SimpleClickTester : MonoBehaviour
         }
     }
 
-<<<<<<< HEAD
     public void BotonCrearArtilleroPulsado()
     {
         // 1. Comprobar si hay unidad seleccionada
@@ -243,7 +242,6 @@ public class SimpleClickTester : MonoBehaviour
         }
     }
 
-=======
     public void UpgradeCiudad()
     {
         if(unidadSeleccionada == null)
@@ -307,5 +305,5 @@ public class SimpleClickTester : MonoBehaviour
             //jugador.ArmyManager.DeregisterUnit(unitCerebro);
         }
     }
->>>>>>> main
+
 }
