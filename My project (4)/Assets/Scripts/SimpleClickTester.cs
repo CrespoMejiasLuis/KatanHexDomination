@@ -45,7 +45,28 @@ public class SimpleClickTester : MonoBehaviour
         RaycastHit hit;
 
         // --- LÓGICA DE CLIC EN EL MUNDO ---
+        if (Physics.Raycast(rayo, out hit, float.MaxValue, unitLayerMask))
+        {
+            Unit unidadClickada = hit.collider.GetComponentInParent<Unit>();
+            if (unidadClickada != null)
+            {
+                switch (currentMode)
+                {
+                    case PlayerInputMode.Selection:
+                        HandleUnitSelection(unidadClickada);
+                        break;
 
+                    case PlayerInputMode.AttackTargeting:
+                        IntentarAtacar(unidadClickada);
+                        break;
+
+                    case PlayerInputMode.MoveTargeting:
+                        // Por si quieres soportar mover haciendo clic en unidad
+                        break;
+                }
+                return;
+            }
+        }
         // 1. ¿He clicado en la capa de UNIDADES?
         if (Physics.Raycast(rayo, out hit, float.MaxValue, unitLayerMask))
         {
@@ -241,6 +262,57 @@ public class SimpleClickTester : MonoBehaviour
             Debug.Log("¡La unidad seleccionada (" + unidadSeleccionada.name + ") no puede crear Artillero!");
         }
     }
+    public void BotonAtacarPulsado()
+    {
+        if (unidadSeleccionada == null) return;
+
+        UnitAttack attack = unidadSeleccionada.GetComponent<UnitAttack>();
+        if (attack == null)
+        {
+            Debug.Log("La unidad seleccionada no puede atacar");
+            return;
+        }
+
+        currentMode = PlayerInputMode.AttackTargeting;
+        if (unitActionMenu != null)
+            unitActionMenu.SetActive(false);
+
+        Debug.Log("Modo atacar activado. Selecciona un objetivo enemigo.");
+    }
+
+    private void IntentarAtacar(Unit objetivo)
+    {
+        if (unidadSeleccionada == null || objetivo == null) return;
+
+        // Verificar propietario
+       /* if (objetivo.ownerID == unidadSeleccionada.ownerID)
+        {
+            Debug.Log("No puedes atacar a tus aliados");
+            return;
+        }
+       */
+
+        UnitAttack attack = unidadSeleccionada.GetComponent<UnitAttack>();
+        if (attack == null)
+        {
+            Debug.Log("Unidad no tiene capacidad de ataque");
+            currentMode = PlayerInputMode.Selection;
+            return;
+        }
+
+        if (!attack.PuedeAtacar(objetivo))
+        {
+            Debug.Log("Objetivo fuera de rango");
+            return;
+        }
+
+        // Atacar
+        attack.Atacar(objetivo);
+
+        currentMode = PlayerInputMode.Selection;
+    }
+
+
 
     public void UpgradeCiudad()
     {
