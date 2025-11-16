@@ -40,17 +40,17 @@ public class UIManager : MonoBehaviour
 
     // Usaremos 'Component' temporalmente si UnitBase no existe.
     // Una vez que UnitBase exista, cambia 'Component' a 'UnitBase'.
-    private UnitBase selectedUnit = null;
+    private Unit selectedUnit = null;
 
     [Header("Panel de Construcción")]
     public GameObject constructionPanelContainer; // Contenedor del nuevo panel
     public Button buildRoadButton;
     public Button buildSettlementButton;
     public Button upgradeCityButton;
-    public Button recruitArtilleroButton;   // Artillero
-    public Button recruitCaballeroButton;   // Caballero
-    public Button recruitCaballeriaButton;  // Caballería
-    public Button recruitColonoButton;      // Colono
+    public Button recruitArtilleroButton;
+    public Button recruitCaballeroButton;
+    public Button recruitCaballeriaButton;
+    public Button recruitColonoButton;
 
     void Awake()
     {
@@ -169,92 +169,44 @@ public class UIManager : MonoBehaviour
 
     // --- Lógica de Panel de Unidad (UI Inferior) ---
 
-    public void ShowUnitPanel(UnitBase unit)
+    public void ShowUnitPanel(Unit unit)
     {
+        SettlementUnit pobladoLogic = unit.GetComponent<SettlementUnit>();
+        if (pobladoLogic != null)
+        {
+            pobladoLogic.OpenTradeMenu(); // El poblado abre su propio menú
+            return; // No mostramos el panel de unidad estándar
+        }
         selectedUnit = unit;
         if (unitPanelContainer != null)
         {
             unitPanelContainer.SetActive(true);
         }
 
-     
-        // --- 1. Actualizar Stats ---
-        unitNameText.text = unit.UnitName;
-        unitHealthText.text = $"Vida: {unit.CurrentHealth}/{unit.MaxHealth}";
-        unitMovementText.text = $"Movimiento: {unit.MovementPointsRemaining}/{unit.MaxMovementPoints}";
+
+        unitNameText.text = unit.statsBase.nombreUnidad.ToString();
+        unitHealthText.text = $"Vida: {unit.vidaActual}/{unit.statsBase.vidaMaxima}";
+        unitMovementText.text = $"Movimiento: {unit.movimientosRestantes}/{unit.statsBase.puntosMovimiento}";
+
         if (unitRangeText != null)
-            unitRangeText.text = $"Rango: {unit.Range}"; // Asume que unit tiene una propiedad 'Range'
+            unitRangeText.text = $"Rango: {unit.statsBase.rangoAtaque}";
 
         if (unitAttackText != null)
-            unitAttackText.text = $"Ataque: {unit.Attack}"; // Asume que unit tiene una propiedad 'Attack'
-        // --- 2. Configurar Botones Estándar ---
-        actionAttackButton.interactable = unit.CanAttack();
-        actionMoveButton.interactable = unit.MovementPointsRemaining > 0;
+            unitAttackText.text = $"Ataque: {unit.statsBase.ataque}";
+
+        actionAttackButton.interactable = unit.statsBase.ataque > 0;
+        actionMoveButton.interactable = unit.movimientosRestantes > 0;
 
         actionSpecialButton.onClick.RemoveAllListeners();
-        // -------------------------------------------------------------
-        // ❌ TEMPORALMENTE COMENTADO: DESCOMENTAR AL TENER CLASE UNITBASE
-        // -------------------------------------------------------------
+        
 
-        /*
-
-        // --- 3. Configurar Acción Especial (Lógica de subclases) ---
-        if (unit is ColonoUnit colono) 
+        UnitBuilder colonoLogic = unit.GetComponent<UnitBuilder>();
+        if (colonoLogic != null)
         {
-            actionSpecialButton.gameObject.SetActive(true);
-            actionSpecialButtonText.text = "Construir";
-                
-            bool canBuild = colono.MovementPointsRemaining > 0;
-
-            actionSpecialButton.interactable = canBuild;
-
-            
-            actionSpecialButton.interactable = canPlace;
-            actionSpecialButton.onClick.AddListener(() => ShowConstructionPanel(colono));
+            actionSpecialButton.onClick.AddListener(FindObjectOfType<SimpleClickTester>().BotonConstruirPulsado);
+            actionSpecialButton.interactable = true; // (UnitBuilder comprobará los recursos)
         }
-        else if (unit is CaballeroUnit)
-        {
-            actionSpecialButton.gameObject.SetActive(true);
-            actionSpecialButtonText.text = "Fortificar";
-            actionSpecialButton.interactable = true;
-            actionSpecialButton.onClick.AddListener(() => GameManager.Instance.ActionFortificar(unit));
-        }
-        else if (unit is ArtilleroUnit artillero) // Asume que ArtilleroUnit hereda de UnitBase
-        {
-            actionSpecialButton.gameObject.SetActive(true);
-            actionSpecialButtonText.text = "Preparar Asedio"; // Nombre de la habilidad
-    
-            // Asumimos que Asedio solo se puede hacer si no ha movido
-            bool canSiege = artillero.MovementPointsRemaining == artillero.MaxMovementPoints; 
-    
-            actionSpecialButton.interactable = canSiege;
-            // Conectar el botón a la acción del GameManager
-            actionSpecialButton.onClick.AddListener(() => GameManager.Instance.ActionPrepararAsedio(artillero));
-        }
-        else
-        {
-            actionSpecialButton.gameObject.SetActive(false);
-        }
-        */
-
-        // -------------------------------------------------------------
-        //  FIN DE BLOQUE COMENTADO TEMPORALMENTE
-        // -------------------------------------------------------------
     }
-    /*
-    public void ShowConstructionPanel(ColonoUnit colono)
-    {
-        // Ocultar el panel de unidad normal y mostrar el de construcción
-        HideUnitPanel();
-        if (constructionPanelContainer != null)
-        {
-            constructionPanelContainer.SetActive(true);
-        }
-
-        // Conectar botones a la lógica del GameManager y verificar costos
-        ConfigureConstructionButtons(colono);
-    }
-    */
     public void HideConstructionPanel()
     {
         if (constructionPanelContainer != null)

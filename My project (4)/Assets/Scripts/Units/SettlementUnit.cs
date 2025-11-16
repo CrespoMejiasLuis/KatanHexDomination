@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 [RequireComponent(typeof(Unit))]
 public class SettlementUnit : MonoBehaviour
@@ -19,6 +20,7 @@ public class SettlementUnit : MonoBehaviour
             tradeMenu = UIManager.Instance.constructionPanelContainer;
         }
     }
+    public Unit getUnitCerebro() {  return unitCerebro; }
 
     public void RecibirDano(int cantidad, Unit atacante)
     {

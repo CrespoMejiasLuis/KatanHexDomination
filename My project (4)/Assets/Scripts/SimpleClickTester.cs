@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
+using System.Collections.Generic;
 
 public class SimpleClickTester : MonoBehaviour
 {
@@ -12,6 +13,9 @@ public class SimpleClickTester : MonoBehaviour
     [Header("Configuracion de Capas")]
     public LayerMask unitLayerMask;
     public LayerMask gridLayerMask;
+
+    [Header("Prefabs construccion")]
+    public GameObject ciudadPrefab;
 
     private readonly int PLAYER_ID = 0; //human player
 
@@ -40,6 +44,45 @@ public class SimpleClickTester : MonoBehaviour
         Ray rayo = camaraPrincipal.ScreenPointToRay(Input.mousePosition);
         RaycastHit hit;
 
+        if (Physics.Raycast(rayo, out hit, float.MaxValue, gridLayerMask))
+        {
+            HexTile casillaClicada = hit.collider.GetComponentInParent<HexTile>();
+            if (casillaClicada != null)
+            {
+                switch (currentMode)
+                {
+                    case PlayerInputMode.AbilityTargeting:
+                        IntentarSaqueo(casillaClicada);
+                        return;
+
+                    case PlayerInputMode.MoveTargeting:
+                        HandleGridClick(casillaClicada);
+                        return;
+                }
+            }
+        }
+        if (Physics.Raycast(rayo, out hit, float.MaxValue, unitLayerMask))
+        {
+            Unit unidadClickada = hit.collider.GetComponentInParent<Unit>();
+            if (unidadClickada != null)
+            {
+                switch (currentMode)
+                {
+                    case PlayerInputMode.Selection:
+                        HandleUnitSelection(unidadClickada);
+                        break;
+
+                    case PlayerInputMode.AttackTargeting:
+                        IntentarAtacar(unidadClickada);
+                        break;
+
+                    case PlayerInputMode.MoveTargeting:
+                        // Por si quieres soportar mover haciendo clic en unidad
+                        break;
+                }
+                return;
+            }
+        }
         // --- LÓGICA DE CLIC EN EL MUNDO ---
 
         // 1. ¿He clicado en la capa de UNIDADES?
@@ -105,8 +148,9 @@ public class SimpleClickTester : MonoBehaviour
         DeseleccionarUnit(); // Deselecciona la anterior
 
         unidadSeleccionada = unitClickada;
+        GameManager.Instance.SelectUnit(unitClickada);
 
-        if(unitClickada.ownerID == PLAYER_ID)
+        if (unitClickada.ownerID == PLAYER_ID)
         {
             SettlementUnit pobladoLogic = unitClickada.GetComponent<SettlementUnit>(); 
         
@@ -129,6 +173,7 @@ public class SimpleClickTester : MonoBehaviour
         
         // ¡Importante! Al seleccionar una unidad, SIEMPRE volvemos al modo Selección
         currentMode = PlayerInputMode.Selection;
+        
     }
 
     // MODIFICADA: Ahora también resetea el modo
@@ -152,6 +197,7 @@ public class SimpleClickTester : MonoBehaviour
 
         // ¡Importante! Si no hay nada seleccionado, volvemos al modo Selección
         currentMode = PlayerInputMode.Selection;
+        GameManager.Instance.DeselectAll();
     }
 
     /// <summary>
@@ -207,7 +253,91 @@ public class SimpleClickTester : MonoBehaviour
             Debug.Log("¡Esta unidad no se puede mover o no tiene puntos de movimiento!");
         }
     }
+    private void IntentarSaqueo(HexTile casilla)
+    {
+        if (unidadSeleccionada == null || casilla == null) return;
 
+        Ability ability = unidadSeleccionada.GetComponent<Ability>();
+        if (ability == null) return;
+
+        // Usamos las coordenadas de la casilla para obtener la celda
+        CellData cellData = BoardManager.Instance.GetCell(casilla.AxialCoordinates);
+        if (cellData == null) return;
+
+        ability.Saquear(cellData);
+
+        // Volver al modo selección
+        currentMode = PlayerInputMode.Selection;
+    }
+
+
+
+    public void BotonSaqueoPulsado()
+    {
+        if (unidadSeleccionada == null) return;
+
+        Ability ability = unidadSeleccionada.GetComponent<Ability>();
+        if (ability == null)
+        {
+            Debug.Log("La unidad seleccionada no tiene la habilidad de saquear.");
+            return;
+        }
+
+        // Cambiar al modo selección de casilla para saquear
+        currentMode = PlayerInputMode.AbilityTargeting;
+        if (unitActionMenu != null) unitActionMenu.SetActive(false);
+
+        Debug.Log("Modo saquear: selecciona una casilla enemiga o neutral.");
+    }
+    public void BotonAtacarPulsado()
+    {
+        if (unidadSeleccionada == null) return;
+
+        UnitAttack attack = unidadSeleccionada.GetComponent<UnitAttack>();
+        if (attack == null)
+        {
+            Debug.Log("La unidad seleccionada no puede atacar");
+            return;
+        }
+
+        currentMode = PlayerInputMode.AttackTargeting;
+        if (unitActionMenu != null)
+            unitActionMenu.SetActive(false);
+
+        Debug.Log("Modo atacar activado. Selecciona un objetivo enemigo.");
+    }
+
+    private void IntentarAtacar(Unit objetivo)
+    {
+        if (unidadSeleccionada == null || objetivo == null) return;
+
+        // Verificar propietario
+        /* if (objetivo.ownerID == unidadSeleccionada.ownerID)
+         {
+             Debug.Log("No puedes atacar a tus aliados");
+             return;
+         }
+        */
+
+        UnitAttack attack = unidadSeleccionada.GetComponent<UnitAttack>();
+        if (attack == null)
+        {
+            Debug.Log("Unidad no tiene capacidad de ataque");
+            currentMode = PlayerInputMode.Selection;
+            return;
+        }
+
+        if (!attack.PuedeAtacar(objetivo))
+        {
+            Debug.Log("Objetivo fuera de rango");
+            return;
+        }
+
+        // Atacar
+        attack.Atacar(objetivo);
+
+        currentMode = PlayerInputMode.Selection;
+    }
     public void BotonCrearArtilleroPulsado()
     {
         // 1. Comprobar si hay unidad seleccionada
@@ -232,6 +362,70 @@ public class SimpleClickTester : MonoBehaviour
         else
         {
             Debug.Log("¡La unidad seleccionada (" + unidadSeleccionada.name + ") no puede crear Artillero!");
+        }
+    }
+
+    public void UpgradeCiudad()
+    {
+        if (unidadSeleccionada == null)
+        {
+            Debug.Log("No hay unidad seleccionada");
+            return;
+        }
+
+        SettlementUnit pobladoLogic = unidadSeleccionada.GetComponent<SettlementUnit>();
+
+        if (pobladoLogic != null && unidadSeleccionada.statsBase.nombreUnidad == TypeUnit.Poblado)
+        {
+            if (ciudadPrefab == null) return;
+
+            Unit unitCerebro = pobladoLogic.getUnitCerebro();
+
+            //datos casilla
+            CellData cellDondeEstamos = BoardManager.Instance.GetCell(unitCerebro.misCoordenadasActuales);
+            if (cellDondeEstamos == null) { /* ... error ... */ return; }
+
+            //Necesitamos el Unit del prefab
+            Unit ciudadUnitPrefab = ciudadPrefab.GetComponent<Unit>();
+            bool recursosNecesarios = unitCerebro.RecursosNecesarios(ciudadUnitPrefab);
+            if (!recursosNecesarios) return; //si no tienes materiales suficientes no construye
+
+            //Gastar recursos
+            Player jugador = GameManager.Instance.humanPlayer;
+            Dictionary<ResourceType, int> productionCost = ciudadUnitPrefab.statsBase.GetProductCost();
+
+            bool recursosGastados = jugador.SpendResources(productionCost);
+            if (!recursosGastados) return;
+
+            //Accion
+            HexTile tileVisual = cellDondeEstamos.visualTile;
+
+            // 2. OCULTAR LA CASILLA VIEJA
+            // Desactiva todos los Renderers (modelos 3D) de la casilla de terreno
+            foreach (Renderer r in tileVisual.GetComponentsInChildren<Renderer>())
+            {
+                r.enabled = false;
+            }
+
+            //Crear ciudad
+            GameObject nuevaCiudad = Instantiate(ciudadPrefab, tileVisual.transform.position, Quaternion.identity);
+
+            //Dueno ciudad
+            Unit ciudad = nuevaCiudad.GetComponent<Unit>();
+            if (ciudad != null)
+            {
+                ciudad.ownerID = unitCerebro.ownerID;
+                //jugador.ArmyManager.RegisterUnit(ciudad);
+            }
+
+            cellDondeEstamos.hasCity = true;
+            cellDondeEstamos.typeUnitOnCell = TypeUnit.Ciudad;
+            cellDondeEstamos.owner = unitCerebro.ownerID;
+            cellDondeEstamos.unitOnCell = ciudad;
+            jugador.victoryPoints++;
+            UIManager.Instance.UpdateVictoryPointsText(jugador.victoryPoints);
+
+            //jugador.ArmyManager.DeregisterUnit(unitCerebro);
         }
     }
 

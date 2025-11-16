@@ -22,9 +22,9 @@ public class GameManager : MonoBehaviour
     public static event Action OnAITurnEnd;
 
     // === NUEVOS EVENTOS DE INTERACCIÓN (Para la UI de Unidad) ===
-    public static event Action<UnitBase> OnUnitSelected; // Notifica que una unidad ha sido seleccionada
+    public static event Action<Unit> OnUnitSelected; // Notifica que una unidad ha sido seleccionada
     public static event Action OnDeselected; // Notifica que no hay nada seleccionado
-
+    public Unit selectedUnit { get; private set; }
     public Player humanPlayer; 
     public Player IAPlayer;
 
@@ -179,11 +179,25 @@ public class GameManager : MonoBehaviour
             // 3. Si encontramos una ciudad que pertenece al jugador actual...
             if (cell != null && cell.owner == ownerIDToCheck && cell.hasCity)
             {
+                int yieldAmount = 0;
+                Unit unitOnCell = cell.unitOnCell;
+
+                if(unitOnCell !=null && unitOnCell.statsBase !=null)
+                {
+                    if(unitOnCell.statsBase.nombreUnidad == TypeUnit.Ciudad)
+                    {
+                        yieldAmount = 2;
+                    }
+                    else if(unitOnCell.statsBase.nombreUnidad == TypeUnit.Poblado)
+                    {
+                        yieldAmount = 1;
+                    }
+                }
                 Debug.Log($"Ciudad encontrada en {cell.coordinates} para Jugador {playerID}. Comprobando vecinos.");
                 
                 Vector2Int cityCoords = cell.coordinates;
                 ResourceType type = cell.resource;
-                currentPlayer.AddResource(type, 1);
+                currentPlayer.AddResource(type, yieldAmount);
                 // 4. ...iteramos por las 6 direcciones axiales
                 foreach (Vector2Int direction in axialNeighborDirections)
                 {
@@ -198,7 +212,7 @@ public class GameManager : MonoBehaviour
                     {
                         // 7. ...¡Añadir su recurso al jugador!
                         type = neighborCell.resource;
-                        currentPlayer.AddResource(type, 1); 
+                        currentPlayer.AddResource(type, yieldAmount); 
                         // (El método AddResource ya imprime el log de "ganó X")
                     }
                 }
@@ -228,5 +242,31 @@ public class GameManager : MonoBehaviour
         if(_gridGenerator!=null)
 
             _gridGenerator.SetUp(onGridReady);
+    }
+    public void SelectUnit(Unit unitClicked)
+    {
+        // ¿Clic en una unidad enemiga?
+        if (unitClicked.ownerID != 0) // Asumimos 0 = Humano
+        {
+            // Clic en unidad enemiga. Deselecciona la actual.
+            DeselectAll();
+            return;
+        }
+
+        // Es una unidad aliada.
+        selectedUnit = unitClicked;
+
+        // ¡Dispara el evento para que la UI reaccione!
+        OnUnitSelected?.Invoke(selectedUnit);
+        Debug.Log($"[GameManager] Unidad seleccionada: {selectedUnit.statsBase.nombreUnidad}");
+    }
+
+    public void DeselectAll()
+    {
+        if (selectedUnit != null)
+        {
+            selectedUnit = null;
+            OnDeselected?.Invoke(); // ¡Dispara el evento para que la UI se oculte!
+        }
     }
 }

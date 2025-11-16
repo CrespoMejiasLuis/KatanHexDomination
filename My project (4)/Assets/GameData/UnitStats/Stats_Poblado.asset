@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6fc73d60226d2e741a725e4f61cbcc98, type: 3}
   m_Name: Stats_Poblado
   m_EditorClassIdentifier: 
-  nombreUnidad: Poblado
-  prefabModelo: {fileID: 0}
+  nombreUnidad: 2
+  prefabModelo: {fileID: 8530877068906648645, guid: df0683c4f045cf94d83741309ed216d9, type: 3}
   vidaMaxima: 100
   ataque: 40
   rangoAtaque: 0

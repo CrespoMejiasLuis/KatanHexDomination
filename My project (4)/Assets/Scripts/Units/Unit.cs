@@ -1,5 +1,6 @@
 using UnityEngine;
 using System;
+using System.Collections.Generic;
 
 public class Unit : MonoBehaviour
 {
@@ -97,4 +98,25 @@ public class Unit : MonoBehaviour
     {
         GameManager.OnPlayerTurnStart -= OnTurnStart;
     }
+    public bool RecursosNecesarios(Unit unitPrefabToRecruit)
+    {
+        //1.Obtener referenccia al jugador
+        Player activePlayer = GameManager.Instance.humanPlayer;
+
+        if (activePlayer == null) return false;
+
+        //2.Obtener estadisticas de unidad
+        UnitStats stats = unitPrefabToRecruit.statsBase;
+
+        if (stats == null)
+        {
+            Debug.Log($"No tiene unitStats el prefab {unitPrefabToRecruit.name}");
+            return false;
+        }
+
+        Dictionary<ResourceType, int> productionCost = stats.GetProductCost();
+
+        return activePlayer.CanAfford(productionCost);
+    }
+
 }
