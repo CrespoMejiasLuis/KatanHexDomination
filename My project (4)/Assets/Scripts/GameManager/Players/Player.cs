@@ -10,6 +10,8 @@ public abstract class Player : MonoBehaviour
     public int playerID;
     public string playerName;
     public int victoryPoints;
+    public PlayerArmyManager ArmyManager { get; private set; }
+
 
 
     protected Dictionary<ResourceType, int> resources = new Dictionary<ResourceType, int>();
@@ -19,6 +21,7 @@ public abstract class Player : MonoBehaviour
     {
         victoryPoints = 0;
         InitializeResourceDictionary();
+        ArmyManager = GetComponent<PlayerArmyManager>();
     }
 
 
@@ -45,7 +48,8 @@ public abstract class Player : MonoBehaviour
         resources[ResourceType.Madera] = 1;
         resources[ResourceType.Arcilla] = 1;
         resources[ResourceType.Oveja] = 1;
-        resources[ResourceType.Trigo] = 1;
+        resources[ResourceType.Trigo] = 3;
+        resources[ResourceType.Roca] = 3;
 
         OnPlayerResourcesUpdated?.Invoke(resources);
     }

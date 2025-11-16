@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 [RequireComponent(typeof(Unit))]
 public class SettlementUnit : MonoBehaviour
@@ -39,4 +40,10 @@ public class SettlementUnit : MonoBehaviour
             tradeMenu.SetActive(true);
         }
     }
+
+    public Unit getUnitCerebro()
+    {
+        return unitCerebro;
+    }
+
 }
