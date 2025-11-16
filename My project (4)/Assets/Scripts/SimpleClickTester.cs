@@ -168,7 +168,7 @@ public class SimpleClickTester : MonoBehaviour
         }
         else
         {
-            if(unitActionMenu != null) unitActionMenu.SetActive(false);
+            //if(unitActionMenu != null) unitActionMenu.SetActive(false);
         }
         
         // ¡Importante! Al seleccionar una unidad, SIEMPRE volvemos al modo Selección

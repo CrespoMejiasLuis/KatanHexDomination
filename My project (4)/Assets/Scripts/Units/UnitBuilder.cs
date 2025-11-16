@@ -97,7 +97,7 @@ public class UnitBuilder : MonoBehaviour
         UIManager.Instance.UpdateVictoryPointsText(jugador.victoryPoints);
         //jugador.ArmyManager.DeregisterUnit(unitCerebro);
         // 6. CONSUMIR EL COLONO
-        jugador.ArmyManager.DeregisterUnit(unitCerebro);
+       // jugador.ArmyManager.DeregisterUnit(unitCerebro);
         Destroy(gameObject);
     }
 }
