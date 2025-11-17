@@ -28,6 +28,7 @@ public class SettlementUnit : MonoBehaviour
 
         if(unitCerebro.vidaActual > 0 && unitCerebro.statsBase.ataque >0 && atacante!=null)
         {
+            if(atacante.statsBase.nombreUnidad == TypeUnit.Artillero) return;
             int danoContraataque = unitCerebro.statsBase.ataque;
 
             atacante.RecibirDano(danoContraataque);
