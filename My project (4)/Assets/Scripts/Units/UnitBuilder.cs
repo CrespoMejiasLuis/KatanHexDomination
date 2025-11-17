@@ -89,7 +89,7 @@ public class UnitBuilder : MonoBehaviour
         pobladoUnit.misCoordenadasActuales = cellDondeEstamos.coordinates;
         cellDondeEstamos.owner = unitCerebro.ownerID;
         // Asumimos que el colono era la 'tropa' en esta casilla
-        cellDondeEstamos.typeUnitOnCell = unitCerebro.statsBase.nombreUnidad;
+        cellDondeEstamos.typeUnitOnCell = TypeUnit.Poblado;
         cellDondeEstamos.unitOnCell = pobladoUnit;
         jugador.victoryPoints +=1;
         UIManager.Instance.UpdateVictoryPointsText(jugador.victoryPoints);

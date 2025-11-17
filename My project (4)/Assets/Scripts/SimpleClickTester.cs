@@ -455,7 +455,7 @@ public class SimpleClickTester : MonoBehaviour
             cellDondeEstamos.unitOnCell = ciudad;
             jugador.victoryPoints++;
             UIManager.Instance.UpdateVictoryPointsText(jugador.victoryPoints);
-            Destroy(unitCerebro.GameObject);
+            Destroy(unitCerebro.gameObject);
             //jugador.ArmyManager.DeregisterUnit(unitCerebro);
         }
     }
