@@ -48,6 +48,8 @@ public abstract class Player : MonoBehaviour
         resources[ResourceType.Arcilla] = 5;
         resources[ResourceType.Oveja] = 5;
         resources[ResourceType.Trigo] = 5;
+        resources[ResourceType.Roca] = 5;
+
 
         OnPlayerResourcesUpdated?.Invoke(resources);
     }
