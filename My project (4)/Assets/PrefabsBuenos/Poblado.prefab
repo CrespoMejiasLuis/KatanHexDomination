@@ -210,6 +210,7 @@ MonoBehaviour:
   vidaActual: 0
   movimientosRestantes: 0
   misCoordenadasActuales: {x: 0, y: 0}
+  spawnInDuration: 1.5
 --- !u!114 &4227531386470192683
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -236,6 +237,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   artilleroPrefab: {fileID: 7520341672977643540, guid: b0e8c80702d87fb4f9c231b669dcffd3, type: 3}
+  caballeroPrefab: {fileID: 7491848878131134450, guid: 7e504df8b9b239c48a52baf30848dfa5, type: 3}
 --- !u!1 &8938343010813689107
 GameObject:
   m_ObjectHideFlags: 0
