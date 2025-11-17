@@ -13911,21 +13911,22 @@ MonoBehaviour:
   unitNameText: {fileID: 992754435}
   unitHealthText: {fileID: 1552411199}
   unitMovementText: {fileID: 744069770}
-  unitRangeText: {fileID: 0}
-  unitAttackText: {fileID: 0}
+  unitRangeText: {fileID: 399778896}
+  unitAttackText: {fileID: 653989233}
   actionAttackButton: {fileID: 88312815}
   actionMoveButton: {fileID: 830477255}
-  actionPassButton: {fileID: 0}
+  actionPassButton: {fileID: 1238049449}
   actionSpecialButton: {fileID: 1933744297}
+  accionSaquear: {fileID: 750631559}
   actionSpecialButtonText: {fileID: 0}
-  constructionPanelContainer: {fileID: 0}
-  buildRoadButton: {fileID: 0}
-  buildSettlementButton: {fileID: 0}
-  upgradeCityButton: {fileID: 0}
-  recruitArtilleroButton: {fileID: 0}
-  recruitCaballeroButton: {fileID: 0}
-  recruitCaballeriaButton: {fileID: 0}
-  recruitColonoButton: {fileID: 0}
+  constructionPanelContainer: {fileID: 2124222313}
+  buildRoadButton: {fileID: 1857520691}
+  buildSettlementButton: {fileID: 287253752}
+  upgradeCityButton: {fileID: 1042051418}
+  recruitArtilleroButton: {fileID: 1767304926}
+  recruitCaballeroButton: {fileID: 1643049564}
+  recruitCaballeriaButton: {fileID: 1217073972}
+  recruitColonoButton: {fileID: 2128319702}
 --- !u!4 &1700657190 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 1364609063565767726, guid: 3e03224e2da992946af83b6979daf271, type: 3}
@@ -14535,6 +14536,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1782166223}
   - component: {fileID: 1782166224}
+  - component: {fileID: 1782166225}
   m_Layer: 0
   m_Name: humanPlayer
   m_TagString: Untagged
@@ -14572,6 +14574,18 @@ MonoBehaviour:
   playerID: 0
   playerName: 
   victoryPoints: 0
+--- !u!114 &1782166225
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1782166222}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b06d8875f1f31b44bb9a7af882d192cd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!4 &1794137526 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 1467389877776429767, guid: 8e86f903db7c55740b38edd37797d9f2, type: 3}
@@ -16742,6 +16756,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2109579503}
   - component: {fileID: 2109579504}
+  - component: {fileID: 2109579505}
   m_Layer: 0
   m_Name: IAPlayer
   m_TagString: Untagged
@@ -16779,6 +16794,18 @@ MonoBehaviour:
   playerID: 1
   playerName: 
   victoryPoints: 0
+--- !u!114 &2109579505
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2109579502}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b06d8875f1f31b44bb9a7af882d192cd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &2124222313
 GameObject:
   m_ObjectHideFlags: 0

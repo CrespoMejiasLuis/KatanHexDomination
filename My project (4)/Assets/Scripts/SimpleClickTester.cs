@@ -22,6 +22,7 @@ public class SimpleClickTester : MonoBehaviour
     private PlayerInputMode currentMode = PlayerInputMode.Selection;
     private SettlementUnit activePoblado = null;
 
+
     void Start()
     {
         camaraPrincipal = Camera.main;

@@ -36,6 +36,7 @@ public class UIManager : MonoBehaviour
     public Button actionMoveButton;        
     public Button actionPassButton;
     public Button actionSpecialButton;
+    public Button accionSaquear;
     public TextMeshProUGUI actionSpecialButtonText;
 
     // Usaremos 'Component' temporalmente si UnitBase no existe.
@@ -160,6 +161,7 @@ public class UIManager : MonoBehaviour
             endTurnButton.gameObject.SetActive(false);
         }
         HideUnitPanel();
+        HideConstructionPanel();
     }
 
     public void OnEndTurnButtonPressed()
@@ -174,8 +176,12 @@ public class UIManager : MonoBehaviour
         SettlementUnit pobladoLogic = unit.GetComponent<SettlementUnit>();
         if (pobladoLogic != null)
         {
-            pobladoLogic.OpenTradeMenu(); // El poblado abre su propio menú
-            return; // No mostramos el panel de unidad estándar
+            if (unit.ownerID == 0) // Asumimos 0 = Humano
+            {
+                pobladoLogic.OpenTradeMenu();
+                Debug.Log("Poblado aliado seleccionado. Abriendo menú de construcción.");
+                return; // No mostramos el panel de unidad estándar
+            }
         }
         selectedUnit = unit;
         if (unitPanelContainer != null)
@@ -183,6 +189,11 @@ public class UIManager : MonoBehaviour
             unitPanelContainer.SetActive(true);
         }
 
+        if (unit.statsBase == null)
+        {
+            Debug.LogError($"¡La unidad {unit.name} no tiene UnitStats asignado!");
+            return;
+        }
 
         unitNameText.text = unit.statsBase.nombreUnidad.ToString();
         unitHealthText.text = $"Vida: {unit.vidaActual}/{unit.statsBase.vidaMaxima}";
@@ -194,17 +205,64 @@ public class UIManager : MonoBehaviour
         if (unitAttackText != null)
             unitAttackText.text = $"Ataque: {unit.statsBase.ataque}";
 
-        actionAttackButton.interactable = unit.statsBase.ataque > 0;
-        actionMoveButton.interactable = unit.movimientosRestantes > 0;
-
-        actionSpecialButton.onClick.RemoveAllListeners();
-        
-
-        UnitBuilder colonoLogic = unit.GetComponent<UnitBuilder>();
-        if (colonoLogic != null)
+        if (unit.ownerID == 0)
         {
-            actionSpecialButton.onClick.AddListener(FindObjectOfType<SimpleClickTester>().BotonConstruirPulsado);
-            actionSpecialButton.interactable = true; // (UnitBuilder comprobará los recursos)
+            actionAttackButton.gameObject.SetActive(true);
+            actionMoveButton.gameObject.SetActive(true);
+            if (actionPassButton != null) actionPassButton.gameObject.SetActive(true);
+
+            // Configurar interactividad
+            actionAttackButton.interactable = unit.statsBase.ataque > 0;
+            actionMoveButton.interactable = unit.movimientosRestantes > 0;
+            if (actionPassButton != null) actionPassButton.interactable = true;
+
+            // Configurar Botón Especial (Colono)
+            UnitBuilder colonoLogic = unit.GetComponent<UnitBuilder>();
+            Ability militares = unit.GetComponent<Ability>();
+
+            actionSpecialButton.onClick.RemoveAllListeners(); // Limpiar listeners antiguos
+
+            if (colonoLogic != null)
+            {
+                actionSpecialButton.gameObject.SetActive(true);
+               // accionSaquear.gameObject.SetActive(true);
+                actionSpecialButtonText.text = "Construir";
+                actionSpecialButton.interactable = true; // El UnitBuilder comprobará los recursos
+
+                // Conectamos el botón al SimpleClickTester
+                SimpleClickTester clickTester = FindObjectOfType<SimpleClickTester>();
+                if (clickTester != null)
+                {
+                    actionSpecialButton.onClick.AddListener(clickTester.BotonConstruirPulsado);
+                }
+            }
+            else if(militares!= null)
+            {
+                accionSaquear.gameObject.SetActive(true);
+                actionSpecialButton.gameObject.SetActive(false);
+            }
+            else
+            {
+                // No es un colono, ocultar botón especial
+                actionSpecialButton.gameObject.SetActive(false);
+               // accionSaquear.gameObject.SetActive(false);
+            }
+        }
+        else
+        {
+            // Si no es Colono, ocultar el botón especial
+            // ES ENEMIGA: Ocultar TODOS los botones de acción
+            actionAttackButton.gameObject.SetActive(false);
+            actionMoveButton.gameObject.SetActive(false);
+            actionSpecialButton.gameObject.SetActive(false);
+            accionSaquear.gameObject.SetActive(false);//false
+            actionPassButton.gameObject.SetActive(false);
+
+            if (actionPassButton != null)
+            {
+                actionPassButton.gameObject.SetActive(false);
+            }
+
         }
     }
     public void HideConstructionPanel()
