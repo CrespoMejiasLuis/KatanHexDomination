@@ -174,7 +174,7 @@ public class GameManager : MonoBehaviour
         foreach (CellData cell in BoardManager.Instance.gridData)
         {
             // 3. Si encontramos una ciudad que pertenece al jugador actual...
-            if (cell != null && cell.owner == ownerIDToCheck && cell.hasCity)
+            if (cell != null && cell.owner == ownerIDToCheck && (cell.typeUnitOnCell == TypeUnit.Poblado || cell.typeUnitOnCell == TypeUnit.Ciudad))
             {
                 int yieldAmount = 0;
                 Unit unitOnCell = cell.unitOnCell;
