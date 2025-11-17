@@ -366,6 +366,33 @@ public class SimpleClickTester : MonoBehaviour
         }
     }
 
+    public void BotonCrearCaballeroPulsado()
+    {
+        // 1. Comprobar si hay unidad seleccionada
+        if (unidadSeleccionada == null)
+        {
+            Debug.Log("¡No hay ninguna unidad seleccionada para crear Caballero!");
+            return;
+        }
+
+        // 2. Comprobar si la unidad seleccionada tiene un UnitRecruiter (o SettlementUnit con reclutamiento)
+        UnitRecruiter recruiter = unidadSeleccionada.GetComponent<UnitRecruiter>();
+
+        if (recruiter != null)
+        {
+            // 3. Llamar a la función de reclutamiento, pasando la unidad seleccionada
+            recruiter.ConstruirCaballero(unidadSeleccionada);
+
+            // 4. Cerrar menú de acciones
+            if (unitActionMenu != null)
+                unitActionMenu.SetActive(false);
+        }
+        else
+        {
+            Debug.Log("¡La unidad seleccionada (" + unidadSeleccionada.name + ") no puede crear Caballero!");
+        }
+    }
+
     public void UpgradeCiudad()
     {
         if (unidadSeleccionada == null)
