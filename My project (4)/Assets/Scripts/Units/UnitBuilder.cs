@@ -18,8 +18,6 @@ public class UnitBuilder : MonoBehaviour
         unitCerebro = GetComponent<Unit>();
     }
 
-    
-
     public void IntentarConstruirPoblado()
     {
         if (isBuilding) return; 

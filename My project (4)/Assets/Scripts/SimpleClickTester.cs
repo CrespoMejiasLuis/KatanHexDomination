@@ -169,7 +169,7 @@ public class SimpleClickTester : MonoBehaviour
         }
         else
         {
-            //if(unitActionMenu != null) unitActionMenu.SetActive(false);
+            if(unitActionMenu != null) unitActionMenu.SetActive(false);
         }
         
         // ¡Importante! Al seleccionar una unidad, SIEMPRE volvemos al modo Selección
@@ -271,8 +271,6 @@ public class SimpleClickTester : MonoBehaviour
         currentMode = PlayerInputMode.Selection;
     }
 
-
-
     public void BotonSaqueoPulsado()
     {
         if (unidadSeleccionada == null) return;
@@ -290,6 +288,7 @@ public class SimpleClickTester : MonoBehaviour
 
         Debug.Log("Modo saquear: selecciona una casilla enemiga o neutral.");
     }
+
     public void BotonAtacarPulsado()
     {
         if (unidadSeleccionada == null) return;
@@ -339,6 +338,7 @@ public class SimpleClickTester : MonoBehaviour
 
         currentMode = PlayerInputMode.Selection;
     }
+
     public void BotonCrearArtilleroPulsado()
     {
         // 1. Comprobar si hay unidad seleccionada
@@ -381,10 +381,12 @@ public class SimpleClickTester : MonoBehaviour
             if (ciudadPrefab == null) return;
 
             Unit unitCerebro = pobladoLogic.getUnitCerebro();
+            if (unitCerebro.ownerID == -1) return;
 
             //datos casilla
             CellData cellDondeEstamos = BoardManager.Instance.GetCell(unitCerebro.misCoordenadasActuales);
             if (cellDondeEstamos == null) { /* ... error ... */ return; }
+            if(cellDondeEstamos.hasCity) return;
 
             //Necesitamos el Unit del prefab
             Unit ciudadUnitPrefab = ciudadPrefab.GetComponent<Unit>();
