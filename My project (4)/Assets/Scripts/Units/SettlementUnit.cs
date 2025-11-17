@@ -7,13 +7,13 @@ public class SettlementUnit : MonoBehaviour
     [Header("Componentes de poblado")]
     public GameObject tradeMenu;
 
-    private Unit unitCerebro;
+    [HideInInspector]public Unit unitCerebro;
 
     void Awake()
     {
         unitCerebro = GetComponent<Unit>();
         //como no se tiene que mover destruimos el script de movimiento
-        Destroy(GetComponent<UnitMovement>());
+        //Destroy(GetComponent<UnitMovement>());
 
         if (UIManager.Instance != null)
         {

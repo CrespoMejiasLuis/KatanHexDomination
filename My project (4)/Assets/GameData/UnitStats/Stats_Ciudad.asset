@@ -19,7 +19,7 @@ MonoBehaviour:
   rangoAtaque: 0
   puntosMovimiento: 0
   costeMadera: 0
-  costePiedra: 0
-  costeTrigo: 0
+  costePiedra: 3
+  costeTrigo: 2
   costeArcilla: 0
   costeOveja: 0
