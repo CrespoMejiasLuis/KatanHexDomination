@@ -80,13 +80,13 @@ public class UnitBuilder : MonoBehaviour
         {
             pobladoUnit.ownerID = unitCerebro.ownerID;
             jugador.ArmyManager.RegisterUnit(pobladoUnit);
-            jugador.ArmyManager.RegisterUnit(pobladoUnit);
             //jugador.ArmyManager.RegisterUnit(pobladoUnit);
         }
 
         // 5. ACTUALIZAR EL BOARDMANAGER (¡LO MÁS IMPORTANTE!)
         // Esto es lo que hablaréis mañana, pero esta es la lógica:
         cellDondeEstamos.hasCity = false;
+        pobladoUnit.misCoordenadasActuales = cellDondeEstamos.coordinates;
         cellDondeEstamos.owner = unitCerebro.ownerID;
         // Asumimos que el colono era la 'tropa' en esta casilla
         cellDondeEstamos.typeUnitOnCell = unitCerebro.statsBase.nombreUnidad;
