@@ -330,7 +330,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f8c4d4b1f41228245870a82f3f63a436, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  statsBase: {fileID: 0}
+  statsBase: {fileID: 11400000, guid: a04019a47a0fa67448ec0f39d6f1306e, type: 2}
   ownerID: 0
   vidaActual: 0
   movimientosRestantes: 0

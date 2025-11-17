@@ -44,10 +44,10 @@ public abstract class Player : MonoBehaviour
         }
 
         // Pone los recursos de poblado para construir el primero
-        resources[ResourceType.Madera] = 1;
-        resources[ResourceType.Arcilla] = 1;
-        resources[ResourceType.Oveja] = 1;
-        resources[ResourceType.Trigo] = 1;
+        resources[ResourceType.Madera] = 5;
+        resources[ResourceType.Arcilla] = 5;
+        resources[ResourceType.Oveja] = 5;
+        resources[ResourceType.Trigo] = 5;
 
         OnPlayerResourcesUpdated?.Invoke(resources);
     }

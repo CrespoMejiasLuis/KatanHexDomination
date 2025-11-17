@@ -1,5 +1,5 @@
 using UnityEngine;
-
+[RequireComponent(typeof(Animator))]
 public class UnitAttack : MonoBehaviour
 {
     private Unit unitData;

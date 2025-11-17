@@ -8,6 +8,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 946753549332987761, guid: 7e504df8b9b239c48a52baf30848dfa5, type: 3}
+      propertyPath: statsBase
+      value: 
+      objectReference: {fileID: 11400000, guid: a04019a47a0fa67448ec0f39d6f1306e, type: 2}
     - target: {fileID: 7491848878131134450, guid: 7e504df8b9b239c48a52baf30848dfa5, type: 3}
       propertyPath: m_Name
       value: Knight Warrior
