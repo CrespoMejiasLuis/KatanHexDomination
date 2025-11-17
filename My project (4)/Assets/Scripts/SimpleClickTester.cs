@@ -380,11 +380,12 @@ public class SimpleClickTester : MonoBehaviour
         {
             if (ciudadPrefab == null) return;
 
-            Unit unitCerebro = pobladoLogic.getUnitCerebro();
+            Unit unitCerebro = unidadSeleccionada;
             if (unitCerebro.ownerID == -1) return;
 
             //datos casilla
             CellData cellDondeEstamos = BoardManager.Instance.GetCell(unitCerebro.misCoordenadasActuales);
+            Vector3 spawnPoint = unitCerebro.transform.position;
             if (cellDondeEstamos == null) { /* ... error ... */ return; }
             if(cellDondeEstamos.hasCity) return;
 
@@ -411,7 +412,7 @@ public class SimpleClickTester : MonoBehaviour
             }
 
             //Crear ciudad
-            GameObject nuevaCiudad = Instantiate(ciudadPrefab, tileVisual.transform.position, Quaternion.identity);
+            GameObject nuevaCiudad = Instantiate(ciudadPrefab, spawnPoint, Quaternion.identity);
 
             //Dueno ciudad
             Unit ciudad = nuevaCiudad.GetComponent<Unit>();
@@ -427,7 +428,7 @@ public class SimpleClickTester : MonoBehaviour
             cellDondeEstamos.unitOnCell = ciudad;
             jugador.victoryPoints++;
             UIManager.Instance.UpdateVictoryPointsText(jugador.victoryPoints);
-
+            Destroy(unitCerebro.GameObject);
             //jugador.ArmyManager.DeregisterUnit(unitCerebro);
         }
     }
