@@ -19,7 +19,7 @@ public class UnitAttack : MonoBehaviour
         );
 
         return distancia <= unitData.statsBase.rangoAtaque;
-;
+
     }
 
     public void Atacar(Unit objetivo)
@@ -33,6 +33,6 @@ public class UnitAttack : MonoBehaviour
         int dano = unitData.statsBase.ataque;
         objetivo.RecibirDano(dano);
 
-        Debug.Log($"{unitData.statsBase.nombreUnidad} atacó a {objetivo.statsBase.nombreUnidad} e hizo {dano} de daño");
+        Debug.Log($"{unitData.statsBase.nombreUnidad} atacï¿½ a {objetivo.statsBase.nombreUnidad} e hizo {dano} de daï¿½o");
     }
 }
