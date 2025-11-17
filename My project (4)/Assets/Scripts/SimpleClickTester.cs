@@ -315,6 +315,7 @@ public class SimpleClickTester : MonoBehaviour
          if (objetivo.ownerID == unidadSeleccionada.ownerID)
          {
              Debug.Log("No puedes atacar a tus aliados");
+             currentMode = PlayerInputMode.Selection;
              return;
          }
         
@@ -330,6 +331,7 @@ public class SimpleClickTester : MonoBehaviour
         if (!attack.PuedeAtacar(objetivo))
         {
             Debug.Log("Objetivo fuera de rango");
+            currentMode = PlayerInputMode.Selection;
             return;
         }
 
