@@ -461,5 +461,32 @@ public class SimpleClickTester : MonoBehaviour
             //jugador.ArmyManager.DeregisterUnit(unitCerebro);
         }
     }
+    public void BotonCrearColonoPulsado()
+    {
+        // 1. Comprobar si hay unidad seleccionada
+        if (unidadSeleccionada == null)
+        {
+            Debug.Log("¡No hay ninguna unidad seleccionada para crear Colono!");
+            return;
+        }
+
+        // 2. Comprobar si la unidad seleccionada tiene un UnitRecruiter
+        UnitRecruiter recruiter = unidadSeleccionada.GetComponent<UnitRecruiter>();
+
+        if (recruiter != null)
+        {
+            // 3. Llamar a la función del recruiter
+            recruiter.ConstruirColono(unidadSeleccionada);
+
+            // 4. Cerrar menú de acciones
+            if (unitActionMenu != null)
+                unitActionMenu.SetActive(false);
+        }
+        else
+        {
+            Debug.Log("¡La unidad seleccionada (" + unidadSeleccionada.name + ") no puede crear Colono!");
+        }
+    }
+
 
 }

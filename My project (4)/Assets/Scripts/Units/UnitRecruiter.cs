@@ -6,10 +6,11 @@ public class UnitRecruiter : MonoBehaviour
     [Header("Prefabs de unidades")]
     public GameObject artilleroPrefab;
     public GameObject caballeroPrefab;
+    public GameObject colonoPrefab;   // ← AÑADIDO
 
-    /// <summary>
-    /// Intenta construir un Artillero en la celda de la unidad creadora (normalmente una ciudad/poblado).
-    /// </summary>
+    // -----------------------------
+    //        ARTILLERO
+    // -----------------------------
     public void ConstruirArtillero(Unit unidadCreadora)
     {
         if (artilleroPrefab == null)
@@ -18,18 +19,15 @@ public class UnitRecruiter : MonoBehaviour
             return;
         }
 
-        // 1. Obtener las coordenadas de la unidad creadora (la ciudad/poblado)
         Vector2Int ciudadCoords = unidadCreadora.misCoordenadasActuales;
-
-        // 2. Obtener la celda correcta del tablero
         CellData ciudadCell = BoardManager.Instance.GetCell(ciudadCoords);
+
         if (ciudadCell == null)
         {
             Debug.LogError("⚠️ Celda de la ciudad/poblado inválida.");
             return;
         }
 
-        // 3. Obtener stats del prefab
         Unit artilleroUnitPrefab = artilleroPrefab.GetComponent<Unit>();
         if (artilleroUnitPrefab.statsBase == null)
         {
@@ -37,8 +35,7 @@ public class UnitRecruiter : MonoBehaviour
             return;
         }
 
-        // 4. Verificar recursos
-        Player jugador = GameManager.Instance.humanPlayer; // o unidadCreadora.ownerID
+        Player jugador = GameManager.Instance.humanPlayer;
         Dictionary<ResourceType, int> coste = artilleroUnitPrefab.statsBase.GetProductCost();
 
         if (!jugador.CanAfford(coste))
@@ -47,13 +44,11 @@ public class UnitRecruiter : MonoBehaviour
             return;
         }
 
-        // 5. Gastar recursos
         bool gasto = jugador.SpendResources(coste);
         if (!gasto) return;
 
-       
-
         Debug.Log("Artillero creado con éxito en la celda " + ciudadCoords);
+
         Vector3 spawnPos = unidadCreadora.transform.position + Vector3.up * 1.0f;
         GameObject nuevoArtilleroGO = Instantiate(artilleroPrefab, spawnPos, Quaternion.identity);
 
@@ -63,10 +58,11 @@ public class UnitRecruiter : MonoBehaviour
             nuevoArtillero.ownerID = unidadCreadora.ownerID;
             nuevoArtillero.misCoordenadasActuales = unidadCreadora.misCoordenadasActuales;
         }
-
-        Debug.Log("Artillero creado en la celda " + unidadCreadora.misCoordenadasActuales);
     }
 
+    // -----------------------------
+    //        CABALLERO
+    // -----------------------------
     public void ConstruirCaballero(Unit unidadCreadora)
     {
         if (caballeroPrefab == null)
@@ -75,18 +71,15 @@ public class UnitRecruiter : MonoBehaviour
             return;
         }
 
-        // 1. Obtener las coordenadas de la unidad creadora (la ciudad/poblado)
         Vector2Int ciudadCoords = unidadCreadora.misCoordenadasActuales;
-
-        // 2. Obtener la celda correcta del tablero
         CellData ciudadCell = BoardManager.Instance.GetCell(ciudadCoords);
+
         if (ciudadCell == null)
         {
             Debug.LogError("⚠️ Celda de la ciudad/poblado inválida.");
             return;
         }
 
-        // 3. Obtener stats del prefab
         Unit caballeroUnitPrefab = caballeroPrefab.GetComponent<Unit>();
         if (caballeroUnitPrefab.statsBase == null)
         {
@@ -94,8 +87,7 @@ public class UnitRecruiter : MonoBehaviour
             return;
         }
 
-        // 4. Verificar recursos
-        Player jugador = GameManager.Instance.humanPlayer; // o unidadCreadora.ownerID
+        Player jugador = GameManager.Instance.humanPlayer;
         Dictionary<ResourceType, int> coste = caballeroUnitPrefab.statsBase.GetProductCost();
 
         if (!jugador.CanAfford(coste))
@@ -104,13 +96,11 @@ public class UnitRecruiter : MonoBehaviour
             return;
         }
 
-        // 5. Gastar recursos
         bool gasto = jugador.SpendResources(coste);
         if (!gasto) return;
 
-       
-
         Debug.Log("Caballero creado con éxito en la celda " + ciudadCoords);
+
         Vector3 spawnPos = unidadCreadora.transform.position + Vector3.up * 1.0f;
         GameObject nuevoCaballeroGO = Instantiate(caballeroPrefab, spawnPos, Quaternion.identity);
 
@@ -120,7 +110,57 @@ public class UnitRecruiter : MonoBehaviour
             nuevoCaballero.ownerID = unidadCreadora.ownerID;
             nuevoCaballero.misCoordenadasActuales = unidadCreadora.misCoordenadasActuales;
         }
+    }
 
-        Debug.Log("Caballero creado en la celda " + unidadCreadora.misCoordenadasActuales);
+    // -----------------------------
+    //        COLONO (AÑADIDO)
+    // -----------------------------
+    public void ConstruirColono(Unit unidadCreadora)
+    {
+        if (colonoPrefab == null)
+        {
+            Debug.LogError("⚠️ No hay prefab de Colono asignado.");
+            return;
+        }
+
+        Vector2Int ciudadCoords = unidadCreadora.misCoordenadasActuales;
+        CellData ciudadCell = BoardManager.Instance.GetCell(ciudadCoords);
+
+        if (ciudadCell == null)
+        {
+            Debug.LogError("⚠️ Celda de la ciudad/poblado inválida.");
+            return;
+        }
+
+        Unit colonoUnitPrefab = colonoPrefab.GetComponent<Unit>();
+        if (colonoUnitPrefab.statsBase == null)
+        {
+            Debug.LogError("⚠️ El Colono no tiene UnitStats asignado.");
+            return;
+        }
+
+        Player jugador = GameManager.Instance.humanPlayer;
+        Dictionary<ResourceType, int> coste = colonoUnitPrefab.statsBase.GetProductCost();
+
+        if (!jugador.CanAfford(coste))
+        {
+            Debug.Log("No hay recursos suficientes para construir Colono.");
+            return;
+        }
+
+        bool gasto = jugador.SpendResources(coste);
+        if (!gasto) return;
+
+        Debug.Log("Colono creado con éxito en la celda " + ciudadCoords);
+
+        Vector3 spawnPos = unidadCreadora.transform.position + Vector3.up * 1.0f;
+        GameObject nuevoColonoGO = Instantiate(colonoPrefab, spawnPos, Quaternion.identity);
+
+        Unit nuevoColono = nuevoColonoGO.GetComponent<Unit>();
+        if (nuevoColono != null)
+        {
+            nuevoColono.ownerID = unidadCreadora.ownerID;
+            nuevoColono.misCoordenadasActuales = unidadCreadora.misCoordenadasActuales;
+        }
     }
 }
