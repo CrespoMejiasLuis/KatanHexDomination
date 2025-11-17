@@ -4,6 +4,7 @@ using UnityEngine;
 public class Ability : MonoBehaviour
 {
     private Unit unitData;
+    private readonly int PLAYER_ID = 0;
 
     void Awake()
     {
@@ -24,6 +25,11 @@ public class Ability : MonoBehaviour
         if (targetCell == null)
         {
             Debug.Log("No hay casilla seleccionada para saquear.");
+            return;
+        }
+        if (targetCell.owner == PLAYER_ID)
+        {
+            Debug.Log("No puedes saquear a tu pueblo");
             return;
         }
 

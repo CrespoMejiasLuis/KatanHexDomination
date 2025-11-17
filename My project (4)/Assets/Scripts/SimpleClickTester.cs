@@ -312,12 +312,12 @@ public class SimpleClickTester : MonoBehaviour
         if (unidadSeleccionada == null || objetivo == null) return;
 
         // Verificar propietario
-        /* if (objetivo.ownerID == unidadSeleccionada.ownerID)
+         if (objetivo.ownerID == unidadSeleccionada.ownerID)
          {
              Debug.Log("No puedes atacar a tus aliados");
              return;
          }
-        */
+        
 
         UnitAttack attack = unidadSeleccionada.GetComponent<UnitAttack>();
         if (attack == null)
