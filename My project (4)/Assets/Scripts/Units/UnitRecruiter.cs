@@ -112,7 +112,7 @@ public class UnitRecruiter : MonoBehaviour
 
         Debug.Log("Caballero creado con éxito en la celda " + ciudadCoords);
         Vector3 spawnPos = unidadCreadora.transform.position + Vector3.up * 1.0f;
-        GameObject nuevoCaballeroGO = Instantiate(artilleroPrefab, spawnPos, Quaternion.identity);
+        GameObject nuevoCaballeroGO = Instantiate(caballeroPrefab, spawnPos, Quaternion.identity);
 
         Unit nuevoCaballero = nuevoCaballeroGO.GetComponent<Unit>();
         if (nuevoCaballero != null)
