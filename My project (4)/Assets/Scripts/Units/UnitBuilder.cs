@@ -31,11 +31,13 @@ public class UnitBuilder : MonoBehaviour
         // 1. OBTENER DATOS DE LA CASILLA ACTUAL
         CellData cellDondeEstamos = BoardManager.Instance.GetCell(unitCerebro.misCoordenadasActuales);
         if (cellDondeEstamos == null) { /* ... error ... */ return; }
-        if (cellDondeEstamos.hasCity)
+        if (cellDondeEstamos.typeUnitOnCell == TypeUnit.Ciudad|| cellDondeEstamos.typeUnitOnCell == TypeUnit.Poblado)
         {
             Debug.Log("¡Ya hay una ciudad en esta casilla!");
             return;
         }
+
+        if(cellDondeEstamos.owner != -1 ) return; 
 
         //Necesitamos el componente Unit del prefab
         Unit pobladoUnitPrefab = pobladoPrefab.GetComponent<Unit>();
@@ -83,19 +85,44 @@ public class UnitBuilder : MonoBehaviour
             //jugador.ArmyManager.RegisterUnit(pobladoUnit);
         }
 
-        // 5. ACTUALIZAR EL BOARDMANAGER (¡LO MÁS IMPORTANTE!)
-        // Esto es lo que hablaréis mañana, pero esta es la lógica:
-        cellDondeEstamos.hasCity = false;
+        // 5. ACTUALIZAR EL BOARDMANAGER 
         pobladoUnit.misCoordenadasActuales = cellDondeEstamos.coordinates;
-        cellDondeEstamos.owner = unitCerebro.ownerID;
+        claimTerritory(cellDondeEstamos.coordinates, unitCerebro.ownerID);
         // Asumimos que el colono era la 'tropa' en esta casilla
         cellDondeEstamos.typeUnitOnCell = TypeUnit.Poblado;
         cellDondeEstamos.unitOnCell = pobladoUnit;
         jugador.victoryPoints +=1;
         UIManager.Instance.UpdateVictoryPointsText(jugador.victoryPoints);
-        //jugador.ArmyManager.DeregisterUnit(unitCerebro);
+        
         // 6. CONSUMIR EL COLONO
-       // jugador.ArmyManager.DeregisterUnit(unitCerebro);
+        jugador.ArmyManager.DeregisterUnit(unitCerebro);
         Destroy(gameObject);
+    }
+
+    public void claimTerritory(Vector2Int settlementCoords, int newOwnerID)
+    {
+        List<Vector2Int> coordToClaim = new List<Vector2Int>();
+
+        //1.casilla central
+        coordToClaim.Add(settlementCoords);
+
+        //2.add las de alrededor
+        foreach(Vector2Int dir in GameManager.axialNeighborDirections)
+        {
+            coordToClaim.Add(settlementCoords+dir);
+        }
+
+        //3.iterar el boardmanager y los visuales
+        foreach(Vector2Int coord in coordToClaim)
+        {
+            CellData cell = BoardManager.Instance.GetCell(coord);
+
+            if(cell.owner == -1 || cell.owner != newOwnerID)
+            {
+                cell.owner = newOwnerID;
+
+                //actualizar visualmente
+            }
+        }
     }
 }

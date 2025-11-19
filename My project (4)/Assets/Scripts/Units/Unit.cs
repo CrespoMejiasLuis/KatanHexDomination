@@ -98,7 +98,7 @@ public class Unit : MonoBehaviour
     /// <summary>
     /// Esta función es llamada por UnitMovement cuando un movimiento se completa.
     /// </summary>
-    public void GastarPuntoDeMovimiento()
+    public void GastarPuntoDeMovimiento(int costeMovimiento)
     {
         if (movimientosRestantes > 0)
         {

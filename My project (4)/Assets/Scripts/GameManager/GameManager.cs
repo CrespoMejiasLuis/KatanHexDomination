@@ -28,7 +28,7 @@ public class GameManager : MonoBehaviour
     public Player humanPlayer; 
     public Player IAPlayer;
 
-    private static readonly Vector2Int[] axialNeighborDirections = new Vector2Int[]
+    public static readonly Vector2Int[] axialNeighborDirections = new Vector2Int[]
     {
         new Vector2Int(1, 0),  // Derecha
         new Vector2Int(1, -1), // Arriba-Derecha

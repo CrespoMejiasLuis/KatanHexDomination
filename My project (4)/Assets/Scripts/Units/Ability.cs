@@ -41,7 +41,7 @@ public class Ability : MonoBehaviour
         jugador.AddResource(targetCell.resource, 1);
 
         // Gastar un punto de movimiento
-        unitData.GastarPuntoDeMovimiento();
+        unitData.GastarPuntoDeMovimiento(targetCell.cost);
 
         Debug.Log($"Saqueaste la casilla {targetCell.coordinates} y ganaste 1 {targetCell.resource}");
     }

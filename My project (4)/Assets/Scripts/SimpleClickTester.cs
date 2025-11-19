@@ -416,7 +416,7 @@ public class SimpleClickTester : MonoBehaviour
             CellData cellDondeEstamos = BoardManager.Instance.GetCell(unitCerebro.misCoordenadasActuales);
             Vector3 spawnPoint = unitCerebro.transform.position;
             if (cellDondeEstamos == null) { /* ... error ... */ return; }
-            if(cellDondeEstamos.hasCity) return;
+            if(cellDondeEstamos.typeUnitOnCell == TypeUnit.Ciudad) return;
 
             //Necesitamos el Unit del prefab
             Unit ciudadUnitPrefab = ciudadPrefab.GetComponent<Unit>();
@@ -451,14 +451,13 @@ public class SimpleClickTester : MonoBehaviour
                 //jugador.ArmyManager.RegisterUnit(ciudad);
             }
 
-            cellDondeEstamos.hasCity = true;
+            ciudadUnitPrefab.misCoordenadasActuales = cellDondeEstamos.coordinates;
             cellDondeEstamos.typeUnitOnCell = TypeUnit.Ciudad;
-            cellDondeEstamos.owner = unitCerebro.ownerID;
             cellDondeEstamos.unitOnCell = ciudad;
             jugador.victoryPoints++;
             UIManager.Instance.UpdateVictoryPointsText(jugador.victoryPoints);
             Destroy(unitCerebro.gameObject);
-            //jugador.ArmyManager.DeregisterUnit(unitCerebro);
+            jugador.ArmyManager.DeregisterUnit(unitCerebro);
         }
     }
     public void BotonCrearColonoPulsado()

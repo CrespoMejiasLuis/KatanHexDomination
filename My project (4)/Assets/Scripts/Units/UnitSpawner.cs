@@ -2,16 +2,16 @@ using UnityEngine;
 
 public class UnitSpawner : MonoBehaviour
 {
-    // Singleton para que el GameManager pueda llamarlo fácilmente
+    // Singleton para que el GameManager pueda llamarlo fï¿½cilmente
     public static UnitSpawner Instance { get; private set; }
 
     [Header("Prefabs de Unidades")]
-    [Tooltip("Arrastra aquí el prefab del Colono (debe tener el script 'Unit')")]
+    [Tooltip("Arrastra aquï¿½ el prefab del Colono (debe tener el script 'Unit')")]
     public GameObject colonoPrefab;
 
     private void Awake()
     {
-        // Configuración del Singleton
+        // Configuraciï¿½n del Singleton
         if (Instance != null && Instance != this)
         {
             Destroy(gameObject);
@@ -21,7 +21,7 @@ public class UnitSpawner : MonoBehaviour
     }
 
     /// <summary>
-    /// Punto de entrada principal. El GameManager llamará a esto después
+    /// Punto de entrada principal. El GameManager llamarï¿½ a esto despuï¿½s
     /// de que el tablero se haya generado.
     /// </summary>
     public void SpawnInitialUnits()
@@ -31,28 +31,28 @@ public class UnitSpawner : MonoBehaviour
         Player aiPlayer = GameManager.Instance.IAPlayer;
         if (humanPlayer == null || aiPlayer == null)
         {
-            Debug.LogError("¡Faltan referencias a humanPlayer o IAPlayer en el GameManager!");
+            Debug.LogError("ï¿½Faltan referencias a humanPlayer o IAPlayer en el GameManager!");
             return;
         }
         // 2. Encontrar el radio de tierra (lo leemos del generador)
-        HexGridGenerator gridGenerator = FindObjectOfType<HexGridGenerator>();
+        HexGridGenerator gridGenerator = FindFirstObjectByType<HexGridGenerator>();
         if (gridGenerator == null)
         {
-            Debug.LogError("¡UnitSpawner no pudo encontrar el HexGridGenerator!");
+            Debug.LogError("ï¿½UnitSpawner no pudo encontrar el HexGridGenerator!");
             return;
         }
 
-        // 'boardRadius' es el número de anillos de TIERRA
-        // (según el script del generador que me enviaste)
+        // 'boardRadius' es el nï¿½mero de anillos de TIERRA
+        // (segï¿½n el script del generador que me enviaste)
         int landRadius = gridGenerator.boardRadius;
 
         // 3. Calcular Coordenadas de Inicio
-        // Queremos los extremos del mapa (el anillo más externo) pero centrados.
+        // Queremos los extremos del mapa (el anillo mï¿½s externo) pero centrados.
         // En un mapa "pointy-top", el eje vertical centrado es q=0.
-        // Restamos 1 al radio para obtener el índice del anillo más externo.
+        // Restamos 1 al radio para obtener el ï¿½ndice del anillo mï¿½s externo.
         int spawnOffset = landRadius - 1;
 
-        // Si el radio es 1, el offset es 0. Ambos spawns serían (0,0).
+        // Si el radio es 1, el offset es 0. Ambos spawns serï¿½an (0,0).
         // Si el radio es 3, el offset es 2. Spawns en (0, 2) y (0, -2).
         if (spawnOffset < 0) spawnOffset = 0;
 
@@ -65,7 +65,7 @@ public class UnitSpawner : MonoBehaviour
         if (humanStartCoords == aiStartCoords && landRadius > 1)
         {
             aiStartCoords = new Vector2Int(1, -1); // Movemos la IA (ej: arriba-derecha)
-            Debug.LogWarning("Las coordenadas de inicio eran idénticas. Moviendo IA a (1,-1).");
+            Debug.LogWarning("Las coordenadas de inicio eran idï¿½nticas. Moviendo IA a (1,-1).");
         }
 
         // 4. Instanciar las unidades
@@ -75,27 +75,27 @@ public class UnitSpawner : MonoBehaviour
     }
 
     /// <summary>
-    /// Función helper que crea una unidad en el tablero y actualiza todos los sistemas.
+    /// Funciï¿½n helper que crea una unidad en el tablero y actualiza todos los sistemas.
     /// </summary>
-    /// <param name="owner">El jugador que será dueño de la unidad (Humano o IA)</param>
+    /// <param name="owner">El jugador que serï¿½ dueï¿½o de la unidad (Humano o IA)</param>
     /// <param name="coords">Las coordenadas axiales donde debe aparecer</param>
     private void SpawnUnitAt(Player owner, Vector2Int coords)
     {
         // --- 1. Validaciones ---
         if (owner == null)
         {
-            Debug.LogError("SpawnUnitAt falló: ¡El 'owner' es nulo!"); return;
+            Debug.LogError("SpawnUnitAt fallï¿½: ï¿½El 'owner' es nulo!"); return;
         }
         if (colonoPrefab == null)
         {
-            Debug.LogError($"SpawnUnitAt ({owner.playerName}) falló: ¡El 'colonoPrefab' no está asignado en el Inspector!"); return;
+            Debug.LogError($"SpawnUnitAt ({owner.playerName}) fallï¿½: ï¿½El 'colonoPrefab' no estï¿½ asignado en el Inspector!"); return;
         }
 
-        // --- 2. Obtener Celda Lógica ---
+        // --- 2. Obtener Celda Lï¿½gica ---
         CellData cell = BoardManager.Instance.GetCell(coords);
         if (cell == null)
         {
-            Debug.LogError($"Spawn fallido ({owner.playerName}): No se encontró CellData en las coords {coords}. ¿Es agua o está fuera del mapa?");
+            Debug.LogError($"Spawn fallido ({owner.playerName}): No se encontrï¿½ CellData en las coords {coords}. ï¿½Es agua o estï¿½ fuera del mapa?");
             return;
         }
         if (cell.typeUnitOnCell != TypeUnit.None)
@@ -123,11 +123,11 @@ public class UnitSpawner : MonoBehaviour
         unit.ownerID = owner.playerID;
         unitGO.name = $"Colono_{owner.playerName}";
 
-        // --- 6. Actualizar la Celda Lógica (Script CellData.cs) ---
+        // --- 6. Actualizar la Celda Lï¿½gica (Script CellData.cs) ---
         cell.unitOnCell = unit; // Referencia directa a la unidad
         cell.typeUnitOnCell = unit.statsBase.nombreUnidad; // El tipo de unidad
 
-        // --- 7. Registrar en la "Librería" (Script PlayerArmyManager.cs) ---
+        // --- 7. Registrar en la "Librerï¿½a" (Script PlayerArmyManager.cs) ---
         owner.ArmyManager.RegisterUnit(unit);
 
         Debug.Log($"Colono para {owner.playerName} instanciado en {coords}");

@@ -5,7 +5,6 @@ using System.Collections; // Necesario para las Corutinas
 [RequireComponent(typeof(Animator))] 
 public class UnitMovement : MonoBehaviour
 {
-    // --- VARIABLES PÚBLICAS (Ajustables en el Inspector) ---
     [Header("Configuración de Movimiento")]
     public float moveSpeed = 5f; 
     
@@ -26,9 +25,6 @@ public class UnitMovement : MonoBehaviour
         animator = GetComponent<Animator>(); 
     }
 
-    /// <summary>
-    /// Comprueba si el movimiento es válido y, si lo es, inicia la Corutina de movimiento.
-    /// </summary>
     public bool IntentarMover(HexTile casillaDestino)
     {
         if (isMoving)
@@ -37,13 +33,22 @@ public class UnitMovement : MonoBehaviour
             return false;
         }
 
-        if (unitCerebro.movimientosRestantes <= 0)
+        CellData cellDestino = GetCellDataFromTile(casillaDestino);
+        if(cellDestino== null)
+        {
+            Debug.Log("No existe esta casilla o no se pudo encontrar");
+            return false;
+        }
+
+        int costeMovimiento = cellDestino.cost;
+
+        if (unitCerebro.movimientosRestantes < costeMovimiento)
         {
             Debug.Log("¡No quedan puntos de movimiento!");
             return false;
         }
 
-        // Añadido: Comprobar si ya estamos en esa casilla (evita gastar turno en moverse a la misma casilla)
+        // Comprobar si ya estamos en esa casilla (evita gastar turno en moverse a la misma casilla)
         if (Vector3.Distance(transform.position, casillaDestino.transform.position) < 0.1f)
         {
             Debug.Log("Ya estás en esta casilla.");
@@ -54,7 +59,7 @@ public class UnitMovement : MonoBehaviour
         // 4. (FUTURO) Comprobar si la casilla está ocupada
 
         // 5. ¡Todo OK! Gastar el recurso e iniciar el movimiento
-        unitCerebro.GastarPuntoDeMovimiento(); 
+        unitCerebro.GastarPuntoDeMovimiento(costeMovimiento); 
 
         Debug.Log($"Iniciando movimiento a {casillaDestino.name}. Movimientos restantes: {unitCerebro.movimientosRestantes}");
 

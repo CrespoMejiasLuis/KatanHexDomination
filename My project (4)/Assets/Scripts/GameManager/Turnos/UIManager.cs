@@ -230,7 +230,7 @@ public class UIManager : MonoBehaviour
                 actionSpecialButton.interactable = true; // El UnitBuilder comprobará los recursos
 
                 // Conectamos el botón al SimpleClickTester
-                SimpleClickTester clickTester = FindObjectOfType<SimpleClickTester>();
+                SimpleClickTester clickTester = FindFirstObjectByType<SimpleClickTester>();
                 if (clickTester != null)
                 {
                     actionSpecialButton.onClick.AddListener(clickTester.BotonConstruirPulsado);
