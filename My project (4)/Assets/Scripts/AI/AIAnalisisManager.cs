@@ -2,14 +2,13 @@ using UnityEngine;
 
 public class AIAnalysisManager : MonoBehaviour
 {
-    public enum MapType { None, Threat, Resources, Territory }
 
     [Header("Debug Visual")]
     public MapType debugMapToDraw = MapType.None;
     [Range(0.1f, 1f)]
     public float gizmoRadius = 0.6f;
 
-    // --- LAS 3 CAPAS DE VISIÓN ---
+    // --- LAS 3 CAPAS DE VISIï¿½N ---
     public float[,] threatMap;
     public float[,] resourceMap;
     public float[,] territoryMap;
@@ -54,7 +53,7 @@ public class AIAnalysisManager : MonoBehaviour
                 CellData cell = grid[x, y];
                 if (cell == null) continue;
 
-                // --- A. MAPA DE RECURSOS (Valoración Económica) ---
+                // --- A. MAPA DE RECURSOS (Valoraciï¿½n Econï¿½mica) ---
                 float resourceValue = 0;
 
                 // 1. Valor Base del Recurso
@@ -68,12 +67,12 @@ public class AIAnalysisManager : MonoBehaviour
                     default: resourceValue = 0f; break;
                 }
 
-                // 2. Penalización: ¿Ya hay una ciudad AQUÍ?
+                // 2. Penalizaciï¿½n: ï¿½Ya hay una ciudad AQUï¿½?
                 bool isOccupied = cell.typeUnitOnCell == TypeUnit.Poblado || cell.typeUnitOnCell == TypeUnit.Ciudad;
                 if (isOccupied) resourceValue = 0;
 
-                // 3. Penalización: ¿Hay una ciudad VECINA? (¡NUEVO!)
-                // Si un vecino es ciudad, este recurso ya está siendo explotado (o bloqueado para construir).
+                // 3. Penalizaciï¿½n: ï¿½Hay una ciudad VECINA? (ï¿½NUEVO!)
+                // Si un vecino es ciudad, este recurso ya estï¿½ siendo explotado (o bloqueado para construir).
                 if (resourceValue > 0) // Solo comprobamos si la casilla vale la pena
                 {
                     foreach (Vector2Int dir in axialNeighborDirections)
@@ -88,9 +87,9 @@ public class AIAnalysisManager : MonoBehaviour
 
                             if (neighborHasCity)
                             {
-                                // El recurso está bloqueado por una ciudad adyacente
+                                // El recurso estï¿½ bloqueado por una ciudad adyacente
                                 resourceValue = 0;
-                                break; // Dejamos de buscar, ya está invalidado
+                                break; // Dejamos de buscar, ya estï¿½ invalidado
                             }
                         }
                     }
@@ -105,12 +104,12 @@ public class AIAnalysisManager : MonoBehaviour
                     if (cell.unitOnCell.ownerID != aiPlayerID)
                     {
                         // Unidades enemigas generan amenaza
-                        // (Poblados enemigos también podrían generar amenaza si quieres)
+                        // (Poblados enemigos tambiï¿½n podrï¿½an generar amenaza si quieres)
                         threatMap[x, y] = 50f;
                     }
                 }
 
-                // --- C. MAPA DE TERRITORIO (Expansión) ---
+                // --- C. MAPA DE TERRITORIO (Expansiï¿½n) ---
                 if (cell.owner != -1)
                 {
                     if (cell.owner == aiPlayerID)
@@ -124,7 +123,7 @@ public class AIAnalysisManager : MonoBehaviour
 
     private void OnDrawGizmos()
     {
-        // (Mismo código de visualización que tenías antes)
+        // (Mismo cï¿½digo de visualizaciï¿½n que tenï¿½as antes)
         if (debugMapToDraw == MapType.None || BoardManager.Instance == null) return;
         CellData[,] grid = BoardManager.Instance.gridData;
         if (grid == null) return;

@@ -1,0 +1,1 @@
+public enum MapType { None, Threat, Resources, Territory }
