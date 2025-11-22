@@ -2,13 +2,18 @@ using UnityEngine;
 
 public class AIAnalysisManager : MonoBehaviour
 {
+    public enum MapType { None, Threat, Resources, Territory }
 
     [Header("Debug Visual")]
     public MapType debugMapToDraw = MapType.None;
     [Range(0.1f, 1f)]
     public float gizmoRadius = 0.6f;
 
-    // --- LAS 3 CAPAS DE VISI�N ---
+    [Header("Configuración de IA")]
+    public int convolutionSteps = 2;
+    public float decayFactor = 0.5f;
+
+    // --- LAS 3 CAPAS DE VISIÓN ---
     public float[,] threatMap;
     public float[,] resourceMap;
     public float[,] territoryMap;
@@ -16,7 +21,6 @@ public class AIAnalysisManager : MonoBehaviour
     private int width;
     private int height;
 
-    // Necesitamos esto para mirar a los vecinos
     private static readonly Vector2Int[] axialNeighborDirections = new Vector2Int[]
     {
         new Vector2Int(1, 0), new Vector2Int(1, -1), new Vector2Int(0, -1),
@@ -53,77 +57,146 @@ public class AIAnalysisManager : MonoBehaviour
                 CellData cell = grid[x, y];
                 if (cell == null) continue;
 
-                // --- A. MAPA DE RECURSOS (Valoraci�n Econ�mica) ---
-                float resourceValue = 0;
-
-                // 1. Valor Base del Recurso
-                switch (cell.resource)
+                // =================================================
+                // 1. MAPA DE TERRITORIO (Base para los otros)
+                // =================================================
+                bool isEnemyTerritory = false;
+                if (cell.owner != -1)
                 {
-                    case ResourceType.Madera:
-                    case ResourceType.Arcilla: resourceValue = 10f; break;
-                    case ResourceType.Trigo:
-                    case ResourceType.Oveja: resourceValue = 15f; break;
-                    case ResourceType.Roca: resourceValue = 20f; break;
-                    default: resourceValue = 0f; break;
+                    if (cell.owner == aiPlayerID)
+                    {
+                        territoryMap[x, y] = 1f; // Mío
+                    }
+                    else
+                    {
+                        territoryMap[x, y] = -1f; // Enemigo
+                        isEnemyTerritory = true;
+                    }
                 }
 
-                // 2. Penalizaci�n: �Ya hay una ciudad AQU�?
-                bool isOccupied = cell.typeUnitOnCell == TypeUnit.Poblado || cell.typeUnitOnCell == TypeUnit.Ciudad;
-                if (isOccupied) resourceValue = 0;
-
-                // 3. Penalizaci�n: �Hay una ciudad VECINA? (�NUEVO!)
-                // Si un vecino es ciudad, este recurso ya est� siendo explotado (o bloqueado para construir).
-                if (resourceValue > 0) // Solo comprobamos si la casilla vale la pena
+                // =================================================
+                // 2. MAPA DE AMENAZA (Militar)
+                // =================================================
+                if (cell.unitOnCell != null)
                 {
-                    foreach (Vector2Int dir in axialNeighborDirections)
+                    // Si hay una unidad y NO es mía
+                    if (cell.unitOnCell.ownerID != aiPlayerID)
                     {
-                        Vector2Int neighborCoords = cell.coordinates + dir;
-                        CellData neighbor = BoardManager.Instance.GetCell(neighborCoords);
+                        float threatValue = 50f; // Valor base para unidades móviles
 
-                        if (neighbor != null)
+                        // ¡CORRECCIÓN! Los poblados enemigos son peligrosos (defensas)
+                        // y estáticos, así que generan una amenaza constante alta.
+                        if (cell.typeUnitOnCell == TypeUnit.Poblado || cell.typeUnitOnCell == TypeUnit.Ciudad)
                         {
-                            bool neighborHasCity = neighbor.typeUnitOnCell == TypeUnit.Poblado ||
-                                                   neighbor.typeUnitOnCell == TypeUnit.Ciudad;
+                            threatValue = 80f; // Las ciudades asustan más
+                        }
 
-                            if (neighborHasCity)
+                        threatMap[x, y] = threatValue;
+                    }
+                }
+
+                // =================================================
+                // 3. MAPA DE RECURSOS (Económico)
+                // =================================================
+                float resourceValue = 0;
+
+                // Si es territorio enemigo, el recurso NO es accesible para la IA económica
+                if (!isEnemyTerritory)
+                {
+                    switch (cell.resource)
+                    {
+                        case ResourceType.Madera: case ResourceType.Arcilla: resourceValue = 10f; break;
+                        case ResourceType.Trigo: case ResourceType.Oveja: resourceValue = 15f; break;
+                        case ResourceType.Roca: resourceValue = 20f; break;
+                        default: resourceValue = 0f; break;
+                    }
+
+                    // Penalización: Si ya hay ciudad (propia o enemiga), valor 0
+                    if (cell.typeUnitOnCell == TypeUnit.Poblado || cell.typeUnitOnCell == TypeUnit.Ciudad)
+                    {
+                        resourceValue = 0;
+                    }
+
+                    // Penalización: Si hay una ciudad VECINA (de CUALQUIERA), valor 0
+                    // (No puedes construir pegado a otra ciudad)
+                    if (resourceValue > 0)
+                    {
+                        foreach (Vector2Int dir in axialNeighborDirections)
+                        {
+                            Vector2Int neighborCoords = cell.coordinates + dir;
+                            CellData neighbor = BoardManager.Instance.GetCell(neighborCoords);
+
+                            if (neighbor != null)
                             {
-                                // El recurso est� bloqueado por una ciudad adyacente
-                                resourceValue = 0;
-                                break; // Dejamos de buscar, ya est� invalidado
+                                // Si el vecino es ciudad o ES TERRITORIO ENEMIGO, no queremos construir aquí
+                                bool neighborBlocked =
+                                    neighbor.typeUnitOnCell == TypeUnit.Poblado ||
+                                    neighbor.typeUnitOnCell == TypeUnit.Ciudad ||
+                                    (neighbor.owner != -1 && neighbor.owner != aiPlayerID); // Vecino es propiedad enemiga
+
+                                if (neighborBlocked)
+                                {
+                                    resourceValue = 0;
+                                    break;
+                                }
                             }
                         }
                     }
                 }
 
                 resourceMap[x, y] = resourceValue;
-
-
-                // --- B. MAPA DE AMENAZA (Militar) ---
-                if (cell.unitOnCell != null)
-                {
-                    if (cell.unitOnCell.ownerID != aiPlayerID)
-                    {
-                        // Unidades enemigas generan amenaza
-                        // (Poblados enemigos tambi�n podr�an generar amenaza si quieres)
-                        threatMap[x, y] = 50f;
-                    }
-                }
-
-                // --- C. MAPA DE TERRITORIO (Expansi�n) ---
-                if (cell.owner != -1)
-                {
-                    if (cell.owner == aiPlayerID)
-                        territoryMap[x, y] = 1f;
-                    else
-                        territoryMap[x, y] = -1f;
-                }
             }
         }
+
+        // --- APLICAR CONVOLUCIÓN ---
+        resourceMap = ApplyConvolution(resourceMap, convolutionSteps, decayFactor);
+        threatMap = ApplyConvolution(threatMap, convolutionSteps, decayFactor);
+    }
+
+    private float[,] ApplyConvolution(float[,] originalMap, int steps, float decay)
+    {
+        float[,] currentMap = originalMap;
+        int w = currentMap.GetLength(0);
+        int h = currentMap.GetLength(1);
+
+        for (int step = 0; step < steps; step++)
+        {
+            float[,] nextMap = new float[w, h];
+            System.Array.Copy(currentMap, nextMap, currentMap.Length);
+
+            for (int x = 0; x < w; x++)
+            {
+                for (int y = 0; y < h; y++)
+                {
+                    if (currentMap[x, y] > 0.1f)
+                    {
+                        float valueToPass = currentMap[x, y] * decay;
+                        CellData centerCell = BoardManager.Instance.gridData[x, y];
+                        if (centerCell == null) continue;
+
+                        foreach (Vector2Int dir in axialNeighborDirections)
+                        {
+                            Vector2Int neighborCoord = centerCell.coordinates + dir;
+                            // TRUCO DE ÍNDICES (Mismo que en BoardManager)
+                            int r = BoardManager.Instance.gridRadius;
+                            int nX = neighborCoord.x + (r - 1);
+                            int nY = neighborCoord.y + (r - 1);
+
+                            if (nX >= 0 && nX < w && nY >= 0 && nY < h)
+                            {
+                                nextMap[nX, nY] += valueToPass;
+                            }
+                        }
+                    }
+                }
+            }
+            currentMap = nextMap;
+        }
+        return currentMap;
     }
 
     private void OnDrawGizmos()
     {
-        // (Mismo c�digo de visualizaci�n que ten�as antes)
         if (debugMapToDraw == MapType.None || BoardManager.Instance == null) return;
         CellData[,] grid = BoardManager.Instance.gridData;
         if (grid == null) return;
