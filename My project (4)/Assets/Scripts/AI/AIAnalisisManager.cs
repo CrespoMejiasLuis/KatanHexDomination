@@ -237,4 +237,36 @@ public class AIAnalysisManager : MonoBehaviour
             }
         }
     }
+    
+    public Vector2Int? GetBestPositionForExpansion()
+    {
+        if (resourceMap == null) return null;
+
+        float bestValue = -1f;
+        Vector2Int bestCoords = Vector2Int.zero;
+        bool found = false;
+
+        for (int x = 0; x < width; x++)
+        {
+            for (int y = 0; y < height; y++)
+            {
+                // La fórmula de decisión: Valor = Recursos - (Amenaza * Factor de Miedo)
+                // Si hay amenaza (50), el valor bajará drásticamente.
+                float score = resourceMap[x, y] - (threatMap[x, y] * 2.0f);
+
+                // Solo nos interesan casillas válidas (con valor positivo)
+                // Y que NO tengan ya una unidad nuestra (para no movernos encima de nosotros mismos)
+                CellData cell = BoardManager.Instance.gridData[x, y];
+                if (cell != null && cell.unitOnCell == null && score > bestValue)
+                {
+                    bestValue = score;
+                    bestCoords = cell.coordinates;
+                    found = true;
+                }
+            }
+        }
+
+        if (found) return bestCoords;
+        return null;
+    }
 }

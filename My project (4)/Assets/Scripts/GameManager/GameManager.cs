@@ -115,16 +115,21 @@ public class GameManager : MonoBehaviour
                 break;
 
             case GameState.AITurn:
-                OnAITurnStart?.Invoke();     // Llama al evento
-                CollectTurnResources(2);     // La IA tambi�n recolecta
-                if (aiAnalysis != null)
+                OnAITurnStart?.Invoke();
+                CollectTurnResources(2);
+
+                // --- ¡CORRECCIÓN AQUÍ! ---
+                // Borramos StartCoroutine(AIPlayTurn());
+                // Llamamos a la IA real:
+                if (IAPlayer != null)
                 {
-                    // Suponemos que el ID de la IA es 1 (o 2, revisa tu lógica de IDs)
-                    // En tu código anterior usabas 0=Humano, 1=IA.
-                    aiAnalysis.CalculateBaseMaps(1);
-                    Debug.Log("🧠 IA: Mapas de influencia calculados.");
+                    IAPlayer.BeginTurn(); // <-- Esto inicia PlayerIA.ExecuteAITurn
                 }
-                StartCoroutine(AIPlayTurn());
+                else
+                {
+                    Debug.LogError("IAPlayer no asignado en GameManager. Saltando turno.");
+                    EndAITurn();
+                }
                 break;
 
             case GameState.EndTurnResolution:
@@ -151,6 +156,16 @@ public class GameManager : MonoBehaviour
         {
             OnPlayerTurnEnd?.Invoke();
             SetState(GameState.AITurn); // O GameState.EndTurnResolution si necesitas un paso intermedio
+        }
+    }
+
+    public void EndAITurn()
+    {
+        if (CurrentState == GameState.AITurn)
+        {
+            OnAITurnEnd?.Invoke();
+            // Vuelve al turno del jugador
+            SetState(GameState.PlayerTurn);
         }
     }
 
@@ -225,21 +240,7 @@ public class GameManager : MonoBehaviour
     }
 
     //Corutina donde se hacen las acciones de la IA -por ajora- pa que salte el turno
-    private System.Collections.IEnumerator AIPlayTurn()
-    {
-        Debug.Log("🤖 La IA está jugando su turno...");
-
-        // Esperar 2 segundos simulando que la IA “piensa”
-        yield return new WaitForSeconds(2f);
-
-        // Aquí podrías meter lógica real de IA (mover, atacar, etc.)
-
-        Debug.Log("🤖 La IA ha terminado su turno. Pasando al jugador...");
-        OnAITurnEnd?.Invoke();
-
-        // Cambiar de nuevo al jugador
-        SetState(GameState.PlayerTurn);
-    }
+    
     private void GenerateGrid(Action onGridReady)
     {
         if (_gridGenerator != null)

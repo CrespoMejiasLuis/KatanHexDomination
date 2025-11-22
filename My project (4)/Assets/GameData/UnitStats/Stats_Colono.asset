@@ -17,7 +17,7 @@ MonoBehaviour:
   vidaMaxima: 20
   ataque: 0
   rangoAtaque: 0
-  puntosMovimiento: 1
+  puntosMovimiento: 5
   costeMadera: 0
   costePiedra: 0
   costeTrigo: 1

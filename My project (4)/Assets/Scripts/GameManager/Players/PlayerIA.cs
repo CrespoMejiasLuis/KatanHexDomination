@@ -1,51 +1,115 @@
-using UnityEngine;
-using System.Collections; // Necesario para Coroutines
+Ôªøusing UnityEngine;
+using System.Collections;
+using System.Linq;
 
 public class PlayerIA : Player
 {
-    /// <summary>
-    /// ImplementaciÛn del turno del jugador IA.
-    /// </summary>
+    private AIAnalysisManager aiBrain;
+
+    protected override void Awake()
+    {
+        base.Awake();
+        aiBrain = FindObjectOfType<AIAnalysisManager>();
+    }
+
     public override void BeginTurn()
     {
-        Debug.Log($"--- Turno del Jugador {playerName} (IA) ---");
-
-        // Inicia la corutina que tomar· las decisiones
+        Debug.Log($"üü¢ --- INICIO TURNO IA ({playerName}) ---");
         StartCoroutine(ExecuteAITurn());
     }
 
-    /// <summary>
-    /// Corutina que simula el proceso de pensamiento y acciÛn de la IA.
-    /// </summary>
     private IEnumerator ExecuteAITurn()
     {
-        // 1. PENSAR
-        Debug.Log("IA est· 'pensando'...");
-        // AquÌ irÌa la lÛgica compleja de decisiÛn:
-        // - øQuÈ recursos tengo? (accede a 'this.resources')
-        // - øDÛnde puedo construir?
-        // - øDebo atacar?
-
-        // Simula un tiempo de pensamiento
-        yield return new WaitForSeconds(1.5f);
-
-        // 2. ACTUAR (Ejemplo de acciÛn)
-        // Ejemplo: Si tengo 2 de madera, construyo algo.
-        if (HasEnoughResources(ResourceType.Madera, 2))
+        // 1. CHEQUEO DE CEREBRO
+        if (aiBrain == null)
         {
-            SpendResources(ResourceType.Madera, 2);
-            Debug.Log("IA ha decidido construir algo.");
-            // LÛgica para instanciar un edificio...
+            Debug.LogError("‚ùå IA ERROR: No encuentro el script AIAnalysisManager en la escena.");
+            GameManager.Instance.EndAITurn();
+            yield break;
+        }
+
+        // 2. PERCEPCI√ìN
+        Debug.Log("üß† IA: Calculando mapas de influencia...");
+        aiBrain.CalculateBaseMaps(this.playerID);
+
+        yield return new WaitForSeconds(1.0f);
+
+        // 3. BUSCAR UNIDAD
+        // Buscamos cualquier unidad nuestra que tenga el componente UnitBuilder (Colono)
+        var myUnits = ArmyManager.GetAllUnits();
+        Debug.Log($"üîç IA: Tengo {myUnits.Count} unidades registradas en mi ej√©rcito.");
+
+        Unit colono = myUnits.FirstOrDefault(u => u.GetComponent<UnitBuilder>() != null);
+
+        if (colono == null)
+        {
+            Debug.LogError("‚ùå IA ERROR: No encuentro ning√∫n Colono en mi lista de unidades.");
+            // (Aqu√≠ podr√≠as intentar atacar si tienes soldados, pero por ahora terminamos)
         }
         else
         {
-            Debug.Log("IA no tiene suficientes recursos, pasa el turno.");
+            Debug.Log($"‚úÖ IA: Colono encontrado: {colono.name} en {colono.misCoordenadasActuales}. Movimientos: {colono.movimientosRestantes}");
+
+            // 4. DECIDIR DESTINO
+            Vector2Int? bestSpot = aiBrain.GetBestPositionForExpansion();
+
+            if (bestSpot.HasValue)
+            {
+                Debug.Log($"üéØ IA: Objetivo decidido en {bestSpot.Value}. Intentando mover...");
+
+                // Intentamos mover
+                yield return MoverUnidadHacia(colono, bestSpot.Value);
+            }
+            else
+            {
+                Debug.LogWarning("‚ö†Ô∏è IA ALERTA: GetBestPositionForExpansion devolvi√≥ null. Todos los recursos valen 0 o est√°n ocupados.");
+            }
         }
 
-        yield return new WaitForSeconds(1.0f); // Pausa para ver la acciÛn
+        // 5. TERMINAR
+        Debug.Log("üî¥ IA: Fin de turno.");
+        yield return new WaitForSeconds(0.5f);
+        GameManager.Instance.EndAITurn();
+    }
 
-        // 3. TERMINAR TURNO
-        Debug.Log("IA termina su turno.");
-        GameManager.Instance.EndPlayerTurn(); // Llama al GameManager para pasar el turno
+    private IEnumerator MoverUnidadHacia(Unit unit, Vector2Int targetCoords)
+    {
+        UnitMovement movement = unit.GetComponent<UnitMovement>();
+        if (movement == null)
+        {
+            Debug.LogError($"‚ùå IA ERROR: La unidad {unit.name} no tiene script UnitMovement.");
+            yield break;
+        }
+
+        // Obtenemos la celda objetivo
+        CellData targetCell = BoardManager.Instance.GetCell(targetCoords);
+
+        if (targetCell == null)
+        {
+            Debug.LogError($"‚ùå IA ERROR: La celda en {targetCoords} no existe en el BoardManager.");
+            yield break;
+        }
+
+        if (targetCell.visualTile == null)
+        {
+            Debug.LogError($"‚ùå IA ERROR: La celda en {targetCoords} no tiene visualTile asignado.");
+            yield break;
+        }
+
+        Debug.Log($"üèÉ IA: Llamando a IntentarMover hacia {targetCell.visualTile.name}...");
+
+        // --- LLAMADA AL MOVIMIENTO ---
+        bool seMovio = movement.IntentarMover(targetCell.visualTile);
+
+        if (seMovio)
+        {
+            Debug.Log("‚úÖ IA: ¬°Movimiento exitoso! Esperando animaci√≥n...");
+            yield return new WaitForSeconds(2.0f);
+        }
+        else
+        {
+            Debug.LogError("‚ùå IA ERROR: IntentarMover devolvi√≥ FALSE. Revisa los logs de UnitMovement.");
+            // Causas comunes: No hay puntos de movimiento, la celda est√° muy lejos (teletransporte no permitido si validas adyacencia), o coste muy alto.
+        }
     }
 }
