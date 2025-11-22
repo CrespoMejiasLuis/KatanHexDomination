@@ -8,7 +8,7 @@ public class GameManager : MonoBehaviour
     public static GameManager Instance { get; private set; }
     [Header("Referencias de Otros Scripts")]
     public CameraManager cameraManager;
-
+    public AIAnalysisManager aiAnalysis;
     // === ESTADO ===
     public GameState CurrentState { get; private set; }
     private HexGridGenerator _gridGenerator;
@@ -64,6 +64,7 @@ public class GameManager : MonoBehaviour
                 Debug.LogError("CameraManager no encontrado en la escena. La cámara no rotará.");
             }
         }
+        if (aiAnalysis == null) aiAnalysis = FindObjectOfType<AIAnalysisManager>();
 
         if (_gridGenerator == null)
         {
@@ -116,7 +117,13 @@ public class GameManager : MonoBehaviour
             case GameState.AITurn:
                 OnAITurnStart?.Invoke();     // Llama al evento
                 CollectTurnResources(2);     // La IA tambi�n recolecta
-
+                if (aiAnalysis != null)
+                {
+                    // Suponemos que el ID de la IA es 1 (o 2, revisa tu lógica de IDs)
+                    // En tu código anterior usabas 0=Humano, 1=IA.
+                    aiAnalysis.CalculateBaseMaps(1);
+                    Debug.Log("🧠 IA: Mapas de influencia calculados.");
+                }
                 StartCoroutine(AIPlayTurn());
                 break;
 
