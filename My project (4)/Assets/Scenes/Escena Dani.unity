@@ -15639,8 +15639,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   aiAnalysis: {fileID: 1403644515}
-  warThreshold: 50
-  peaceThreshold: 40
+  warThreshold: 500
+  peaceThreshold: 495
   currentStrategicState: 0
   currentTacticalState: 0
 --- !u!4 &1847502791

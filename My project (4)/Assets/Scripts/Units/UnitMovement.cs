@@ -64,7 +64,7 @@ public class UnitMovement : MonoBehaviour
         if(!isAdyacent)
         {
             Debug.Log("solo te puedes mover a una casilla adyacente");
-            return false;
+            //return false;
         }
 
         // 4. (FUTURO) Comprobar si la casilla está ocupada

@@ -32,7 +32,7 @@ public class PlayerIA : Player
         if (aiAnalysis == null || generalBrain == null)
         {
             Debug.LogError("❌ IA CRITICAL: Faltan referencias (AIAnalysisManager o AI_General).");
-            GameManager.Instance.EndPlayerTurn(); // Saltamos turno para no colgar el juego
+            GameManager.Instance.EndAITurn(); // Saltamos turno para no colgar el juego
             yield break;
         }
 
@@ -94,8 +94,6 @@ public class PlayerIA : Player
     // =================================================================================
     private IEnumerator ExecuteExpansionLogic()
     {
-        // --- CAMBIO AQUÍ: Usamos tu myArmyManager ---
-        // Obtenemos la lista de unidades usando tu función GetAllUnits()
         var myUnits = myArmyManager.GetAllUnits();
         
         // Buscamos un Colono (que tenga UnitBuilder) y tenga movimiento

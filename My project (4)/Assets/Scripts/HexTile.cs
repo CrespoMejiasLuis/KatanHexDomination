@@ -41,10 +41,6 @@ public class HexTile : MonoBehaviour
             
             animator.Play(FLIP_ANIMATION_NAME);
         }
-        else
-        {
-            Debug.LogError("Animator no encontrado en la casilla: " + gameObject.name);
-        }
     }
    
 

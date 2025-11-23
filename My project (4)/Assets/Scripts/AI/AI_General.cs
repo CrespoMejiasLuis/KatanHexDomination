@@ -119,7 +119,6 @@ public class AI_General : MonoBehaviour
         {
             foreach (float val in aiAnalysis.threatMap)
             {
-                Debug.Log(val);
                 totalThreatLevel += val;
             }
         }
