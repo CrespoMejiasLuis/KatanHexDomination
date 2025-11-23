@@ -78,22 +78,12 @@ public class BoardManager : MonoBehaviour
 
         return (Mathf.Abs(dx) + Mathf.Abs(dy) + Mathf.Abs(dz)) / 2;
     }
+
     public List<CellData> GetAdjacents(Vector2Int axial)
     {
-        // Offsets de hexágonos en axial coordinates (q, r)
-        Vector2Int[] dirs =
-        {
-        new Vector2Int(+1, 0),
-        new Vector2Int(+1, -1),
-        new Vector2Int(0, -1),
-        new Vector2Int(-1, 0),
-        new Vector2Int(-1, +1),
-        new Vector2Int(0, +1)
-    };
-
         List<CellData> resultado = new List<CellData>();
 
-        foreach (var d in dirs)
+        foreach (var d in GameManager.axialNeighborDirections)
         {
             CellData c = GetCell(axial + d);
             if (c != null)
@@ -118,7 +108,5 @@ public class BoardManager : MonoBehaviour
             }
         }
     }
-
-
 
 }
