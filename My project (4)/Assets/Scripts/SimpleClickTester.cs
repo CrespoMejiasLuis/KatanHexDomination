@@ -28,6 +28,10 @@ public class SimpleClickTester : MonoBehaviour
         camaraPrincipal = Camera.main;
 
         if (unitActionMenu != null) unitActionMenu.SetActive(false);
+        GameManager.OnPlayerTurnEnd += DeseleccionarUnit;
+
+        // 🔥 Al terminar turno de la IA → deseleccionar (opcional pero recomendable)
+        GameManager.OnAITurnEnd += DeseleccionarUnit;
     }
 
     void Update()
@@ -134,6 +138,8 @@ public class SimpleClickTester : MonoBehaviour
                     if (mover != null)
                     {
                         mover.IntentarMover(casillaClicada);
+                        
+                       
                     }
                 }
                 // Haya funcionado o no, el "modo movimiento" ha terminado.
@@ -174,7 +180,8 @@ public class SimpleClickTester : MonoBehaviour
         
         // ¡Importante! Al seleccionar una unidad, SIEMPRE volvemos al modo Selección
         currentMode = PlayerInputMode.Selection;
-        
+        HighlightAdjacents(unitClickada);
+
     }
 
     // MODIFICADA: Ahora también resetea el modo
@@ -199,6 +206,8 @@ public class SimpleClickTester : MonoBehaviour
         // ¡Importante! Si no hay nada seleccionado, volvemos al modo Selección
         currentMode = PlayerInputMode.Selection;
         GameManager.Instance.DeselectAll();
+        BoardManager.Instance.HideAllBorders();
+
     }
 
     /// <summary>
@@ -246,7 +255,12 @@ public class SimpleClickTester : MonoBehaviour
             {
                 unitActionMenu.SetActive(false);
             }
-            
+            BoardManager.Instance.HideAllBorders(); // quita bordes previos
+
+            // volver a marcar solo la casilla de la unidad
+           // HighlightAdjacents(unidadSeleccionada);
+
+
             Debug.Log("MODO MOVER: Seleccione una casilla de destino.");
         }
         else
@@ -486,6 +500,22 @@ public class SimpleClickTester : MonoBehaviour
             Debug.Log("¡La unidad seleccionada (" + unidadSeleccionada.name + ") no puede crear Colono!");
         }
     }
+    private void HighlightAdjacents(Unit unidad)
+    {
+        // Ocultar todos los bordes primero
+        BoardManager.Instance.HideAllBorders();
+
+        // Obtener la casilla donde está la unidad
+        CellData cellActual = BoardManager.Instance.GetCell(unidad.misCoordenadasActuales);
+        if (cellActual == null) return;
+
+        // Mostrar borde SOLO en la casilla actual
+        if (cellActual.visualTile != null)
+            cellActual.visualTile.SetBorderVisible(true);
+    }
+
+    
+
 
 
 }

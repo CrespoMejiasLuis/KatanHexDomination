@@ -72,6 +72,7 @@ public class GameManager : MonoBehaviour
             return;
         }
 
+
         SetState(GameState.Initializing);   
     }
 

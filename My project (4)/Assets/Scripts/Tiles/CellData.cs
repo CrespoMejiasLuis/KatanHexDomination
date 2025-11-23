@@ -26,4 +26,26 @@ public class CellData
         else
             cost = 1;
     }
+    public void UpdateVisual()
+    {
+        if (visualTile == null) return;
+
+        switch (owner)
+        {
+            case -1: // Sin dueño
+                visualTile.SetBorderVisible(false);
+                break;
+
+            case 0: // Jugador
+                visualTile.SetBorderVisible(true);
+                visualTile.SetBorderColor(Color.red);
+                break;
+
+            case 1: // IA
+                visualTile.SetBorderVisible(true);
+                visualTile.SetBorderColor(Color.blue);
+                break;
+        }
+    }
+
 }

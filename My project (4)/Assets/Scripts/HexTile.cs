@@ -6,6 +6,9 @@ public class HexTile : MonoBehaviour
     public ResourceType resourceType;
 
     [HideInInspector] public Vector2Int AxialCoordinates;
+    [SerializeField] private GameObject borderObject; // Arrástralo en el inspector
+    [SerializeField] private Material borderMaterial;
+
 
     // Referencia al Animator
     private Animator animator;
@@ -43,4 +46,18 @@ public class HexTile : MonoBehaviour
             Debug.LogError("Animator no encontrado en la casilla: " + gameObject.name);
         }
     }
+   
+
+    public void SetBorderVisible(bool visible)
+    {
+        if (borderObject != null)
+            borderObject.SetActive(visible);
+    }
+
+    public void SetBorderColor(Color color)
+    {
+        if (borderMaterial != null)
+            borderMaterial.color = color;
+    }
+
 }

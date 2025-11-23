@@ -73,6 +73,12 @@ public class UnitMovement : MonoBehaviour
     /// </summary>
     private IEnumerator MoveCoroutine(HexTile casillaDestino)
     {
+        CellData cellLogica = GetCellDataFromTile(casillaDestino);
+        BoardManager.Instance.HideAllBorders();                // Quita bordes antiguos
+        if (cellLogica != null && cellLogica.visualTile != null)
+        {
+            cellLogica.visualTile.SetBorderVisible(true);      // Resalta la nueva posición
+        }
         // --- INICIO DEL MOVIMIENTO ---
         isMoving = true;
         animator.SetBool("isWalking", true);
@@ -117,7 +123,7 @@ public class UnitMovement : MonoBehaviour
         transform.position = targetPosition;
         animator.SetBool("isWalking", false);
 
-        CellData cellLogica = GetCellDataFromTile(casillaDestino);
+        
 
         if (cellLogica != null)
         {
@@ -131,6 +137,7 @@ public class UnitMovement : MonoBehaviour
             Debug.LogError("¡No se pudo encontrar la CellData para este HexTile! " + casillaDestino.name);
         }
         // --- FIN DE LÓGICA NUEVA ---
+       
 
         isMoving = false;
     }

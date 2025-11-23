@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class BoardManager : MonoBehaviour
@@ -77,5 +78,47 @@ public class BoardManager : MonoBehaviour
 
         return (Mathf.Abs(dx) + Mathf.Abs(dy) + Mathf.Abs(dz)) / 2;
     }
+    public List<CellData> GetAdjacents(Vector2Int axial)
+    {
+        // Offsets de hexágonos en axial coordinates (q, r)
+        Vector2Int[] dirs =
+        {
+        new Vector2Int(+1, 0),
+        new Vector2Int(+1, -1),
+        new Vector2Int(0, -1),
+        new Vector2Int(-1, 0),
+        new Vector2Int(-1, +1),
+        new Vector2Int(0, +1)
+    };
+
+        List<CellData> resultado = new List<CellData>();
+
+        foreach (var d in dirs)
+        {
+            CellData c = GetCell(axial + d);
+            if (c != null)
+                resultado.Add(c);
+        }
+
+        return resultado;
+    }
+
+    public void HideAllBorders()
+    {
+        int width = gridData.GetLength(0);
+        int height = gridData.GetLength(1);
+
+        for (int x = 0; x < width; x++)
+        {
+            for (int y = 0; y < height; y++)
+            {
+                CellData cell = gridData[x, y];
+                if (cell != null && cell.visualTile != null)
+                    cell.visualTile.SetBorderVisible(false);
+            }
+        }
+    }
+
+
 
 }
