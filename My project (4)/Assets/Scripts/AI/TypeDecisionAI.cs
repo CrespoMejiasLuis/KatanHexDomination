@@ -11,3 +11,5 @@ public enum TacticalState
     ActiveDefense,  
     Assault        
 }
+
+public enum AIGoalType { None, Expand, Defend, Attack, ProduceUnit }

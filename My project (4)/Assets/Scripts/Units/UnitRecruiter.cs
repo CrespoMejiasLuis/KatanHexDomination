@@ -35,7 +35,10 @@ public class UnitRecruiter : MonoBehaviour
             return;
         }
 
-        Player jugador = GameManager.Instance.humanPlayer;
+        Player jugador = GetOwnerPlayer(unidadCreadora.ownerID);
+
+        if (jugador == null) return;
+
         Dictionary<ResourceType, int> coste = artilleroUnitPrefab.statsBase.GetProductCost();
 
         if (!jugador.CanAfford(coste))
@@ -87,7 +90,10 @@ public class UnitRecruiter : MonoBehaviour
             return;
         }
 
-        Player jugador = GameManager.Instance.humanPlayer;
+        Player jugador = GetOwnerPlayer(unidadCreadora.ownerID);
+
+        if (jugador == null) return;
+        
         Dictionary<ResourceType, int> coste = caballeroUnitPrefab.statsBase.GetProductCost();
 
         if (!jugador.CanAfford(coste))
@@ -139,7 +145,10 @@ public class UnitRecruiter : MonoBehaviour
             return;
         }
 
-        Player jugador = GameManager.Instance.humanPlayer;
+        Player jugador = GetOwnerPlayer(unidadCreadora.ownerID);
+
+        if (jugador == null) return;
+
         Dictionary<ResourceType, int> coste = colonoUnitPrefab.statsBase.GetProductCost();
 
         if (!jugador.CanAfford(coste))
@@ -161,6 +170,24 @@ public class UnitRecruiter : MonoBehaviour
         {
             nuevoColono.ownerID = unidadCreadora.ownerID;
             nuevoColono.misCoordenadasActuales = unidadCreadora.misCoordenadasActuales;
+        }
+    }
+
+    private Player GetOwnerPlayer(int ownerID)
+    {
+        // Asumiendo que 0 es Humano y 1 es IA (como en tu GameManager.CollectTurnResources)
+        if (ownerID == 0)
+        {
+            return GameManager.Instance.humanPlayer;
+        }
+        else if (ownerID == 1) // O el ID que use tu IA
+        {
+            return GameManager.Instance.IAPlayer;
+        }
+        else
+        {
+            Debug.LogError($"UnitRecruiter: ownerID desconocido ({ownerID}). No se puede cobrar recursos.");
+            return null;
         }
     }
 }

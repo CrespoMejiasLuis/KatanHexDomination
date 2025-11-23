@@ -1,14 +1,23 @@
 ﻿using UnityEngine;
 using System.Collections;
-using System.Linq; // Necesario para buscar unidades con LINQ
+using System.Collections.Generic;
+using System.Linq;
 
+[RequireComponent(typeof(PlayerArmyManager))]
 public class PlayerIA : Player
 {
-    [Header("Cerebros de la IA")]
-    // Referencia al Analista de Mapas (Ojos)
-    private AIAnalysisManager aiAnalysis; 
+    // --- ESTRUCTURAS DE DATOS (Nexo con el futuro GOAP) ---
     
-    public AI_General generalBrain; 
+    public struct AIGoal
+    {
+        public AIGoalType type;
+        public Vector2Int targetCoordinates;
+        public TypeUnit unitToProduce; 
+    }
+
+    [Header("Cerebros")]
+    private AIAnalysisManager aiAnalysis;
+    public AI_General generalBrain;
     private PlayerArmyManager myArmyManager;
 
     protected override void Awake()
@@ -26,144 +35,142 @@ public class PlayerIA : Player
 
     private IEnumerator ExecuteAITurn()
     {
-        // ---------------------------------------------------------
-        // PASO 1: VALIDACIÓN DE DEPENDENCIAS
-        // ---------------------------------------------------------
-        if (aiAnalysis == null || generalBrain == null)
-        {
-            Debug.LogError("❌ IA CRITICAL: Faltan referencias (AIAnalysisManager o AI_General).");
-            GameManager.Instance.EndAITurn(); // Saltamos turno para no colgar el juego
-            yield break;
-        }
+        if (aiAnalysis != null) aiAnalysis.CalculateBaseMaps(this.playerID);
+        yield return null; 
 
-        // ---------------------------------------------------------
-        // PASO 2: PERCEPCIÓN (Ver el mundo)
-        // ---------------------------------------------------------
-        Debug.Log("👀 IA: Calculando mapas de influencia...");
-        aiAnalysis.CalculateBaseMaps(this.playerID);
-        
-        // Pequeña pausa dramática para que no sea instantáneo
-        yield return new WaitForSeconds(2f); 
+        yield return new WaitForSeconds(3f);
 
-        // ---------------------------------------------------------
-        // PASO 3: DECISIÓN ESTRATÉGICA (HFSM)
-        // ---------------------------------------------------------
-        Debug.Log("🤔 IA: El General está decidiendo estrategia...");
-        generalBrain.DecideStrategy();
+        if (generalBrain != null) generalBrain.DecideStrategy();
 
-        // ---------------------------------------------------------
-        // PASO 4: EJECUCIÓN TÁCTICA (Actuar según el Estado)
-        // ---------------------------------------------------------
-        // Aquí es donde el 'switch' dirige el tráfico según lo que decidió el General
-        switch (generalBrain.currentTacticalState)
-        {
-            case TacticalState.EarlyExpansion:
-                Debug.Log("⚡ TÁCTICA: Expansión Temprana (Prioridad: Colonos)");
-                yield return ExecuteExpansionLogic();
-                break;
+        yield return AssignAndExecuteGoals();
 
-            case TacticalState.Development:
-                Debug.Log("🔨 TÁCTICA: Desarrollo (Prioridad: Mejorar Ciudades)");
-                // yield return ExecuteDevelopmentLogic(); // (Aún por hacer)
-                Debug.Log("... (Lógica de desarrollo pendiente) ...");
-                break;
-
-            case TacticalState.ActiveDefense:
-                Debug.Log("🛡️ TÁCTICA: Defensa Activa (Prioridad: Proteger Fronteras)");
-                // yield return ExecuteDefenseLogic(); // (Aún por hacer)
-                Debug.Log("... (Lógica de defensa pendiente) ...");
-                break;
-
-            case TacticalState.Assault:
-                Debug.Log("⚔️ TÁCTICA: Asalto (Prioridad: Atacar Enemigo)");
-                // yield return ExecuteAssaultLogic(); // (Aún por hacer)
-                Debug.Log("... (Lógica de asalto pendiente) ...");
-                break;
-        }
-
-        // ---------------------------------------------------------
-        // PASO 5: FINALIZAR TURNO
-        // ---------------------------------------------------------
+        // 4. FIN
         Debug.Log("🔴 IA: Fin de turno.");
         yield return new WaitForSeconds(0.5f);
         GameManager.Instance.EndAITurn(); 
     }
 
-    // =================================================================================
-    // 🧠 LÓGICA ESPECÍFICA: EXPANSIÓN
-    // =================================================================================
-    private IEnumerator ExecuteExpansionLogic()
+    private IEnumerator AssignAndExecuteGoals()
     {
-        var myUnits = myArmyManager.GetAllUnits();
+        List<Unit> allUnits = myArmyManager.GetAllUnits();
+
+        foreach (Unit unit in allUnits)
+        {
+            if (unit == null) continue;
+
+            AIGoal goal = CalculateGoalForUnit(unit);
+
+            switch (goal.type)
+            {
+                case AIGoalType.Expand:
+                    Debug.Log($"🤖 IA: Ordenando a {unit.name} expandir en {goal.targetCoordinates}");
+                    yield return MoveAndBuildRoutine(unit, goal.targetCoordinates);
+                    break;
+
+                case AIGoalType.ProduceUnit:
+                    Debug.Log($"🏭 IA: Ciudad {unit.name} intentando producir {goal.unitToProduce}");
+                    ExecuteProductionLogic(unit, goal.unitToProduce);
+                    yield return new WaitForSeconds(0.5f); // Pequeña pausa entre producciones
+                    break;
+                
+                // (Aquí añadirías Attack y Defend en el futuro)
+            }
+        }
+    }
+
+    // --- CEREBRO TÁCTICO (Decide QUÉ hacer) ---
+
+    private AIGoal CalculateGoalForUnit(Unit unit)
+    {
+        AIGoal goal = new AIGoal { type = AIGoalType.None };
+
+        // A. SI ES CIUDAD (Tiene UnitRecruiter)
+        // Usamos UnitRecruiter para detectar si es una "fábrica"
+        if (unit.GetComponent<UnitRecruiter>() != null)
+        {
+            // Decidimos qué producir según el estado del General
+            if (generalBrain.currentTacticalState == TacticalState.EarlyExpansion)
+            {
+                // En expansión, priorizamos Colonos
+                goal.type = AIGoalType.ProduceUnit;
+                goal.unitToProduce = TypeUnit.Colono;
+            }
+            else if (generalBrain.currentStrategicState == StrategicState.War)
+            {
+                // En guerra, priorizamos tropas (ej: Caballero)
+                goal.type = AIGoalType.ProduceUnit;
+                goal.unitToProduce = TypeUnit.Caballero;
+            }
+            return goal;
+        }
+
+        // B. SI ES COLONO (Tiene UnitBuilder)
+        if (unit.GetComponent<UnitBuilder>() != null)
+        {
+            // Solo expande si estamos en modo expansión
+            if (generalBrain.currentTacticalState == TacticalState.EarlyExpansion)
+            {
+                Vector2Int? bestSpot = aiAnalysis.GetBestPositionForExpansion();
+                if (bestSpot.HasValue)
+                {
+                    goal.type = AIGoalType.Expand;
+                    goal.targetCoordinates = bestSpot.Value;
+                }
+            }
+            return goal;
+        }
+
+        return goal;
+    }
+
+    // --- EJECUTORES (El "Cómo") ---
+
+    private void ExecuteProductionLogic(Unit city, TypeUnit unitType)
+    {
+        UnitRecruiter recruiter = city.GetComponent<UnitRecruiter>();
+        if (recruiter == null) return;
+
+        // IMPORTANTE: Asegúrate de que UnitRecruiter use los recursos DE LA IA,
+        // no del 'humanPlayer'.
         
-        // Buscamos un Colono (que tenga UnitBuilder) y tenga movimiento
-        Unit colono = myUnits.FirstOrDefault(u => u.GetComponent<UnitBuilder>() != null && u.movimientosRestantes > 0);
-
-        if (colono == null)
+        switch (unitType)
         {
-            Debug.LogWarning("⚠️ IA: Quiero expandirme, pero no tengo Colonos disponibles.");
-            yield break;
-        }
-
-        Debug.Log($"✅ IA: Colono encontrado ({colono.name}).");
-
-        // Preguntar al Mapa de Influencia
-        Vector2Int? bestSpot = aiAnalysis.GetBestPositionForExpansion();
-
-        if (bestSpot.HasValue)
-        {
-            yield return MoveAndBuildRoutine(colono, bestSpot.Value);
-        }
-        else
-        {
-            Debug.LogWarning("⚠️ IA: No hay buenos sitios para expandirse.");
+            case TypeUnit.Colono:
+                recruiter.ConstruirColono(city);
+                break;
+            case TypeUnit.Caballero:
+                recruiter.ConstruirCaballero(city); // O Artillero según prefieras
+                break;
+            case TypeUnit.Artillero:
+                recruiter.ConstruirArtillero(city);
+                break;
+             // Añadir Guerrero si existe
         }
     }
 
     private IEnumerator MoveAndBuildRoutine(Unit unit, Vector2Int targetCoords)
     {
+        // (Esta es la misma rutina de movimiento que ya tenías y funcionaba bien)
         UnitMovement movement = unit.GetComponent<UnitMovement>();
         if (movement == null) yield break;
 
-        // 1. Obtener la celda objetivo del BoardManager
         CellData targetCell = BoardManager.Instance.GetCell(targetCoords);
-        if (targetCell == null || targetCell.visualTile == null)
-        {
-            Debug.LogError("❌ IA: Celda objetivo inválida.");
-            yield break;
-        }
+        if (targetCell == null || targetCell.visualTile == null) yield break;
 
-        // 2. Intentar Moverse
-        // Nota: IntentarMover devuelve true si empezó a moverse
         bool isMoving = movement.IntentarMover(targetCell.visualTile);
 
         if (isMoving)
         {
-            // Esperamos lo que creamos que tarda la animación (o un poco más)
-            yield return new WaitForSeconds(5f); 
-            
-            // 3. Comprobar si ha llegado
-            // (Verificamos si las coordenadas lógicas de la unidad coinciden con el destino)
+            yield return new WaitForSeconds(5f);
             if (unit.misCoordenadasActuales == targetCoords)
             {
-                Debug.Log("🏁 IA: Llegué al destino. Intentando construir...");
-                
-                // 4. Intentar Construir
                 UnitBuilder builder = unit.GetComponent<UnitBuilder>();
                 if (builder != null)
                 {
                     builder.IntentarConstruirPoblado();
-                    yield return new WaitForSeconds(1.0f); // Esperar animación de construcción
+                    yield return new WaitForSeconds(1.0f);
                 }
             }
-            else
-            {
-                Debug.Log("⏳ IA: Me he movido, pero aún no he llegado al destino final (se me acabaron los puntos).");
-            }
-        }
-        else
-        {
-            Debug.LogWarning("⚠️ IA: No pude moverme (quizás bloqueado o sin puntos).");
         }
     }
 }
