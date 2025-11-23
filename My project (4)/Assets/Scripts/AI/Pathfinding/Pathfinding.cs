@@ -1,12 +1,13 @@
 using UnityEngine;
 using System;
+using System.Collections.Generic;
 
 public class Pathfinding : MonoBehaviour
 {
     private float[,] gScore;
     private float[,] fScore;
     private Vector2Int[,] cameFrom; 
-    private PriorityQueue<Vector2Int> openSet;
+    private List<Vector2Int> openSet;
 
     private const float THREAT_FACTOR = 2.0f;
     private const float RESOURCE_BONUS_FACTOR = 0.5f;
@@ -38,7 +39,7 @@ public class Pathfinding : MonoBehaviour
 
         cameFrom = new Vector2Int[width, height];
 
-        openSet = new PriorityQueue<Vector2Int>(Comparer<Vector2Int>.Create((a, b) => fScore[a.x, a.y].CompareTo(fScore[b.x, b.y])));
+        openSet = new List<Vector2Int>();
 
         //poner los valores de start
         gScore[start.x, start.y] = 0;
@@ -51,7 +52,16 @@ public class Pathfinding : MonoBehaviour
         Vector2Int current;
         while (openSet.Count > 0)
         {
-            current = openSet.Dequeue();
+            // buscar el nodo con menor fScore
+            int bestIndex = 0;
+            for (int i = 1; i < openSet.Count; i++)
+            {
+                if (fScore[openSet[i].x, openSet[i].y] < fScore[openSet[bestIndex].x, openSet[bestIndex].y])
+                    bestIndex = i;
+            }
+
+            current = openSet[bestIndex];
+            openSet.RemoveAt(bestIndex);
 
             if(current.Equals(goal)) //si es el destino
                 return ReconstructPath(current); //reconstruye el camino
@@ -69,23 +79,23 @@ public class Pathfinding : MonoBehaviour
                 float baseCost = (float)neighborCell.cost;
 
                 //si hay amenaza tiene un coste adicional la casilla
-                float threatPenalty = threatMap[neightbor.x, neightbor.y] * THREAT_FACTOR;
+                float threatPenalty = threatMap[neigthbor.x, neigthbor.y] * THREAT_FACTOR;
 
                 //coste dinamico movimiento
-                float tentativeGscore = gScore[current] + baseCost + threatPenalty;
+                float tentativeGscore = gScore[current.x, current.y] + baseCost + threatPenalty;
 
-                if(tentativeGscore < gScore[neightbor.x, neigthbor.y])
+                if(tentativeGscore < gScore[neigthbor.x, neigthbor.y])
                 {
                     //mejor camino
-                    cameFrom[neightbor.x, neigthbor.y] = current;
-                    gScore[neightbor.x, neigthbor.y] = tentativeGscore;
+                    cameFrom[neigthbor.x, neigthbor.y] = current;
+                    gScore[neigthbor.x, neigthbor.y] = tentativeGscore;
 
                     //coste total
-                    fScore[neightbor.x, neigthbor.y] = tentativeGscore + Heuristic(neightbor, goal);
+                    fScore[neigthbor.x, neigthbor.y] = tentativeGscore + Heuristic(neigthbor, goal);
 
-                    if(!openSet.Contains(neightbor))
+                    if(!openSet.Contains(neigthbor))
                     {
-                        openSet.Enqueue(neightbor);
+                        openSet.Add(neigthbor);
                     }
                 }
             }
