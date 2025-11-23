@@ -1,15 +1,21 @@
 ﻿using UnityEngine;
 using System.Collections;
-using System.Linq;
+using System.Linq; // Necesario para buscar unidades con LINQ
 
 public class PlayerIA : Player
 {
-    private AIAnalysisManager aiBrain;
+    [Header("Cerebros de la IA")]
+    // Referencia al Analista de Mapas (Ojos)
+    private AIAnalysisManager aiAnalysis; 
+    
+    public AI_General generalBrain; 
+    private PlayerArmyManager myArmyManager;
 
     protected override void Awake()
     {
         base.Awake();
-        aiBrain = FindObjectOfType<AIAnalysisManager>();
+        aiAnalysis = FindFirstObjectByType<AIAnalysisManager>();
+        myArmyManager = GetComponent<PlayerArmyManager>();
     }
 
     public override void BeginTurn()
@@ -20,96 +26,146 @@ public class PlayerIA : Player
 
     private IEnumerator ExecuteAITurn()
     {
-        // 1. CHEQUEO DE CEREBRO
-        if (aiBrain == null)
+        // ---------------------------------------------------------
+        // PASO 1: VALIDACIÓN DE DEPENDENCIAS
+        // ---------------------------------------------------------
+        if (aiAnalysis == null || generalBrain == null)
         {
-            Debug.LogError("❌ IA ERROR: No encuentro el script AIAnalysisManager en la escena.");
-            GameManager.Instance.EndAITurn();
+            Debug.LogError("❌ IA CRITICAL: Faltan referencias (AIAnalysisManager o AI_General).");
+            GameManager.Instance.EndPlayerTurn(); // Saltamos turno para no colgar el juego
             yield break;
         }
 
-        // 2. PERCEPCIÓN
-        Debug.Log("🧠 IA: Calculando mapas de influencia...");
-        aiBrain.CalculateBaseMaps(this.playerID);
+        // ---------------------------------------------------------
+        // PASO 2: PERCEPCIÓN (Ver el mundo)
+        // ---------------------------------------------------------
+        Debug.Log("👀 IA: Calculando mapas de influencia...");
+        aiAnalysis.CalculateBaseMaps(this.playerID);
+        
+        // Pequeña pausa dramática para que no sea instantáneo
+        yield return new WaitForSeconds(2f); 
 
-        yield return new WaitForSeconds(1.0f);
+        // ---------------------------------------------------------
+        // PASO 3: DECISIÓN ESTRATÉGICA (HFSM)
+        // ---------------------------------------------------------
+        Debug.Log("🤔 IA: El General está decidiendo estrategia...");
+        generalBrain.DecideStrategy();
 
-        // 3. BUSCAR UNIDAD
-        // Buscamos cualquier unidad nuestra que tenga el componente UnitBuilder (Colono)
-        var myUnits = ArmyManager.GetAllUnits();
-        Debug.Log($"🔍 IA: Tengo {myUnits.Count} unidades registradas en mi ejército.");
+        // ---------------------------------------------------------
+        // PASO 4: EJECUCIÓN TÁCTICA (Actuar según el Estado)
+        // ---------------------------------------------------------
+        // Aquí es donde el 'switch' dirige el tráfico según lo que decidió el General
+        switch (generalBrain.currentTacticalState)
+        {
+            case TacticalState.EarlyExpansion:
+                Debug.Log("⚡ TÁCTICA: Expansión Temprana (Prioridad: Colonos)");
+                yield return ExecuteExpansionLogic();
+                break;
 
-        Unit colono = myUnits.FirstOrDefault(u => u.GetComponent<UnitBuilder>() != null);
+            case TacticalState.Development:
+                Debug.Log("🔨 TÁCTICA: Desarrollo (Prioridad: Mejorar Ciudades)");
+                // yield return ExecuteDevelopmentLogic(); // (Aún por hacer)
+                Debug.Log("... (Lógica de desarrollo pendiente) ...");
+                break;
+
+            case TacticalState.ActiveDefense:
+                Debug.Log("🛡️ TÁCTICA: Defensa Activa (Prioridad: Proteger Fronteras)");
+                // yield return ExecuteDefenseLogic(); // (Aún por hacer)
+                Debug.Log("... (Lógica de defensa pendiente) ...");
+                break;
+
+            case TacticalState.Assault:
+                Debug.Log("⚔️ TÁCTICA: Asalto (Prioridad: Atacar Enemigo)");
+                // yield return ExecuteAssaultLogic(); // (Aún por hacer)
+                Debug.Log("... (Lógica de asalto pendiente) ...");
+                break;
+        }
+
+        // ---------------------------------------------------------
+        // PASO 5: FINALIZAR TURNO
+        // ---------------------------------------------------------
+        Debug.Log("🔴 IA: Fin de turno.");
+        yield return new WaitForSeconds(0.5f);
+        GameManager.Instance.EndAITurn(); 
+    }
+
+    // =================================================================================
+    // 🧠 LÓGICA ESPECÍFICA: EXPANSIÓN
+    // =================================================================================
+    private IEnumerator ExecuteExpansionLogic()
+    {
+        // --- CAMBIO AQUÍ: Usamos tu myArmyManager ---
+        // Obtenemos la lista de unidades usando tu función GetAllUnits()
+        var myUnits = myArmyManager.GetAllUnits();
+        
+        // Buscamos un Colono (que tenga UnitBuilder) y tenga movimiento
+        Unit colono = myUnits.FirstOrDefault(u => u.GetComponent<UnitBuilder>() != null && u.movimientosRestantes > 0);
 
         if (colono == null)
         {
-            Debug.LogError("❌ IA ERROR: No encuentro ningún Colono en mi lista de unidades.");
-            // (Aquí podrías intentar atacar si tienes soldados, pero por ahora terminamos)
+            Debug.LogWarning("⚠️ IA: Quiero expandirme, pero no tengo Colonos disponibles.");
+            yield break;
+        }
+
+        Debug.Log($"✅ IA: Colono encontrado ({colono.name}).");
+
+        // Preguntar al Mapa de Influencia
+        Vector2Int? bestSpot = aiAnalysis.GetBestPositionForExpansion();
+
+        if (bestSpot.HasValue)
+        {
+            yield return MoveAndBuildRoutine(colono, bestSpot.Value);
         }
         else
         {
-            Debug.Log($"✅ IA: Colono encontrado: {colono.name} en {colono.misCoordenadasActuales}. Movimientos: {colono.movimientosRestantes}");
+            Debug.LogWarning("⚠️ IA: No hay buenos sitios para expandirse.");
+        }
+    }
 
-            // 4. DECIDIR DESTINO
-            Vector2Int? bestSpot = aiBrain.GetBestPositionForExpansion();
+    private IEnumerator MoveAndBuildRoutine(Unit unit, Vector2Int targetCoords)
+    {
+        UnitMovement movement = unit.GetComponent<UnitMovement>();
+        if (movement == null) yield break;
 
-            if (bestSpot.HasValue)
+        // 1. Obtener la celda objetivo del BoardManager
+        CellData targetCell = BoardManager.Instance.GetCell(targetCoords);
+        if (targetCell == null || targetCell.visualTile == null)
+        {
+            Debug.LogError("❌ IA: Celda objetivo inválida.");
+            yield break;
+        }
+
+        // 2. Intentar Moverse
+        // Nota: IntentarMover devuelve true si empezó a moverse
+        bool isMoving = movement.IntentarMover(targetCell.visualTile);
+
+        if (isMoving)
+        {
+            // Esperamos lo que creamos que tarda la animación (o un poco más)
+            yield return new WaitForSeconds(1.5f); 
+            
+            // 3. Comprobar si ha llegado
+            // (Verificamos si las coordenadas lógicas de la unidad coinciden con el destino)
+            if (unit.misCoordenadasActuales == targetCoords)
             {
-                Debug.Log($"🎯 IA: Objetivo decidido en {bestSpot.Value}. Intentando mover...");
-
-                // Intentamos mover
-                yield return MoverUnidadHacia(colono, bestSpot.Value);
+                Debug.Log("🏁 IA: Llegué al destino. Intentando construir...");
+                
+                // 4. Intentar Construir
+                UnitBuilder builder = unit.GetComponent<UnitBuilder>();
+                if (builder != null)
+                {
+                    builder.IntentarConstruirPoblado();
+                    yield return new WaitForSeconds(1.0f); // Esperar animación de construcción
+                }
             }
             else
             {
-                Debug.LogWarning("⚠️ IA ALERTA: GetBestPositionForExpansion devolvió null. Todos los recursos valen 0 o están ocupados.");
+                Debug.Log("⏳ IA: Me he movido, pero aún no he llegado al destino final (se me acabaron los puntos).");
             }
-        }
-
-        // 5. TERMINAR
-        Debug.Log("🔴 IA: Fin de turno.");
-        yield return new WaitForSeconds(0.5f);
-        GameManager.Instance.EndAITurn();
-    }
-
-    private IEnumerator MoverUnidadHacia(Unit unit, Vector2Int targetCoords)
-    {
-        UnitMovement movement = unit.GetComponent<UnitMovement>();
-        if (movement == null)
-        {
-            Debug.LogError($"❌ IA ERROR: La unidad {unit.name} no tiene script UnitMovement.");
-            yield break;
-        }
-
-        // Obtenemos la celda objetivo
-        CellData targetCell = BoardManager.Instance.GetCell(targetCoords);
-
-        if (targetCell == null)
-        {
-            Debug.LogError($"❌ IA ERROR: La celda en {targetCoords} no existe en el BoardManager.");
-            yield break;
-        }
-
-        if (targetCell.visualTile == null)
-        {
-            Debug.LogError($"❌ IA ERROR: La celda en {targetCoords} no tiene visualTile asignado.");
-            yield break;
-        }
-
-        Debug.Log($"🏃 IA: Llamando a IntentarMover hacia {targetCell.visualTile.name}...");
-
-        // --- LLAMADA AL MOVIMIENTO ---
-        bool seMovio = movement.IntentarMover(targetCell.visualTile);
-
-        if (seMovio)
-        {
-            Debug.Log("✅ IA: ¡Movimiento exitoso! Esperando animación...");
-            yield return new WaitForSeconds(2.0f);
         }
         else
         {
-            Debug.LogError("❌ IA ERROR: IntentarMover devolvió FALSE. Revisa los logs de UnitMovement.");
-            // Causas comunes: No hay puntos de movimiento, la celda está muy lejos (teletransporte no permitido si validas adyacencia), o coste muy alto.
+            Debug.LogWarning("⚠️ IA: No pude moverme (quizás bloqueado o sin puntos).");
         }
     }
 }
