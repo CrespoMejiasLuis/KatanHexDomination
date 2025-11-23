@@ -64,7 +64,7 @@ public class GameManager : MonoBehaviour
                 Debug.LogError("CameraManager no encontrado en la escena. La cámara no rotará.");
             }
         }
-        if (aiAnalysis == null) aiAnalysis = FindObjectOfType<AIAnalysisManager>();
+        if (aiAnalysis == null) aiAnalysis = FindFirstObjectByType<AIAnalysisManager>();
 
         if (_gridGenerator == null)
         {
