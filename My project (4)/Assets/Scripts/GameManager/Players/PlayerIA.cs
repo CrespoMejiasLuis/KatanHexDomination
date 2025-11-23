@@ -140,7 +140,7 @@ public class PlayerIA : Player
         if (isMoving)
         {
             // Esperamos lo que creamos que tarda la animación (o un poco más)
-            yield return new WaitForSeconds(1.5f); 
+            yield return new WaitForSeconds(5f); 
             
             // 3. Comprobar si ha llegado
             // (Verificamos si las coordenadas lógicas de la unidad coinciden con el destino)
