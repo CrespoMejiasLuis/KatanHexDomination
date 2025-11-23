@@ -2,8 +2,6 @@ using UnityEngine;
 
 public class AIAnalysisManager : MonoBehaviour
 {
-    public enum MapType { None, Threat, Resources, Territory }
-
     [Header("Debug Visual")]
     public MapType debugMapToDraw = MapType.None;
     [Range(0.1f, 1f)]
@@ -20,12 +18,6 @@ public class AIAnalysisManager : MonoBehaviour
 
     private int width;
     private int height;
-
-    private static readonly Vector2Int[] axialNeighborDirections = new Vector2Int[]
-    {
-        new Vector2Int(1, 0), new Vector2Int(1, -1), new Vector2Int(0, -1),
-        new Vector2Int(-1, 0), new Vector2Int(-1, 1), new Vector2Int(0, 1)
-    };
 
     public void InitializeMaps()
     {
@@ -82,13 +74,13 @@ public class AIAnalysisManager : MonoBehaviour
                     // Si hay una unidad y NO es mía
                     if (cell.unitOnCell.ownerID != aiPlayerID)
                     {
-                        float threatValue = 50f; // Valor base para unidades móviles
+                        float threatValue = 50f; // Valor base para unidades moviles
 
-                        // ¡CORRECCIÓN! Los poblados enemigos son peligrosos (defensas)
+                        // CORRECCIÓN! Los poblados enemigos son peligrosos (defensas)
                         // y estáticos, así que generan una amenaza constante alta.
                         if (cell.typeUnitOnCell == TypeUnit.Poblado || cell.typeUnitOnCell == TypeUnit.Ciudad)
                         {
-                            threatValue = 80f; // Las ciudades asustan más
+                            threatValue = 80f; // Las ciudades asustan mas
                         }
 
                         threatMap[x, y] = threatValue;
@@ -96,11 +88,11 @@ public class AIAnalysisManager : MonoBehaviour
                 }
 
                 // =================================================
-                // 3. MAPA DE RECURSOS (Económico)
+                // 3. MAPA DE RECURSOS (Economico)
                 // =================================================
                 float resourceValue = 0;
 
-                // Si es territorio enemigo, el recurso NO es accesible para la IA económica
+                // Si es territorio enemigo, el recurso NO es accesible para la IA economica
                 if (!isEnemyTerritory)
                 {
                     switch (cell.resource)
@@ -121,7 +113,7 @@ public class AIAnalysisManager : MonoBehaviour
                     // (No puedes construir pegado a otra ciudad)
                     if (resourceValue > 0)
                     {
-                        foreach (Vector2Int dir in axialNeighborDirections)
+                        foreach (Vector2Int dir in GameManager.axialNeighborDirections)
                         {
                             Vector2Int neighborCoords = cell.coordinates + dir;
                             CellData neighbor = BoardManager.Instance.GetCell(neighborCoords);
@@ -174,7 +166,7 @@ public class AIAnalysisManager : MonoBehaviour
                         CellData centerCell = BoardManager.Instance.gridData[x, y];
                         if (centerCell == null) continue;
 
-                        foreach (Vector2Int dir in axialNeighborDirections)
+                        foreach (Vector2Int dir in GameManager.axialNeighborDirections)
                         {
                             Vector2Int neighborCoord = centerCell.coordinates + dir;
                             // TRUCO DE ÍNDICES (Mismo que en BoardManager)

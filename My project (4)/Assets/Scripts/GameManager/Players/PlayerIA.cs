@@ -9,7 +9,7 @@ public class PlayerIA : Player
     protected override void Awake()
     {
         base.Awake();
-        aiBrain = FindObjectOfType<AIAnalysisManager>();
+        aiBrain = FindFirstObjectByType<AIAnalysisManager>();
     }
 
     public override void BeginTurn()

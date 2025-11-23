@@ -56,7 +56,19 @@ public class UnitMovement : MonoBehaviour
         }
 
         // 3. (FUTURO) Comprobar adyacencia, etc.
+        Vector2Int coordActual = unitCerebro.misCoordenadasActuales;
+        Vector2Int coordDest = cellDestino.coordinates;
+
+        bool isAdyacent = IsAdyacent(coordActual, coordDest);
+
+        if(!isAdyacent)
+        {
+            Debug.Log("solo te puedes mover a una casilla adyacente");
+            return false;
+        }
+
         // 4. (FUTURO) Comprobar si la casilla está ocupada
+        if (cellDestino.unitOnCell != null) return false;
 
         // 5. ¡Todo OK! Gastar el recurso e iniciar el movimiento
         unitCerebro.GastarPuntoDeMovimiento(costeMovimiento); 
@@ -68,9 +80,24 @@ public class UnitMovement : MonoBehaviour
         return true;
     }
 
-    /// <summary>
-    /// CORUTINA: Se encarga de mover Y ROTAR el transform suavemente y gestionar las animaciones.
-    /// </summary>
+    private bool IsAdyacent(Vector2Int coordIA, Vector2Int coordB)
+    {
+        Vector2Int delta = coordB-coordIA;
+
+        //delta es la direction hacia una direccion
+
+        foreach(var direction in GameManager.axialNeighborDirections)
+        {
+            if(delta == direction)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    // CORUTINA: Se encarga de mover Y ROTAR el transform suavemente y gestionar las animaciones.
     private IEnumerator MoveCoroutine(HexTile casillaDestino)
     {
         CellData cellLogica = GetCellDataFromTile(casillaDestino);
@@ -123,8 +150,6 @@ public class UnitMovement : MonoBehaviour
         transform.position = targetPosition;
         animator.SetBool("isWalking", false);
 
-        
-
         if (cellLogica != null)
         {
             // ¡Encontrada! Actualizamos el cerebro con las coordenadas CORRECTAS
@@ -167,4 +192,5 @@ public class UnitMovement : MonoBehaviour
         // 4. Si el bucle termina, no se encontró ninguna coincidencia
         return null; 
     }
+
 }
