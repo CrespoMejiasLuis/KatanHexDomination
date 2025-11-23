@@ -154,7 +154,6 @@ public class AIAnalysisManager : MonoBehaviour
         for (int step = 0; step < steps; step++)
         {
             float[,] nextMap = new float[w, h];
-            System.Array.Copy(currentMap, nextMap, currentMap.Length);
 
             for (int x = 0; x < w; x++)
             {
@@ -179,6 +178,8 @@ public class AIAnalysisManager : MonoBehaviour
                                 nextMap[nX, nY] += valueToPass;
                             }
                         }
+
+                        nextMap[x, y] += currentMap[x, y];
                     }
                 }
             }
