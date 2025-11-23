@@ -178,8 +178,18 @@ public class AIAnalysisManager : MonoBehaviour
                                 nextMap[nX, nY] += valueToPass;
                             }
                         }
+                    }
+                }
+            }
 
-                        nextMap[x, y] += currentMap[x, y];
+            for (int x = 0; x < w; x++)
+            {
+                for (int y = 0; y < h; y++)
+                {
+                    // Mantener valor original
+                    if (originalMap[x, y] > 0.1f)
+                    {
+                        nextMap[x, y] = originalMap[x, y]; // Mantiene el 50f
                     }
                 }
             }
