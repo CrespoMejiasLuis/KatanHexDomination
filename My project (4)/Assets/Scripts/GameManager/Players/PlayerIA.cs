@@ -84,20 +84,19 @@ public class PlayerIA : Player
     {
         AIGoal goal = new AIGoal { type = AIGoalType.None };
 
-        // A. SI ES CIUDAD (Tiene UnitRecruiter)
-        // Usamos UnitRecruiter para detectar si es una "fábrica"
         if (unit.GetComponent<UnitRecruiter>() != null)
         {
-            // Decidimos qué producir según el estado del General
-            if (generalBrain.currentTacticalState == TacticalState.EarlyExpansion)
+            // --- CAMBIO AQUÍ: Usamos CurrentOrder ---
+            if (generalBrain.CurrentOrder == TacticalAction.EarlyExpansion)
             {
-                // En expansión, priorizamos Colonos
                 goal.type = AIGoalType.ProduceUnit;
                 goal.unitToProduce = TypeUnit.Colono;
             }
-            else if (generalBrain.currentStrategicState == StrategicState.War)
+            // --- Y AQUÍ: Usamos una comparación lógica ---
+            // Si la orden es cualquiera de las de guerra...
+            else if (generalBrain.CurrentOrder == TacticalAction.ActiveDefense || 
+                     generalBrain.CurrentOrder == TacticalAction.Assault)
             {
-                // En guerra, priorizamos tropas (ej: Caballero)
                 goal.type = AIGoalType.ProduceUnit;
                 goal.unitToProduce = TypeUnit.Caballero;
             }
@@ -108,7 +107,7 @@ public class PlayerIA : Player
         if (unit.GetComponent<UnitBuilder>() != null)
         {
             // Solo expande si estamos en modo expansión
-            if (generalBrain.currentTacticalState == TacticalState.EarlyExpansion)
+            if (generalBrain.CurrentOrder == TacticalAction.EarlyExpansion)
             {
                 Vector2Int? bestSpot = aiAnalysis.GetBestPositionForExpansion();
                 if (bestSpot.HasValue)

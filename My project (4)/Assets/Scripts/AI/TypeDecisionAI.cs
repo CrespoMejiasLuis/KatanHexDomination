@@ -4,7 +4,7 @@
     War      
 }
 
-public enum TacticalState 
+public enum TacticalAction
 { 
     EarlyExpansion, 
     Development,    
