@@ -16,7 +16,6 @@ public class EconomyState : AIState
     {
         if (threatLevel > context.warThreshold)
         {
-            // ...cambiamos al estado de Guerra
             context.ChangeState(new WarState(context));
             return; 
         }
