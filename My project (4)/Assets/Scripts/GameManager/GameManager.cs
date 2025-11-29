@@ -254,6 +254,8 @@ public class GameManager : MonoBehaviour
             // 🔑 Solo cambiamos de estado CUANDO el generador nos avisa que ha terminado.
             UnitSpawner.Instance.SpawnInitialUnits();
 
+            SetState(GameState.PlayerTurn);
+
         });
     }
     public void SelectUnit(Unit unitClicked)
@@ -281,5 +283,12 @@ public class GameManager : MonoBehaviour
             selectedUnit = null;
             OnDeselected?.Invoke(); // ¡Dispara el evento para que la UI se oculte!
         }
+    }
+
+    public Player GetPlayer(int ownerID)
+    {
+        if(ownerID == 0) return humanPlayer;
+        if(ownerID == 1) return IAPlayer;
+        return null;
     }
 }

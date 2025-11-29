@@ -17,7 +17,7 @@ public class UnitMovement : MonoBehaviour
     private Animator animator;
 
     // --- ESTADO PRIVADO ---
-    private bool isMoving = false; 
+    public bool isMoving = false; 
 
     void Awake()
     {

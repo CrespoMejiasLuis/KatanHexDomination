@@ -6,19 +6,13 @@ using System.Linq;
 [RequireComponent(typeof(PlayerArmyManager))]
 public class PlayerIA : Player
 {
-    // --- ESTRUCTURAS DE DATOS (Nexo con el futuro GOAP) ---
-    
-    public struct AIGoal
-    {
-        public AIGoalType type;
-        public Vector2Int targetCoordinates;
-        public TypeUnit unitToProduce; 
-    }
-
     [Header("Cerebros")]
     private AIAnalysisManager aiAnalysis;
     public AI_General generalBrain;
     private PlayerArmyManager myArmyManager;
+
+    // Ya no necesitamos la struct AIGoal porque usaremos Diccionarios para GOAP
+    // pero mantenemos la lógica de decisión estratégica.
 
     protected override void Awake()
     {
@@ -35,22 +29,44 @@ public class PlayerIA : Player
 
     private IEnumerator ExecuteAITurn()
     {
+        // 1. Analisis del Tablero
         if (aiAnalysis != null) aiAnalysis.CalculateBaseMaps(this.playerID);
         yield return null; 
 
-        yield return new WaitForSeconds(3f);
-
+        // 2. Decision Estrategica Global (FSM)
         if (generalBrain != null) generalBrain.DecideStrategy();
+        
+        yield return new WaitForSeconds(1f); // pausa para "pensar"
 
-        yield return AssignAndExecuteGoals();
+        // 3. Asignacion de Objetivos GOAP a las Unidades
+        AssignGoapGoals();
 
-        // 4. FIN
-        Debug.Log("🔴 IA: Fin de turno.");
-        yield return new WaitForSeconds(0.5f);
+        // 4. FIN DEL TURNO DE IA
+        // En un sistema GOAP real, la IA podria esperar a que las unidades terminen,
+        // pero en turnos, asignamos los planes y dejamos que se ejecuten.
+        Debug.Log("⏳ IA: Esperando a que las unidades terminen...");
+        
+        // Si una unidad se bugea y nunca termina, pasamos turno a los 10 segundos para no colgar el juego.
+        float timeOut = 10f;
+        while (!AreAllUnitsIdle() && timeOut > 0)
+        {
+            timeOut -= Time.deltaTime;
+            yield return null;
+        }
+
+        // 5. FIN
+        Debug.Log("🔴 IA: Todas las unidades terminaron. Fin de turno.");
+        GameManager.Instance.EndAITurn();
+        
+        // Simulamos tiempo de ejecucion de las acciones
+        yield return new WaitForSeconds(2f); 
+
+        Debug.Log("🔴 IA: Fin de turno. Pasando al jugador.");
         GameManager.Instance.EndAITurn(); 
     }
 
-    private IEnumerator AssignAndExecuteGoals()
+    // Itera sobre todas las unidades y les asigna un objetivo GOAP basado en la estrategia actual.
+    private void AssignGoapGoals()
     {
         List<Unit> allUnits = myArmyManager.GetAllUnits();
 
@@ -58,118 +74,108 @@ public class PlayerIA : Player
         {
             if (unit == null) continue;
 
-            AIGoal goal = CalculateGoalForUnit(unit);
-
-            switch (goal.type)
+            // Obtener el Agente GOAP de la unidad
+            GoapAgent agent = unit.GetComponent<GoapAgent>();
+            if (agent == null)
             {
-                case AIGoalType.Expand:
-                    Debug.Log($"🤖 IA: Ordenando a {unit.name} expandir en {goal.targetCoordinates}");
-                    yield return MoveAndBuildRoutine(unit, goal.targetCoordinates);
-                    break;
+                Debug.LogWarning($"La unidad {unit.name} de la IA no tiene GoapAgent.");
+                continue;
+            }
 
-                case AIGoalType.ProduceUnit:
-                    Debug.Log($"🏭 IA: Ciudad {unit.name} intentando producir {goal.unitToProduce}");
-                    ExecuteProductionLogic(unit, goal.unitToProduce);
-                    yield return new WaitForSeconds(0.5f); // Pequeña pausa entre producciones
-                    break;
-                
-                // (Aquí añadirías Attack y Defend en el futuro)
+            // Calcular el objetivo para esta unidad
+            Dictionary<string, int> goal = CalculateGoapGoal(unit);
+
+            // Asignar el objetivo al agente (esto dispara el Planner)
+            if (goal != null && goal.Count > 0)
+            {
+                agent.SetGoal(goal);
             }
         }
     }
 
-    // --- CEREBRO TÁCTICO (Decide QUÉ hacer) ---
-
-    private AIGoal CalculateGoalForUnit(Unit unit)
+    //calcula objetivo de cada unidad
+    private Dictionary<string, int> CalculateGoapGoal(Unit unit)
     {
-        AIGoal goal = new AIGoal { type = AIGoalType.None };
+        Dictionary<string, int> goal = new Dictionary<string, int>();
 
-        if (unit.GetComponent<UnitRecruiter>() != null)
+        // --- A. CIUDADES / RECLUTADORES ---
+        if (unit.statsBase.nombreUnidad == TypeUnit.Poblado || unit.statsBase.nombreUnidad == TypeUnit.Ciudad)
         {
-            // --- CAMBIO AQUÍ: Usamos CurrentOrder ---
+            // Estrategia: EXPANSIÓN -> Construir Colono
             if (generalBrain.CurrentOrder == TacticalAction.EarlyExpansion)
             {
-                goal.type = AIGoalType.ProduceUnit;
-                goal.unitToProduce = TypeUnit.Colono;
+                // El objetivo GOAP es "Tener Un Colono Producido"
+                // La acción Action_ProducirColono tendrá este efecto.
+                goal.Add("ColonoProducido", 1); 
             }
-            // --- Y AQUÍ: Usamos una comparación lógica ---
-            // Si la orden es cualquiera de las de guerra...
+            // Estrategia: GUERRA / DEFENSA -> Construir Tropa
             else if (generalBrain.CurrentOrder == TacticalAction.ActiveDefense || 
                      generalBrain.CurrentOrder == TacticalAction.Assault)
             {
-                goal.type = AIGoalType.ProduceUnit;
-                goal.unitToProduce = TypeUnit.Caballero;
+                goal.Add("TropaProducida", 1);
             }
             return goal;
         }
 
-        // B. SI ES COLONO (Tiene UnitBuilder)
-        if (unit.GetComponent<UnitBuilder>() != null)
+        // --- B. COLONOS (Constructores) ---
+        if (unit.statsBase.nombreUnidad == TypeUnit.Colono)
         {
-            // Solo expande si estamos en modo expansión
             if (generalBrain.CurrentOrder == TacticalAction.EarlyExpansion)
             {
+                // 1. Encontrar el mejor lugar (Datos para la acción)
                 Vector2Int? bestSpot = aiAnalysis.GetBestPositionForExpansion();
-                if (bestSpot.HasValue)
+                GoapAgent agent = unit.GetComponent<GoapAgent>();
+
+                if (bestSpot.HasValue && agent!=null)
                 {
-                    goal.type = AIGoalType.Expand;
-                    goal.targetCoordinates = bestSpot.Value;
+                    // PASO CRITICO: Asignar el destino a la unidad para que Action_Moverse sepa dónde ir.
+                    // Necesitarás añadir una variable 'targetDestination' a tu script Unit o GoapAgent.
+                    agent.targetDestination = bestSpot.Value; 
+
+                    // 2. Establecer el Objetivo GOAP
+                    goal.Add("PobladoConstruido", 1);
                 }
             }
             return goal;
         }
 
-        return goal;
-    }
-
-    // --- EJECUTORES (El "Cómo") ---
-
-    private void ExecuteProductionLogic(Unit city, TypeUnit unitType)
-    {
-        UnitRecruiter recruiter = city.GetComponent<UnitRecruiter>();
-        if (recruiter == null) return;
-
-        // IMPORTANTE: Asegúrate de que UnitRecruiter use los recursos DE LA IA,
-        // no del 'humanPlayer'.
-        
-        switch (unitType)
+        // --- C. TROPAS DE COMBATE ---
+        if(unit.statsBase.nombreUnidad == TypeUnit.Artillero || unit.statsBase.nombreUnidad == TypeUnit.Caballero || unit.statsBase.nombreUnidad == TypeUnit.Caballeria)
         {
-            case TypeUnit.Colono:
-                recruiter.ConstruirColono(city);
-                break;
-            case TypeUnit.Caballero:
-                recruiter.ConstruirCaballero(city); // O Artillero según prefieras
-                break;
-            case TypeUnit.Artillero:
-                recruiter.ConstruirArtillero(city);
-                break;
-             // Añadir Guerrero si existe
+
         }
+        // (logica para Soldados, Caballeros, etc.)
+        // if (unit.EsTropaCombatiente) ...
+
+        return goal; // Objetivo vacio si no hay nada que hacer
     }
 
-    private IEnumerator MoveAndBuildRoutine(Unit unit, Vector2Int targetCoords)
+    //compruba si alguan unidad de mi ejercito hace cosas
+    private bool AreAllUnitsIdle()
     {
-        // (Esta es la misma rutina de movimiento que ya tenías y funcionaba bien)
-        UnitMovement movement = unit.GetComponent<UnitMovement>();
-        if (movement == null) yield break;
+        List<Unit> allUnits = myArmyManager.GetAllUnits();
 
-        CellData targetCell = BoardManager.Instance.GetCell(targetCoords);
-        if (targetCell == null || targetCell.visualTile == null) yield break;
-
-        bool isMoving = movement.IntentarMover(targetCell.visualTile);
-
-        if (isMoving)
+        foreach (Unit unit in allUnits)
         {
-            yield return new WaitForSeconds(5f);
-            if (unit.misCoordenadasActuales == targetCoords)
+            if (unit == null) continue;
+
+            GoapAgent agent = unit.GetComponent<GoapAgent>();
+            
+            // Si tiene agente y dice que esta actuando, NO hemos terminado.
+            if (agent != null && agent.IsActing)
             {
-                UnitBuilder builder = unit.GetComponent<UnitBuilder>();
-                if (builder != null)
-                {
-                    builder.IntentarConstruirPoblado();
-                    yield return new WaitForSeconds(1.0f);
-                }
+                return false; 
             }
+            
+            // Si la unidad se esta moviendo visualmente 
+            UnitMovement movement = unit.GetComponent<UnitMovement>();
+            if (movement != null && movement.isMoving) 
+            {
+                return false;
+            } 
         }
+
+        // Si nadie esta actuando
+        return true; 
     }
 }
