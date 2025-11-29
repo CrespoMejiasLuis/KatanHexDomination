@@ -629,6 +629,9 @@ GameObject:
   - component: {fileID: -5341502137504353999}
   - component: {fileID: -2938653989942490364}
   - component: {fileID: 7941704643730319044}
+  - component: {fileID: 6746401588873855417}
+  - component: {fileID: 8089167602368368877}
+  - component: {fileID: 5569662073232486711}
   m_Layer: 9
   m_Name: Colono
   m_TagString: Untagged
@@ -696,6 +699,7 @@ MonoBehaviour:
   vidaActual: 0
   movimientosRestantes: 0
   misCoordenadasActuales: {x: 0, y: 0}
+  spawnInDuration: 1.5
 --- !u!114 &-5341502137504353999
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -710,6 +714,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   moveSpeed: 5
   rotationSpeed: 10
+  isMoving: 0
 --- !u!114 &-2938653989942490364
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -744,6 +749,60 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1.1329055, y: 1.8623743, z: 1}
   m_Center: {x: 0.01182131, y: 0.8938155, z: 0}
+--- !u!114 &6746401588873855417
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1921159432317833422}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 65d7574dcf3412542aed2d30b853a50f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  actionDelay: 0.2
+  targetDestination: {x: 0, y: 0}
+--- !u!114 &8089167602368368877
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1921159432317833422}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d108beb651ea72c459a0927253ee419c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  actionType: 0
+  cost: 1
+  target: {fileID: 0}
+  rangeInTiles: 1
+  requiresInRange: 1
+  preConditionsConfig: []
+  afterEffectsConfig: []
+  running: 0
+--- !u!114 &5569662073232486711
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1921159432317833422}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0187ee0c37b7f424fa3bef2a3dc550db, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  actionType: 0
+  cost: 1
+  target: {fileID: 0}
+  rangeInTiles: 1
+  requiresInRange: 1
+  preConditionsConfig: []
+  afterEffectsConfig: []
+  running: 0
 --- !u!1 &2104160984075575710
 GameObject:
   m_ObjectHideFlags: 0

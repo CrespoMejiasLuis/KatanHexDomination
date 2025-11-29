@@ -46,6 +46,7 @@ public class GoapAgent : MonoBehaviour
             // Perform devuelve 'true' cuando la accion ha terminado exitosamente
             if (currentAction.Perform(gameObject)) 
             {
+                Debug.Log($"✅ ACCIÓN COMPLETADA: {currentAction.GetType().Name}. Pasando a la siguiente.");
                 currentAction.running = false;
                 // La accion termino, en el siguiente frame buscaremos la siguiente en la cola
             }

@@ -40,7 +40,8 @@ public class PlayerIA : Player
 
         // 3. Asignacion de Objetivos GOAP a las Unidades
         AssignGoapGoals();
-
+        yield return null;
+       
         // 4. FIN DEL TURNO DE IA
         // En un sistema GOAP real, la IA podria esperar a que las unidades terminen,
         // pero en turnos, asignamos los planes y dejamos que se ejecuten.
@@ -50,6 +51,7 @@ public class PlayerIA : Player
         float timeOut = 10f;
         while (!AreAllUnitsIdle() && timeOut > 0)
         {
+            ReassignGoalsToIdleUnits();
             timeOut -= Time.deltaTime;
             yield return null;
         }
@@ -143,6 +145,7 @@ public class PlayerIA : Player
         if(unit.statsBase.nombreUnidad == TypeUnit.Artillero || unit.statsBase.nombreUnidad == TypeUnit.Caballero || unit.statsBase.nombreUnidad == TypeUnit.Caballeria)
         {
 
+            goal.Add("Seguro", 1);///mirar
         }
         // (logica para Soldados, Caballeros, etc.)
         // if (unit.EsTropaCombatiente) ...

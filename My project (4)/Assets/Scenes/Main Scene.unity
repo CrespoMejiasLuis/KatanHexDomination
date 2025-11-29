@@ -14324,6 +14324,53 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 8711473752090771341, guid: 1a71053b01fd76844b2ce27e6ddaa142, type: 3}
   m_PrefabInstance: {fileID: 1481670116}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1667635764
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1667635766}
+  - component: {fileID: 1667635765}
+  m_Layer: 0
+  m_Name: AIGeneral
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1667635765
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1667635764}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3977030eecd192a478f33026bdf1f382, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  aiAnalysis: {fileID: 1403644515}
+  warThreshold: 1000
+  peaceThreshold: 40
+--- !u!4 &1667635766
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1667635764}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -186.49127, y: -278.27414, z: 284.83624}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1673984616
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -17355,6 +17402,7 @@ MonoBehaviour:
   playerID: 1
   playerName: 
   victoryPoints: 0
+  generalBrain: {fileID: 1667635765}
 --- !u!114 &2109579505
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -17665,3 +17713,4 @@ SceneRoots:
   - {fileID: 391325677}
   - {fileID: 123383860}
   - {fileID: 1403644516}
+  - {fileID: 1667635766}
