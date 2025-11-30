@@ -1,12 +1,12 @@
-using UnityEngine;
+Ôªøusing UnityEngine;
 using System.Collections.Generic;
+using System.Linq; // Necesario para la funci√≥n de selecci√≥n de ruta simple
 
 public class MoverAction : GoapAction
 {
     private UnitMovement movementComponent;
     private GoapAgent goapAgent;
-    // Necesitas un HexTile para tu mÈtodo IntentarMover
-    private HexTile targetTile;
+    private HexTile targetTile; // Referencia al Tile espec√≠fico para IntentarMover
 
     protected override void Awake()
     {
@@ -16,63 +16,81 @@ public class MoverAction : GoapAction
         goapAgent = GetComponent<GoapAgent>();
 
         actionType = ActionType.Mover;
-        cost = 1.0f;
-        rangeInTiles = 1; // Un paso, ya que IntentarMover solo va a adyacentes.
+        cost = 10.0f;
+        rangeInTiles = 1; // Un paso adyacente
         requiresInRange = false;
 
         preConditionsConfig = new List<WorldStateConfig>
         {
-            new WorldStateConfig { key = "HaLlegado", value = 0 }
+            new WorldStateConfig { key = "EstaEnRango", value = 0 }
         };
 
         afterEffectsConfig = new List<WorldStateConfig>
         {
-            new WorldStateConfig { key = "HaLlegado", value = 1 }
+            new WorldStateConfig { key = "EstaEnRango", value = 1 }
         };
+        
     }
 
-    // Calcula el target, chequea si podemos mover un PASO (adyacente)
     public override bool CheckProceduralPrecondition(GameObject agent)
     {
-        if (goapAgent == null || goapAgent.targetDestination == null)
+        if (goapAgent == null || BoardManager.Instance == null || unitAgent == null)
         {
             return false;
         }
 
-        // --- PASO CLAVE: CALCULAR EL PR”XIMO PASO ---
-        // 1. Obtener la coordenada actual y la coordenada de destino final
         Vector2Int currentCoord = unitAgent.misCoordenadasActuales;
         Vector2Int finalCoord = goapAgent.targetDestination;
 
-        // 2. AquÌ necesitas implementar (o usar) un algoritmo de pathfinding
-        // (A*, BFS) para encontrar el *siguiente* HexTile adyacente en la ruta hacia el destino final.
-        // Esto es un placeholder para la lÛgica de pathfinding:
-        // Vector2Int nextCoord = PathFinder.GetNextStepTowards(currentCoord, finalCoord);
-
-        // 3. Convertir la coordenada del siguiente paso en el HexTile fÌsico
-        // targetTile = BoardManager.Instance.GetTileFromCoordinates(nextCoord);
-
-        if (targetTile == null)
+        // 1. Si ya estamos en el destino final, esta acci√≥n no es necesaria.
+        if (currentCoord == finalCoord)
         {
-            // El Pathfinding fallÛ o no hay ruta.
-            Debug.LogError("MoverAction FallÛ: Target GameObject es NULL para la coordenada: " + goapAgent.targetDestination);
             return false;
         }
 
-        // Asignar el HexTile fÌsico a la variable 'target' heredada de GoapAction
+        // --- PASO CLAVE: CALCULAR EL PR√ìXIMO PASO (Heur√≠stica simple) ---
+        // En un sistema GOAP, MoverAction solo debe mover un paso.
+        // Aqu√≠ usamos una heur√≠stica simple: buscar la casilla adyacente con la menor distancia al destino final.
+        int minDistance = int.MaxValue;
+        CellData nextCell = null;
+        int finalDistance = BoardManager.Instance.Distance(currentCoord, finalCoord);
+        Debug.Log($"GOAP Mover: Buscando ruta de {currentCoord} a {finalCoord}. Distancia actual: {finalDistance}");
+
+        foreach (CellData adjacentCell in BoardManager.Instance.GetAdjacents(currentCoord))
+        {
+            // CUIDADO: La celda no debe estar ocupada (si es que no es el destino final de la unidad)
+            // if (adjacentCell.isOccupied) continue; 
+
+            // Obtener la distancia si eligiera esta casilla
+            if (adjacentCell == null || adjacentCell.visualTile == null) continue;
+            int distance = BoardManager.Instance.Distance(adjacentCell.coordinates, finalCoord);
+
+            Debug.Log($"   -> Vecino {adjacentCell.coordinates}: Distancia {distance}.");
+            minDistance = distance;
+            nextCell = adjacentCell;
+
+            if (distance < minDistance)
+            {
+                
+            }
+        }
+
+        if (nextCell == null || nextCell.visualTile == null)
+        {
+            Debug.LogError($"üõë MoverAction Fall√≥: No se encontr√≥ un paso adyacente que mejore la distancia.");
+            return false;
+        }
+
+        // 3. Asignar el Target F√≠sico (el siguiente paso)
+        targetTile = nextCell.visualTile;
         target = targetTile.gameObject;
 
-        // 4. Chequeo de PM: Ya que IntentarMover lo chequea, solo necesitamos el target v·lido.
-        // PERO para que el planificador pueda encadenar la acciÛn, si la unidad no tiene PM,
-        // esta acciÛn debe FALLAR el chequeo.
-
-        // Si el coste es mayor a 0 y no tenemos PM:
-        if (unitAgent.movimientosRestantes <= 0)
-        {
-            return false;
-        }
+        // 4. Chequeo de PM (Si el primer paso es viable)
+        if (unitAgent.movimientosRestantes <= 0) return false;
 
         return true;
+
+       
     }
 
     public override bool Perform(GameObject agent)
@@ -83,40 +101,38 @@ public class MoverAction : GoapAction
             return true;
         }
 
-        running = true;
-
-        // 1. Llamar a la funciÛn de movimiento que ya maneja la lÛgica de PM y adyacencia
-        // IntentarMover ya consume PM, inicia la corrutina y pone isMoving = true.
-        if (movementComponent.IntentarMover(targetTile))
+        // 1. Si no estamos movi√©ndonos, iniciamos el movimiento.
+        if (!movementComponent.isMoving)
         {
-            // El movimiento ha sido iniciado correctamente (isMoving = true)
-            // Perform debe retornar false hasta que isMoving vuelva a ser false
+            // IntentarMover ya maneja la l√≥gica de gasto de PM y el chequeo de adyacencia (aunque ya lo hicimos).
+            if (movementComponent.IntentarMover(targetTile))
+            {
+                // Movimiento iniciado. Perform debe retornar 'false' hasta que la corrutina termine.
+                return false;
+            }
+            else
+            {
+                // Fall√≥ (ej: casilla ocupada de repente).
+                running = false;
+                return true;
+            }
+        }
+
+        // 2. Si ya estamos movi√©ndonos, esperar a que la corrutina de UnitMovement termine.
+        if (movementComponent.isMoving)
+        {
             return false;
         }
-        else
-        {
-            // IntentarMover fallÛ (ej: no tenÌa PM, estaba ocupada, etc.)
-            Debug.LogWarning("GOAP: IntentarMover fallÛ durante la ejecuciÛn del plan.");
-            running = false;
-            return true; // Falla la acciÛn, el agente aborta el plan.
-        }
 
-        // NOTA: Esta acciÛn (Perform) seguir· regresando 'false' hasta que
-        // movementComponent.isMoving se ponga a 'false' al final de la corrutina.
-        // El GoapAgent.Update() ser· el encargado de re-evaluar y ver que
-        // movementComponent.isMoving ahora es false.
+        // 3. El movimiento ha terminado (isMoving es false).
+        running = false;
+        return true;
     }
 
     public override void DoReset()
     {
         base.DoReset();
-        // Detener cualquier movimiento pendiente
-        if (movementComponent != null)
-        {
-            // NecesitarÌas una funciÛn StopMovement en UnitMovement para esto:
-            // movementComponent.StopMovement(); 
-        }
-        target = null;
+        // target = null;
         targetTile = null;
     }
 }

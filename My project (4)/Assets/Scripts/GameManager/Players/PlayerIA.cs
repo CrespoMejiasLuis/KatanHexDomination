@@ -13,7 +13,10 @@ public class PlayerIA : Player
 
     // Ya no necesitamos la struct AIGoal porque usaremos Diccionarios para GOAP
     // pero mantenemos la lógica de decisión estratégica.
-
+    public Dictionary<ResourceType, int> GetResources()
+{
+    return resources;
+}
     protected override void Awake()
     {
         base.Awake();
@@ -51,7 +54,7 @@ public class PlayerIA : Player
         float timeOut = 10f;
         while (!AreAllUnitsIdle() && timeOut > 0)
         {
-            ReassignGoalsToIdleUnits();
+           // ReassignGoalsToIdleUnits();
             timeOut -= Time.deltaTime;
             yield return null;
         }
@@ -100,6 +103,7 @@ public class PlayerIA : Player
     {
         Dictionary<string, int> goal = new Dictionary<string, int>();
 
+
         // --- A. CIUDADES / RECLUTADORES ---
         if (unit.statsBase.nombreUnidad == TypeUnit.Poblado || unit.statsBase.nombreUnidad == TypeUnit.Ciudad)
         {
@@ -127,6 +131,8 @@ public class PlayerIA : Player
                 // 1. Encontrar el mejor lugar (Datos para la acción)
                 Vector2Int? bestSpot = aiAnalysis.GetBestPositionForExpansion();
                 GoapAgent agent = unit.GetComponent<GoapAgent>();
+                // En PlayerIA.CalculateGoapGoal, fuerza esto:
+                agent.targetDestination = unit.misCoordenadasActuales + new Vector2Int(1, 0);
 
                 if (bestSpot.HasValue && agent!=null)
                 {

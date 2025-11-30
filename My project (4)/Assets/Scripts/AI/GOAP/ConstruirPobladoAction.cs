@@ -3,6 +3,7 @@ using System.Collections.Generic;
 
 public class ConstruirPobladoAction : GoapAction
 {
+    // ... (Costo y referencias PlayerIA, GoapAgent) ...
     private readonly Dictionary<ResourceType, int> CostoConstruccion = new Dictionary<ResourceType, int>
     {
         { ResourceType.Madera, 1 },
@@ -13,7 +14,7 @@ public class ConstruirPobladoAction : GoapAction
 
     private PlayerIA playerAgent;
     private GoapAgent goapAgent;
-    private HexTile targetTile; // Referencia al tile de construcción
+    private HexTile targetTile;
 
     protected override void Awake()
     {
@@ -27,11 +28,14 @@ public class ConstruirPobladoAction : GoapAction
         rangeInTiles = 0; // Debe estar en la casilla
         requiresInRange = true;
 
+        // ... (Precondiciones y Efectos Estáticos) ...
         preConditionsConfig = new List<WorldStateConfig>
         {
             new WorldStateConfig { key = "EstaEnRango", value = 1 },
             new WorldStateConfig { key = "TienePoblado", value = 0 },
-            new WorldStateConfig { key = "TieneCiudad", value = 0 }
+            new WorldStateConfig { key = "TieneCiudad", value = 0 },
+            // AÑADIR: Ahora, el planificador sabe que necesita este estado
+            new WorldStateConfig { key = "TieneRecursosParaPoblado", value = 1 }
         };
 
         afterEffectsConfig = new List<WorldStateConfig>
@@ -42,7 +46,7 @@ public class ConstruirPobladoAction : GoapAction
 
     public override bool CheckProceduralPrecondition(GameObject agent)
     {
-        if (playerAgent == null || goapAgent == null) return false;
+        if (playerAgent == null || goapAgent == null || BoardManager.Instance == null) return false;
 
         // 1. Chequear Recursos
         if (!playerAgent.CanAfford(CostoConstruccion)) return false;
@@ -50,27 +54,33 @@ public class ConstruirPobladoAction : GoapAction
         // 2. Obtener el HexTile y asignar el target
         if (target == null)
         {
-            // Convertir la coordenada de destino (targetDestination) a HexTile
-            // targetTile = BoardManager.Instance.GetTileFromCoordinates(goapAgent.targetDestination);
+            // USAR BoardManager para convertir la coordenada de destino (targetDestination) a HexTile.
+            CellData cellData = BoardManager.Instance.GetCell(goapAgent.targetDestination);
 
-            if (targetTile == null) return false;
+            if (cellData == null || cellData.visualTile == null)
+            {
+                Debug.LogError("ConstruirPobladoAction Falló: La coordenada objetivo no tiene un Tile visual válido.");
+                return false;
+            }
+
+            targetTile = cellData.visualTile;
             target = targetTile.gameObject;
         }
 
-        // 3. Chequear Rango (¿estamos en la casilla de construcción?)
+        // 3. Chequear Rango (¿estamos en la casilla?)
         if (requiresInRange && !IsInRange())
         {
             return false;
         }
 
-        // 4. Chequeo de Negocio: La casilla debe ser válida para construir
-        // if (targetTile.tipoTerreno == TerrenoType.Agua) return false;
+        // 4. Chequeo de Negocio (Ej: la casilla no debe tener ya una unidad, etc.)
 
         return true;
     }
 
     public override bool Perform(GameObject agent)
     {
+        // ... (Lógica de Perform, gasto de recursos, y construcción) ...
         if (playerAgent == null || target == null || !IsInRange())
         {
             DoReset();
@@ -79,7 +89,6 @@ public class ConstruirPobladoAction : GoapAction
 
         running = true;
 
-        // 1. GASTAR RECURSOS
         bool success = playerAgent.SpendResources(CostoConstruccion);
 
         if (!success)
@@ -88,8 +97,8 @@ public class ConstruirPobladoAction : GoapAction
             return false;
         }
 
-        // 2. CONSTRUIR
-        // (Lógica para transformar el targetTile en un Poblado)
+        // Lógica de construcción
+        // targetTile.SetPoblado(true, playerAgent.playerID);
 
         Debug.Log($"GOAP: {agent.name} ha construido un poblado.");
 
