@@ -85,6 +85,14 @@ public class GoapAgent : MonoBehaviour
         // 1. Construir la vision actual del mundo
         UpdateWorldState();
 
+        string stateLog = "WorldState: ";
+        foreach(var kvp in worldState) stateLog += $"[{kvp.Key}:{kvp.Value}] ";
+        Debug.Log(stateLog);
+
+        string goalLog = "Goal: ";
+        foreach(var kvp in goal) goalLog += $"[{kvp.Key}:{kvp.Value}] ";
+        Debug.Log(goalLog);
+
         // 2. Pedir un plan al Planner (A* sobre el grafo de acciones)
         Queue<GoapAction> plan = planner.Plan(gameObject, availableActions, worldState, goal);
 

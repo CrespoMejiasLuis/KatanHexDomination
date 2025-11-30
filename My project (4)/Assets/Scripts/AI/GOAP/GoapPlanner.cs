@@ -22,6 +22,7 @@ public class GoapPlanner : MonoBehaviour
     //crear el plan
     public Queue<GoapAction> Plan(GameObject agent, HashSet<GoapAction> availableActions, Dictionary<string, int> worldState, Dictionary<string, int> goal)
     {
+        Debug.Log("Acciones disponibles: " + availableActions.Count);
         //1.Inicializacion
 
         //1.1.Resetear acciones
@@ -43,6 +44,9 @@ public class GoapPlanner : MonoBehaviour
         //1.3.Varibles de busqueda
         List<Node> leaves = new List<Node>();
         Node startNode = new Node(null, 0, worldState, null);
+
+        Debug.Log("GOAP: Acciones disponibles tras filtro: " + usableActions.Count);
+        foreach(var a in usableActions) Debug.Log(" -> Acción válida: " + a.GetType().Name);
 
         //2.Construir grafo(recursivo)
         bool succes = BuildGraph(startNode, leaves, usableActions, goal);
