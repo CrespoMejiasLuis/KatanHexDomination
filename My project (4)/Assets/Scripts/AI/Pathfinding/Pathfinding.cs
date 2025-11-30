@@ -52,6 +52,9 @@ public class Pathfinding : MonoBehaviour
         fScore = InitializeScore(width, height);
 
         cameFrom = new Vector2Int[width, height];
+        for(int x=0; x<width; x++)
+            for(int y=0; y<height; y++)
+                cameFrom[x,y] = new Vector2Int(-9999, -9999); // Valor imposible
 
         openSet = new List<Vector2Int>();
 
@@ -119,14 +122,13 @@ public class Pathfinding : MonoBehaviour
         return new List<Vector2Int>();
     }
 
-    private float Heuristic(Vector2Int start, Vector2Int goal)
+    private float Heuristic(Vector2Int a, Vector2Int b)
     {
-        float dx = Mathf.Abs(start.x-goal.x);
-        float dy = Mathf.Abs(start.y-goal.y);
+        // Coordenadas 
+        int az = -a.x - a.y;
+        int bz = -b.x - b.y;
 
-        float axialDistance = dx + dy;
-        
-        return axialDistance;
+        return (Mathf.Abs(a.x - b.x) + Mathf.Abs(a.y - b.y) + Mathf.Abs(az - bz)) / 2.0f;
     }
 
     private List<Vector2Int> GetNeigthbors(Vector2Int current)
@@ -154,7 +156,7 @@ public class Pathfinding : MonoBehaviour
 
         Vector2Int previous = cameFrom[current.x, current.y];
 
-        while(!previous.Equals(Vector2Int.zero) && cameFrom[previous.x, previous.y] != Vector2Int.zero)
+        while(previous.x != -9999) // Mientras sea un nodo valido
         {
             totalPath.Add(previous);
             previous = cameFrom[previous.x, previous.y];
