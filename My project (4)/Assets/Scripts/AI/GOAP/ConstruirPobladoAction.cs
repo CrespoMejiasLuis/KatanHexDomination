@@ -3,7 +3,6 @@ using System.Collections.Generic;
 
 public class ConstruirPobladoAction : GoapAction
 {
-    // ... (Costo y referencias PlayerIA, GoapAgent) ...
     private readonly Dictionary<ResourceType, int> CostoConstruccion = new Dictionary<ResourceType, int>
     {
         { ResourceType.Madera, 1 },
@@ -14,52 +13,49 @@ public class ConstruirPobladoAction : GoapAction
 
     private PlayerIA playerAgent;
     private GoapAgent goapAgent;
-    private HexTile targetTile;
+    private HexTile targetTile; // Referencia al Tile específico de destino
 
     protected override void Awake()
     {
         base.Awake();
 
+        // CORRECCIÓN: Asegurar inicialización y tipo de referencia
+        if (unitAgent == null) unitAgent = GetComponent<Unit>();
+        // Usar FindObjectOfType si PlayerIA no es padre, o GetComponentInParent/GameManager si es un singleton.
+        // Asumiremos que GetComponentInParent<PlayerIA>() funciona si el agente está bajo un PlayerIA.
         playerAgent = unitAgent.GetComponentInParent<PlayerIA>();
         goapAgent = GetComponent<GoapAgent>();
 
         actionType = ActionType.Construir_Poblado;
         cost = 5.0f;
-        rangeInTiles = 0; // Debe estar en la casilla
+        rangeInTiles = 0;
         requiresInRange = true;
 
-        // ... (Precondiciones y Efectos Estáticos) ...
-        preConditionsConfig = new List<WorldStateConfig>
-        {
-            new WorldStateConfig { key = "EstaEnRango", value = 1 },
-            new WorldStateConfig { key = "TienePoblado", value = 0 },
-            new WorldStateConfig { key = "TieneCiudad", value = 0 },
-            // AÑADIR: Ahora, el planificador sabe que necesita este estado
-            new WorldStateConfig { key = "TieneRecursosParaPoblado", value = 1 }
-        };
-
-        afterEffectsConfig = new List<WorldStateConfig>
-        {
-            new WorldStateConfig { key = "TienePoblado", value = 1 }
-        };
+        // **NOTA:** Las listas preConditionsConfig y afterEffectsConfig deben ser 
+        // llenadas en el Inspector o usar el método FillDictionaries() si estas 
+        // reasignaciones de código se hacen en Awake.
     }
 
     public override bool CheckProceduralPrecondition(GameObject agent)
     {
-        if (playerAgent == null || goapAgent == null || BoardManager.Instance == null) return false;
+        if (playerAgent == null || goapAgent == null || BoardManager.Instance == null || unitAgent == null) return false;
 
         // 1. Chequear Recursos
-        if (!playerAgent.CanAfford(CostoConstruccion)) return false;
+        if (!playerAgent.CanAfford(CostoConstruccion))
+        {
+            Debug.LogWarning("ConstruirPobladoAction: No se puede construir por falta de recursos (Procedural Check).");
+            return false;
+        }
 
-        // 2. Obtener el HexTile y asignar el target
+        // 2. Obtener el HexTile y asignar el target (Solo si target es nulo)
         if (target == null)
         {
-            // USAR BoardManager para convertir la coordenada de destino (targetDestination) a HexTile.
             CellData cellData = BoardManager.Instance.GetCell(goapAgent.targetDestination);
 
             if (cellData == null || cellData.visualTile == null)
             {
-                Debug.LogError("ConstruirPobladoAction Falló: La coordenada objetivo no tiene un Tile visual válido.");
+                // Solo si la casilla lógica no existe o no tiene visual.
+                Debug.LogError("ConstruirPobladoAction Falló: Coordenada objetivo no tiene Tile visual válido.");
                 return false;
             }
 
@@ -68,40 +64,47 @@ public class ConstruirPobladoAction : GoapAction
         }
 
         // 3. Chequear Rango (¿estamos en la casilla?)
+        // IsInRange() usa 'target' y compara con la posición del agente.
         if (requiresInRange && !IsInRange())
         {
+            // Esto puede ser true si el agente está en el lugar equivocado, 
+            // o si el planificador lo seleccionó, pero el MoveAction anterior falló.
             return false;
         }
 
-        // 4. Chequeo de Negocio (Ej: la casilla no debe tener ya una unidad, etc.)
+        // 4. Chequeo de Negocio: Verificar si la casilla ya tiene algo.
+        // CellData currentCell = BoardManager.Instance.GetCell(unitAgent.misCoordenadasActuales);
+        // if(currentCell != null && currentCell.hasSettlement) return false;
 
         return true;
     }
 
     public override bool Perform(GameObject agent)
     {
-        // ... (Lógica de Perform, gasto de recursos, y construcción) ...
-        if (playerAgent == null || target == null || !IsInRange())
+        if (playerAgent == null || targetTile == null || !IsInRange())
         {
             DoReset();
+            // Si falla a mitad de la ejecución, terminamos la acción.
             return true;
         }
 
-        running = true;
-
-        bool success = playerAgent.SpendResources(CostoConstruccion);
-
-        if (!success)
+        // 1. Re-chequear recursos antes de gastar (Seguridad)
+        if (!playerAgent.CanAfford(CostoConstruccion))
         {
+            Debug.LogWarning("ConstruirPobladoAction: Recursos insuficientes durante Perform. Abortando.");
             running = false;
-            return false;
+            return true; // Terminamos la acción con fallo.
         }
 
-        // Lógica de construcción
+        // 2. Gasto de recursos
+        playerAgent.SpendResources(CostoConstruccion);
+
+        // 3. Lógica de construcción
         // targetTile.SetPoblado(true, playerAgent.playerID);
 
-        Debug.Log($"GOAP: {agent.name} ha construido un poblado.");
+        Debug.Log($"GOAP: {agent.name} ha construido un poblado en {unitAgent.misCoordenadasActuales}.");
 
+        // 4. La acción terminó con éxito.
         running = false;
         return true;
     }
