@@ -14,9 +14,9 @@ public class PlayerIA : Player
     // Ya no necesitamos la struct AIGoal porque usaremos Diccionarios para GOAP
     // pero mantenemos la lógica de decisión estratégica.
     public Dictionary<ResourceType, int> GetResources()
-{
-    return resources;
-}
+    {
+        return resources;
+    }
     protected override void Awake()
     {
         base.Awake();

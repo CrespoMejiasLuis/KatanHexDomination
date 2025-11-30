@@ -98,7 +98,7 @@ public class GoapAgent : MonoBehaviour
         }
         else
         {
-            Debug.LogWarning($"GOAP: {name} no pudo encontrar un plan para el objetivo {string.Join(", ", goal.Select(kv => $"{kv.Key}={kv.Value}"))}.");
+            Debug.Log($"GOAP: {name} no pudo encontrar un plan para el objetivo {string.Join(", ", goal.Select(kv => $"{kv.Key}={kv.Value}"))}.");
             IsActing = false;
         }
     }

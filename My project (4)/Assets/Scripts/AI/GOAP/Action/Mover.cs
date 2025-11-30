@@ -15,6 +15,8 @@ public class MoverAction : GoapAction
         movementComponent = unitAgent.GetComponent<UnitMovement>();
         goapAgent = GetComponent<GoapAgent>();
 
+        path = new List<Vector2Int>();
+
         actionType = ActionType.Mover;
         cost = 10.0f;
         rangeInTiles = 1; // Un paso adyacente
@@ -23,7 +25,11 @@ public class MoverAction : GoapAction
 
     public override bool CheckProceduralPrecondition(GameObject agent)
     {
-        path.Clear();
+        if(path != null)
+        {
+            path.Clear();
+        }
+
         if (goapAgent == null || BoardManager.Instance == null || unitAgent == null || unitAgent.movimientosRestantes <= 0)
         {
             return false;
@@ -49,13 +55,19 @@ public class MoverAction : GoapAction
         {
             path = Pathfinding.Instance.FindSmartPath(start, goal, threatMap);
 
+            if(path == null || path.Count == 0) return false;
+
+            if(path[0] == start) path.RemoveAt(0);
+
             if(path.Count <= 0)
             {
                 return false;
             }
+
+            return true;
         }
 
-        return true;
+        return false;
     }
 
     public override bool Perform(GameObject agent)
@@ -66,27 +78,31 @@ public class MoverAction : GoapAction
             return true;
         }
 
-        if(unitAgent.movimientosRestantes <= 0)
+        if(unitAgent.movimientosRestantes <= 0 || path == null || path.Count <= 0)
         {
             running = false;
             return true;
         }
 
-        while (path.Count() > 0 || unitAgent.movimientosRestantes > 0)
+        if(movementComponent.isMoving) return false;
+
+        CellData cellTarget = BoardManager.Instance.GetCell(path[0]);
+
+        if(cellTarget != null || cellTarget.visualTile != null)
         {
-            CellData cellTarget = BoardManager.Instance.GetCell(path[0]);
             bool movementCompleted = movementComponent.IntentarMover(cellTarget.visualTile);
 
             if (movementCompleted)
             {
                 path.RemoveAt(0);
+                return false;
             }
             else
             {
-                return false;
+                running = false;
+                return true;
             }
         }
-
         return true;
     }
 }

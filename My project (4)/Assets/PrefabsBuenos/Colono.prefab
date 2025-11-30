@@ -775,14 +775,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d108beb651ea72c459a0927253ee419c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  actionType: 0
+  actionType: 1
   cost: 1
   target: {fileID: 0}
   rangeInTiles: 1
   requiresInRange: 1
-  preConditionsConfig:
-  - key: EstaEnRango
-    value: 0
+  preConditionsConfig: []
   afterEffectsConfig:
   - key: EstaEnRango
     value: 1
@@ -799,13 +797,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0187ee0c37b7f424fa3bef2a3dc550db, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  actionType: 0
+  actionType: 2
   cost: 1
   target: {fileID: 0}
   rangeInTiles: 1
   requiresInRange: 1
-  preConditionsConfig: []
-  afterEffectsConfig: []
+  preConditionsConfig:
+  - key: EstaEnRango
+    value: 1
+  - key: TieneRecursosParaPoblado
+    value: 1
+  afterEffectsConfig:
+  - key: PobladoConstruido
+    value: 1
   running: 0
 --- !u!1 &2104160984075575710
 GameObject:
