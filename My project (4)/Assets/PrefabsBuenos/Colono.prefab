@@ -805,6 +805,8 @@ MonoBehaviour:
   preConditionsConfig:
   - key: EstaEnRango
     value: 1
+  - key: TieneRecursosParaPoblado
+    value: 1
   afterEffectsConfig:
   - key: PobladoConstruido
     value: 1

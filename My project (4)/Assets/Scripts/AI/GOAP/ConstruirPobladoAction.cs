@@ -38,6 +38,7 @@ public class ConstruirPobladoAction : GoapAction
 
     public override bool CheckProceduralPrecondition(GameObject agent)
     {
+        /*
         if (playerAgent == null || goapAgent == null || BoardManager.Instance == null || unitAgent == null) return false;
 
         // 1. Chequear Recursos
@@ -75,7 +76,7 @@ public class ConstruirPobladoAction : GoapAction
         // 4. Chequeo de Negocio: Verificar si la casilla ya tiene algo.
         // CellData currentCell = BoardManager.Instance.GetCell(unitAgent.misCoordenadasActuales);
         // if(currentCell != null && currentCell.hasSettlement) return false;
-
+        */
         return true;
     }
 

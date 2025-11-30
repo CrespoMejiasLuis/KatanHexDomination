@@ -34,9 +34,19 @@ public class GoapPlanner : MonoBehaviour
         HashSet<GoapAction> usableActions = new HashSet<GoapAction>();
         foreach(var act in availableActions)
         {
-            if(act.CheckProceduralPrecondition(agent))
+            if (act.GetType() == typeof(ConstruirPobladoAction))
+            {
+                bool isProceduralOK = act.CheckProceduralPrecondition(agent);
+                Debug.Log($"GOAP DEBUG: ConstruirPobladoAction Procedural OK? {isProceduralOK}");
+                if (isProceduralOK)
+                {
+                    usableActions.Add(act);
+                }
+            }
+            if (act.CheckProceduralPrecondition(agent))
             {
                 usableActions.Add(act);
+                Debug.Log($"GOAP DEBUG: Acción {act.GetType().Name} es usable (Procedural OK)."); // Añadir esto
             }
         }
 
