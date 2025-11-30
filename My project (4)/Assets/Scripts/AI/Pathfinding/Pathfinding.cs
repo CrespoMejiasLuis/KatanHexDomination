@@ -23,7 +23,15 @@ public class Pathfinding : MonoBehaviour
         else
         {
             Instance = this;
+            DontDestroyOnLoad(gameObject);
         }
+    }
+
+    // HELPER: Convierte Coordenada Axial (puede ser negativa) a Indice de Array (siempre positivo)
+    private Vector2Int GetGridIndex(Vector2Int axialCoords)
+    {
+        int r = BoardManager.Instance.gridRadius;
+        return new Vector2Int(axialCoords.x + (r - 1), axialCoords.y + (r - 1));
     }
 
     //inicializar matrices
@@ -58,6 +66,9 @@ public class Pathfinding : MonoBehaviour
 
         openSet = new List<Vector2Int>();
 
+        // CONVERSION: Para acceder a los arrays, usamos indices convertidos
+        Vector2Int startIndex = GetGridIndex(start);
+
         //poner los valores de start
         gScore[start.x, start.y] = 0;
         fScore[start.x, start.y] = gScore[start.x, start.y] + Heuristic(start, goal);
@@ -66,18 +77,25 @@ public class Pathfinding : MonoBehaviour
         openSet.Add(start);
 
         //bucle principal
-        Vector2Int current;
         while (openSet.Count > 0)
         {
             // buscar el nodo con menor fScore
             int bestIndex = 0;
+            Vector2Int bestNodeIndex = GetGridIndex(openSet[0]);
+            float lowestF = fScore[bestNodeIndex.x, bestNodeIndex.y];
             for (int i = 1; i < openSet.Count; i++)
             {
-                if (fScore[openSet[i].x, openSet[i].y] < fScore[openSet[bestIndex].x, openSet[bestIndex].y])
+                Vector2Int currentIndex = GetGridIndex(openSet[i]);
+                float currentF = fScore[currentIndex.x, currentIndex.y];
+                
+                if (currentF < lowestF)
+                {
+                    lowestF = currentF;
                     bestIndex = i;
+                }
             }
 
-            current = openSet[bestIndex];
+            Vector2Int current = openSet[bestIndex];
             openSet.RemoveAt(bestIndex);
 
             if(current.Equals(goal)) //si es el destino
@@ -85,32 +103,38 @@ public class Pathfinding : MonoBehaviour
             
             //encontrar vecinos
             List<Vector2Int> neigthbors = GetNeigthbors(current);
+
+            Vector2Int currentIdx = GetGridIndex(current);
             //recorrer vecinos
             foreach(var neigthbor in neigthbors)
             {
                 //obtener info de cells
                 CellData currentCell = BoardManager.Instance.GetCell(current);
                 CellData neighborCell = BoardManager.Instance.GetCell(neigthbor);
+                if (neighborCell == null) continue;
+
+                //CONVERSION: Indice de array del vecino
+                Vector2Int neighborIdx = GetGridIndex(neigthbor);
+                // IMPORTANTE: Chequear limites del array antes de acceder
+                if (neighborIdx.x < 0 || neighborIdx.x >= width || neighborIdx.y < 0 || neighborIdx.y >= height)
+                    continue;
 
                 //coste base de casilla por movimiento
                 float baseCost = (float)neighborCell.cost;
 
                 //si hay amenaza tiene un coste adicional la casilla
-                float threatPenalty = threatMap[neigthbor.x, neigthbor.y] * THREAT_FACTOR;
+                float threatPenalty = threatMap[neighborIdx.x, neighborIdx.y] * THREAT_FACTOR;
 
                 //coste dinamico movimiento
-                float tentativeGscore = gScore[current.x, current.y] + baseCost + threatPenalty;
+                float tentativeGScore = gScore[currentIdx.x, currentIdx.y] + baseCost + threatPenalty;
 
-                if(tentativeGscore < gScore[neigthbor.x, neigthbor.y])
+                if (tentativeGScore < gScore[neighborIdx.x, neighborIdx.y])
                 {
-                    //mejor camino
-                    cameFrom[neigthbor.x, neigthbor.y] = current;
-                    gScore[neigthbor.x, neigthbor.y] = tentativeGscore;
+                    cameFrom[neighborIdx.x, neighborIdx.y] = current;
+                    gScore[neighborIdx.x, neighborIdx.y] = tentativeGScore;
+                    fScore[neighborIdx.x, neighborIdx.y] = tentativeGScore + Heuristic(neigthbor, goal);
 
-                    //coste total
-                    fScore[neigthbor.x, neigthbor.y] = tentativeGscore + Heuristic(neigthbor, goal);
-
-                    if(!openSet.Contains(neigthbor))
+                    if (!openSet.Contains(neigthbor))
                     {
                         openSet.Add(neigthbor);
                     }
@@ -124,21 +148,17 @@ public class Pathfinding : MonoBehaviour
 
     private float Heuristic(Vector2Int a, Vector2Int b)
     {
-        // Coordenadas 
-        int az = -a.x - a.y;
-        int bz = -b.x - b.y;
-
-        return (Mathf.Abs(a.x - b.x) + Mathf.Abs(a.y - b.y) + Mathf.Abs(az - bz)) / 2.0f;
+        // Distancia Axial (Correcta para hexagonos)
+        return (Mathf.Abs(a.x - b.x) + Mathf.Abs(a.y - b.y) + Mathf.Abs((-a.x - a.y) - (-b.x - b.y))) / 2.0f;
     }
 
     private List<Vector2Int> GetNeigthbors(Vector2Int current)
     {
         List<Vector2Int> neigthbors = new List<Vector2Int>();
-        Vector2Int neighbor;
 
         foreach (var dir in GameManager.axialNeighborDirections)
         {
-            neighbor = current + dir;
+            Vector2Int neighbor = current + dir;
             CellData neighborCell = BoardManager.Instance.GetCell(neighbor);
 
             if(neighborCell != null)
@@ -154,12 +174,17 @@ public class Pathfinding : MonoBehaviour
         List<Vector2Int> totalPath = new List<Vector2Int>();
         totalPath.Add(current);
 
-        Vector2Int previous = cameFrom[current.x, current.y];
+        Vector2Int currentIdx = GetGridIndex(current);
+        Vector2Int previous = cameFrom[currentIdx.x, currentIdx.y];
 
         while(previous.x != -9999) // Mientras sea un nodo valido
         {
             totalPath.Add(previous);
-            previous = cameFrom[previous.x, previous.y];
+
+            currentIdx = GetGridIndex(previous);
+            previous = cameFrom[currentIdx.x, currentIdx.y];
+
+            if (totalPath.Count > 1000) break;
         }
 
         totalPath.Reverse();
