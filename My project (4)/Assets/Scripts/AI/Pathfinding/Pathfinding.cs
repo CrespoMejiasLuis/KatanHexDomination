@@ -4,6 +4,7 @@ using System.Collections.Generic;
 
 public class Pathfinding : MonoBehaviour
 {
+    public static Pathfinding Instance{get; private set;}
     private float[,] gScore;
     private float[,] fScore;
     private Vector2Int[,] cameFrom; 
@@ -11,6 +12,19 @@ public class Pathfinding : MonoBehaviour
 
     private const float THREAT_FACTOR = 2.0f;
     private const float RESOURCE_BONUS_FACTOR = 0.5f;
+
+
+    void Awake()
+    {
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+        }
+        else
+        {
+            Instance = this;
+        }
+    }
 
     //inicializar matrices
     private float[,] InitializeScore(int width, int height)
