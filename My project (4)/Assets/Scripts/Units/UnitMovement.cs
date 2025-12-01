@@ -1,5 +1,6 @@
 using UnityEngine;
-using System.Collections; // Necesario para las Corutinas
+using System.Collections;
+using System.Collections.Generic; // Necesario para las Corutinas
 
 [RequireComponent(typeof(Unit))]
 [RequireComponent(typeof(Animator))] 
@@ -191,6 +192,47 @@ public class UnitMovement : MonoBehaviour
 
         // 4. Si el bucle termina, no se encontró ninguna coincidencia
         return null; 
+    }
+
+    /// <summary>
+    /// NUEVO: Recibe una lista de coordenadas (Ruta) y mueve la unidad paso a paso.
+    /// </summary>
+    public void MoversePorRuta(List<Vector2Int> ruta)
+    {
+        if (isMoving) return;
+        if (ruta == null || ruta.Count <= 1) return; // Ruta inválida o solo contiene el punto de inicio
+
+        StartCoroutine(FollowPathCoroutine(ruta));
+    }
+
+    private IEnumerator FollowPathCoroutine(List<Vector2Int> ruta)
+    {
+        // Empezamos en índice 1 porque el 0 es donde ya estamos
+        for (int i = 1; i < ruta.Count; i++)
+        {
+            // 1. Obtener la siguiente casilla visual
+            CellData nextCell = BoardManager.Instance.GetCell(ruta[i]);
+
+            if (nextCell != null && nextCell.visualTile != null)
+            {
+                // 2. Intentar mover a esa casilla adyacente
+                // (Esto reutiliza tu lógica existente de gasto de puntos y validación)
+                bool movio = IntentarMover(nextCell.visualTile);
+
+                if (movio)
+                {
+                    // 3. Esperar a que termine la animación de este paso antes de dar el siguiente
+                    // Como 'isMoving' se pone a true en IntentarMover y a false al acabar:
+                    yield return new WaitWhile(() => isMoving);
+                }
+                else
+                {
+                    // Si falla un paso (ej. se acabaron los puntos), detenemos la ruta
+                    Debug.Log("Ruta interrumpida (sin puntos o bloqueo).");
+                    break;
+                }
+            }
+        }
     }
 
 }

@@ -78,6 +78,13 @@ public class Pathfinding : MonoBehaviour
 
     public List<Vector2Int> FindSmartPath(Vector2Int start, Vector2Int goal, float[,] threatMap)
     {
+        int w = BoardManager.Instance.gridData.GetLength(0); // Ancho
+        int h = BoardManager.Instance.gridData.GetLength(1); // Alto
+        if (threatMap == null)
+        {
+            // Creamos un mapa de ceros del tamaño correcto
+            threatMap = new float[w, h];
+        }
         int width = threatMap.GetLength(0);
         int height = threatMap.GetLength(1);
 
