@@ -54,10 +54,9 @@ public class MoverAction : GoapAction
         if (Pathfinding.Instance != null)
         {
             path = Pathfinding.Instance.FindSmartPath(start, goal, threatMap);
-
+            Debug.Log("Numero de camino:" + path.Count);
             if(path == null || path.Count == 0) return false;
 
-            if(path[0] == start) path.RemoveAt(0);
 
             if(path.Count <= 0)
             {
@@ -72,37 +71,45 @@ public class MoverAction : GoapAction
 
     public override bool Perform(GameObject agent)
     {
-        if (movementComponent == null)
-        {
-            DoReset();
-            return true;
-        }
+        // 1. Validaciones básicas
+        if (movementComponent == null) { DoReset(); return true; }
 
-        if(unitAgent.movimientosRestantes <= 0 || path == null || path.Count <= 0)
+        // Si no hay camino o no quedan movimientos, terminamos (con éxito o fracaso)
+        if (path == null || path.Count == 0 || unitAgent.movimientosRestantes <= 0)
         {
             running = false;
-            return true;
+            return true; // Acción terminada
         }
 
-        if(movementComponent.isMoving) return false;
+        // 2. Esperar si la unidad se está moviendo visualmente
+        // (Necesitas hacer pública la variable 'isMoving' en UnitMovement o crear un getter)
+        if (movementComponent.isMoving) // Asegúrate que 'isMoving' sea public o usa un método IsMoving()
+        {
+            return false; // Seguimos en esta acción, esperando
+        }
 
+        // 3. Iniciar el siguiente paso
         CellData cellTarget = BoardManager.Instance.GetCell(path[0]);
 
-        if(cellTarget != null || cellTarget.visualTile != null)
+        if (cellTarget != null && cellTarget.visualTile != null)
         {
-            bool movementCompleted = movementComponent.IntentarMover(cellTarget.visualTile);
+            // Intentamos mover
+            bool movementStarted = movementComponent.IntentarMover(cellTarget.visualTile);
 
-            if (movementCompleted)
+            if (movementStarted)
             {
-                path.RemoveAt(0);
-                return false;
+                path.RemoveAt(0); // Consumimos el paso
+                return false;     // Seguimos en la acción (ahora isMoving será true)
             }
             else
             {
+                // Si falla (ej. casilla ocupada de repente), abortamos
+                Debug.Log("MoverAction: Falló al intentar mover. Abortando.");
                 running = false;
                 return true;
             }
         }
-        return true;
+
+        return true; // Fallback
     }
 }
