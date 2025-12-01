@@ -7,28 +7,37 @@ public class WarState : AIState
     public override void OnEnter()
     {
         Debug.Log("⚔️ Entrando en Estado: GUERRA");
-        // Ante la duda, al entrar en guerra nos ponemos a la defensiva
-        context.CurrentOrder = TacticalAction.ActiveDefense;
     }
 
     public override void Execute(float threatLevel)
     {
+
+        if (context.IsEconomyCritical())
+        {
+            Debug.Log("📉 IA: Economía crítica. Forzando retirada a Economía.");
+            context.ChangeState(new EconomyState(context));
+            return;
+        }
+
+        // 2. CHEQUEO DE PAZ (Victoria o Retirada enemiga)
         if (threatLevel < context.peaceThreshold)
         {
-            // ...volvemos a Economía
+            Debug.Log("🏳️ IA: Amenaza baja. Volviendo a Economía.");
             context.ChangeState(new EconomyState(context));
             return;
         }
         
-        // TODO: En el futuro conectar con ArmyManager para comparar fuerzas reales.
-        bool soyMasFuerte = false; 
+        // 3. DECISIÓN TÁCTICA: ¿Ataque o Defensa?
+        float myPower = context.CalculateMyMilitaryPower();
 
-        if (soyMasFuerte)
+        // Si soy más fuerte que la amenaza, ataco a la yugular (Asalto)
+        if (myPower > threatLevel)
         {
             context.CurrentOrder = TacticalAction.Assault;
         }
         else
         {
+            // Si soy más débil, me protejo (Defensa Activa)
             context.CurrentOrder = TacticalAction.ActiveDefense;
         }
     }

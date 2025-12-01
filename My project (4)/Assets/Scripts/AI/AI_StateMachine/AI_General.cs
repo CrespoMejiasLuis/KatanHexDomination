@@ -4,14 +4,14 @@ public class AI_General : MonoBehaviour
 {   
     [Header("Referencias")]
     public AIAnalysisManager aiAnalysis;
-
+    public PlayerIA myPlayer;
     [Header("Configuración de Umbrales")]
     [Tooltip("Amenaza necesaria para entrar en guerra (> 50)")]
     public float warThreshold = 50f;
     
     [Tooltip("Amenaza baja necesaria para volver a paz (< 40)")]
     public float peaceThreshold = 40f;
-
+    public float opportunismFactor = 1.5f;
     private AIState currentStrategicState;
 
 
@@ -68,5 +68,31 @@ public class AI_General : MonoBehaviour
             foreach (float val in aiAnalysis.threatMap) threat += val;
         }
         return threat;
+    }
+    public float CalculateMyMilitaryPower()
+    {
+        if (myPlayer == null || myPlayer.ArmyManager == null) return 0f;
+
+        float totalPower = 0f;
+        var myUnits = myPlayer.ArmyManager.GetAllUnits();
+
+        foreach (var unit in myUnits)
+        {
+            if (unit.statsBase != null)
+            {
+                totalPower += unit.statsBase.ataque * 1.0f;
+                totalPower += unit.statsBase.vidaMaxima * 0.1f;
+            }
+        }
+        return totalPower;
+    }
+    public bool IsEconomyCritical()
+    {
+        if (myPlayer == null) return true;
+
+        var res = myPlayer.GetResources(); 
+        if (res.ContainsKey(ResourceType.Trigo) && res[ResourceType.Trigo] < 2) return true;
+        
+        return false;
     }
 }

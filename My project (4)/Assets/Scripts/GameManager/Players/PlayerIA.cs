@@ -11,8 +11,7 @@ public class PlayerIA : Player
     public AI_General generalBrain;
     private PlayerArmyManager myArmyManager;
 
-    // Ya no necesitamos la struct AIGoal porque usaremos Diccionarios para GOAP
-    // pero mantenemos la lógica de decisión estratégica.
+
     public Dictionary<ResourceType, int> GetResources()
     {
         return resources;
@@ -22,6 +21,7 @@ public class PlayerIA : Player
         base.Awake();
         aiAnalysis = FindFirstObjectByType<AIAnalysisManager>();
         myArmyManager = GetComponent<PlayerArmyManager>();
+        generalBrain.myPlayer = this;
     }
 
     public override void BeginTurn()
