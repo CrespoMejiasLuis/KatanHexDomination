@@ -21,8 +21,7 @@ public class SimpleClickTester : MonoBehaviour
 
     private PlayerInputMode currentMode = PlayerInputMode.Selection;
     private SettlementUnit activePoblado = null;
-
-
+    private HexTile lastHoveredTile = null;
     void Start()
     {
         camaraPrincipal = Camera.main;
@@ -36,6 +35,15 @@ public class SimpleClickTester : MonoBehaviour
 
     void Update()
     {
+        if (currentMode == PlayerInputMode.MoveTargeting && GameManager.Instance.CurrentState == GameState.PlayerTurn)
+        {
+            HandleHoverPath();
+        }
+        else
+        {
+            // Si salimos del modo mover, asegurarnos de borrar la línea
+            if (PathVisualizer.Instance != null) PathVisualizer.Instance.HidePath();
+        }
         if (!Input.GetMouseButtonDown(0))
         {
             return; // No hay clic, no hacer nada
@@ -88,19 +96,6 @@ public class SimpleClickTester : MonoBehaviour
                 return;
             }
         }
-        // --- LÓGICA DE CLIC EN EL MUNDO ---
-
-        // 1. ¿He clicado en la capa de UNIDADES?
-        if (Physics.Raycast(rayo, out hit, float.MaxValue, unitLayerMask))
-        {
-            Unit unidadClickada = hit.collider.GetComponentInParent<Unit>();
-            if (unidadClickada != null)
-            {
-                // Clicar en una unidad SIEMPRE la selecciona (y resetea el modo)
-                HandleUnitSelection(unidadClickada);
-                return; // Acción de clic completada
-            }
-        }
 
         // 2. ¿He clicado en la capa de CASILLAS?
         if (Physics.Raycast(rayo, out hit, float.MaxValue, gridLayerMask))
@@ -118,32 +113,75 @@ public class SimpleClickTester : MonoBehaviour
         // Si el código llega aquí, es que no se ha clicado ni en unidad ni en casilla
         DeseleccionarUnit();
     }
+    private void HandleHoverPath()
+    {
+        Ray ray = camaraPrincipal.ScreenPointToRay(Input.mousePosition);
+        RaycastHit hit;
 
+        if (Physics.Raycast(ray, out hit, float.MaxValue, gridLayerMask))
+        {
+            HexTile hoveredTile = hit.collider.GetComponentInParent<HexTile>();
+
+            if (hoveredTile != null && hoveredTile != lastHoveredTile)
+            {
+                lastHoveredTile = hoveredTile;
+                Unit selectedUnit = GameManager.Instance.selectedUnit;
+
+                if (selectedUnit != null && Pathfinding.Instance != null)
+                {
+                    // CAMBIO: Pasamos NULL como threatMap.
+                    // El pathfinding calculará el camino más corto basándose solo en el terreno.
+                    List<Vector2Int> path = Pathfinding.Instance.FindSmartPath(
+                        selectedUnit.misCoordenadasActuales,
+                        hoveredTile.AxialCoordinates, // O GetCellDataFromTile(hoveredTile).coordinates
+                        null // <--- ¡AQUÍ! Sin mapa de amenaza para el humano.
+                    );
+
+                    // Dibujamos la línea
+                    if (PathVisualizer.Instance != null) PathVisualizer.Instance.DrawPath(path);
+                }
+            }
+        }
+        else
+        {
+            if (lastHoveredTile != null)
+            {
+                lastHoveredTile = null;
+                if (PathVisualizer.Instance != null) PathVisualizer.Instance.HidePath();
+            }
+        }
+    }
     private void HandleGridClick(HexTile casillaClicada)
     {
-        // Comprobar en qué modo estamos
         switch (currentMode)
         {
             case PlayerInputMode.Selection:
-                // Estamos en modo selección. Clicar en una casilla vacía
-                // simplemente deselecciona la unidad actual.
                 DeseleccionarUnit();
                 break;
 
             case PlayerInputMode.MoveTargeting:
-                // ¡Aha! Estábamos esperando una casilla para movernos
                 if (unidadSeleccionada != null)
                 {
                     UnitMovement mover = unidadSeleccionada.GetComponent<UnitMovement>();
-                    if (mover != null)
+                    if (mover != null && Pathfinding.Instance != null)
                     {
-                        mover.IntentarMover(casillaClicada);
-                        
-                       
+                        // 1. Calcular la ruta (Igual que en el Hover: Sin amenaza)
+                        List<Vector2Int> path = Pathfinding.Instance.FindSmartPath(
+                            unidadSeleccionada.misCoordenadasActuales,
+                            casillaClicada.AxialCoordinates, // O la coordenada de la casilla
+                            null // Sin threatMap
+                        );
+
+                        // 2. Mandar la ruta a la unidad
+                        if (path != null && path.Count > 0)
+                        {
+                            mover.MoversePorRuta(path);
+
+                            // Limpiamos visuales
+                            if (PathVisualizer.Instance != null) PathVisualizer.Instance.HidePath();
+                        }
                     }
                 }
-                // Haya funcionado o no, el "modo movimiento" ha terminado.
-                // Volvemos al modo selección (la unidad sigue seleccionada).
                 currentMode = PlayerInputMode.Selection;
                 break;
         }
