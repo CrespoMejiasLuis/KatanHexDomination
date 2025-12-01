@@ -44,7 +44,7 @@ public class UnitSpawner : MonoBehaviour
 
         // 'boardRadius' es el n�mero de anillos de TIERRA
         // (seg�n el script del generador que me enviaste)
-        int landRadius = gridGenerator.boardRadius;
+        int landRadius = gridGenerator.boardRadius;// gridGenerator.boardRadius;
 
         // 3. Calcular Coordenadas de Inicio
         // Queremos los extremos del mapa (el anillo m�s externo) pero centrados.
