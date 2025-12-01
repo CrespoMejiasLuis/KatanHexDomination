@@ -87,7 +87,17 @@ public class MoverAction : GoapAction
         {
             return false; // Seguimos en esta acción, esperando
         }
+        if (path.Count > 0 && path[0] == unitAgent.misCoordenadasActuales)
+        {
+            path.RemoveAt(0);
+        }
 
+        // Si después de limpiar no queda camino, terminamos.
+        if (path.Count == 0)
+        {
+            running = false;
+            return true;
+        }
         // 3. Iniciar el siguiente paso
         CellData cellTarget = BoardManager.Instance.GetCell(path[0]);
 
