@@ -149,7 +149,7 @@ public class BoardManager : MonoBehaviour
             }
 
             // Si TIENE dueño, miramos sus 6 vecinos para ver dónde pintar raya
-            Color myColor = (cell.owner == 0) ? Color.red : Color.yellow;
+            Color myColor = (cell.owner == 0) ? Color.blue : Color.red;
 
             for (int i = 0; i < 6; i++)
             {

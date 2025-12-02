@@ -309,6 +309,8 @@ public class SimpleClickTester : MonoBehaviour
         {
             Debug.Log("¡La unidad seleccionada (" + unidadSeleccionada.name + ") no puede construir!");
         }
+        BoardManager.Instance.UpdateAllBorders();
+
     }
 
     public void BotonMoverPulsado()
