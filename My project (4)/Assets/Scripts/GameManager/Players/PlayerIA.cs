@@ -107,19 +107,21 @@ public class PlayerIA : Player
         // --- A. CIUDADES / RECLUTADORES ---
         if (unit.statsBase.nombreUnidad == TypeUnit.Poblado || unit.statsBase.nombreUnidad == TypeUnit.Ciudad)
         {
-            // Estrategia: EXPANSIÓN -> Construir Colono
-            if (generalBrain.CurrentOrder == TacticalAction.EarlyExpansion)
-            {
-                // El objetivo GOAP es "Tener Un Colono Producido"
-                // La acción Action_ProducirColono tendrá este efecto.
-                goal.Add("ColonoProducido", 1); 
+            switch(generalBrain.CurrentOrder){
+                case TacticalAction.EarlyExpansion:
+                    goal.Add("ColonoProducido", 1);
+                    break;
+                
+                case TacticalAction.Assault:
+                    goal.Add("ArqueroProducido", 1);
+                    break;
+
+                case TacticalAction.ActiveDefense:
+                    goal.Add("CaballeroProducido", 1);
+                    break;
             }
-            // Estrategia: GUERRA / DEFENSA -> Construir Tropa
-            else if (generalBrain.CurrentOrder == TacticalAction.ActiveDefense || 
-                     generalBrain.CurrentOrder == TacticalAction.Assault)
-            {
-                goal.Add("TropaProducida", 1);
-            }
+            
+            
             return goal;
         }
 
