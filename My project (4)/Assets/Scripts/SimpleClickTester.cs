@@ -487,6 +487,17 @@ public class SimpleClickTester : MonoBehaviour
 
     public void UpgradeCiudad()
     {
+        UpgradeCiudad(this.unidadSeleccionada);
+    }
+
+    public void UpgradeCiudad(Unit unitToUpgrade)
+    {
+        if(unitToUpgrade == null)
+        {
+            Debug.Log("No hay unidad por mejorar");
+            return;
+        }
+
         if (unidadSeleccionada == null)
         {
             Debug.Log("No hay unidad seleccionada");
@@ -541,7 +552,7 @@ public class SimpleClickTester : MonoBehaviour
                 //jugador.ArmyManager.RegisterUnit(ciudad);
             }
 
-            ciudadUnitPrefab.misCoordenadasActuales = cellDondeEstamos.coordinates;
+            ciudad.misCoordenadasActuales = cellDondeEstamos.coordinates;
             cellDondeEstamos.typeUnitOnCell = TypeUnit.Ciudad;
             cellDondeEstamos.unitOnCell = ciudad;
             jugador.victoryPoints++;

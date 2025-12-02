@@ -126,7 +126,7 @@ public abstract class Player : MonoBehaviour
         foreach (var cost in costs)
         {
             resources[cost.Key] -= cost.Value;
-            Debug.Log($"Jugador {playerID} gastó {cost.Value} de {cost.Key}.");
+            //Debug.Log($"Jugador {playerID} gastó {cost.Value} de {cost.Key}.");
         }
 
         // 3. 📢 Notificar a la UI después del gasto
