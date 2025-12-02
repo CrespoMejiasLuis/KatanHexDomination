@@ -39,7 +39,7 @@ public class PlayerIA : Player
         // 2. Decision Estrategica Global (FSM)
         if (generalBrain != null) generalBrain.DecideStrategy();
         
-        yield return new WaitForSeconds(1f); // pausa para "pensar"
+        yield return new WaitForSeconds(3f); // pausa para "pensar"
 
         // 3. Asignacion de Objetivos GOAP a las Unidades
         AssignGoapGoals();

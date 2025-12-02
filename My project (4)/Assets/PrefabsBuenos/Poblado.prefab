@@ -595,6 +595,7 @@ GameObject:
   - component: {fileID: 8555978949253838762}
   - component: {fileID: 100888651864913815}
   - component: {fileID: 7749918412725306342}
+  - component: {fileID: 8054782917757999271}
   m_Layer: 9
   m_Name: Poblado
   m_TagString: Untagged
@@ -752,6 +753,32 @@ MonoBehaviour:
   - key: Mejorado_A_Ciudad
     value: 1
   running: 0
+--- !u!114 &8054782917757999271
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8530877068906648645}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 88eac3bfd5de05d4d9b8471a20453214, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  actionType: 4
+  cost: 1
+  target: {fileID: 0}
+  rangeInTiles: 1
+  requiresInRange: 1
+  preConditionsConfig:
+  - key: TieneRecursosParaPoblado
+    value: 1
+  afterEffectsConfig:
+  - key: ColonoProducido
+    value: 1
+  running: 0
+  unitTypeToProduce: 8
+  unitPrefab: {fileID: 1921159432317833422, guid: ad180da489fdff0458b48dd98d8a7689, type: 3}
 --- !u!1 &8916727657271729478
 GameObject:
   m_ObjectHideFlags: 0

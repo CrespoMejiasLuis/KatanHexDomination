@@ -55,6 +55,10 @@ public class CrearUnidad_Action : GoapAction
             return false; // No hay recursos, la acción no es válida ahora
         }
 
+        CellData cell = BoardManager.Instance.GetCell(unitAgent.misCoordenadasActuales);
+
+        //comprobar que no haya nada en esta casilla, solo poblado o ciudad
+
         return true;
     }
 
