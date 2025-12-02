@@ -93,6 +93,7 @@ public class UnitBuilder : MonoBehaviour
         cellDondeEstamos.unitOnCell = pobladoUnit;
         jugador.victoryPoints +=1;
         UIManager.Instance.UpdateVictoryPointsText(jugador.victoryPoints);
+        BoardManager.Instance.UpdateAllBorders();
         
         // 6. CONSUMIR EL COLONO
         jugador.ArmyManager.DeregisterUnit(unitCerebro);
@@ -121,6 +122,7 @@ public class UnitBuilder : MonoBehaviour
             {
                 cell.owner = newOwnerID;
                 cell.UpdateVisual();
+
                 //actualizar visualmente
             }
         }

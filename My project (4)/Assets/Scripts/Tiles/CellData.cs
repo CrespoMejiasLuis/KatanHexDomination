@@ -38,11 +38,11 @@ public class CellData
 
             case 0: // Jugador
                 visualTile.SetBorderVisible(true);
-                visualTile.SetBorderColor(Color.white);
+                visualTile.SetBorderColor(Color.blue);
                 break;
 
             case 1: // IA
-                visualTile.SetBorderColor(Color.yellow);
+                visualTile.SetBorderColor(Color.red);
                 visualTile.SetBorderVisible(true);
                 break;
         }
