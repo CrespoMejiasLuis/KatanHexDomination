@@ -43,9 +43,9 @@ public class UnitBuilder : MonoBehaviour
         Unit pobladoUnitPrefab = pobladoPrefab.GetComponent<Unit>();
         bool recursosNecesarios = unitCerebro.RecursosNecesarios(pobladoUnitPrefab);
         if (!recursosNecesarios) return;
-        
+
         //Gastar recursos
-        Player jugador = GameManager.Instance.humanPlayer;
+        Player jugador = (unitCerebro.ownerID == 1) ? GameManager.Instance.IAPlayer : GameManager.Instance.humanPlayer;
         Dictionary<ResourceType, int> productionCost = pobladoUnitPrefab.statsBase.GetProductCost();
 
         bool recursosGastados = jugador.SpendResources(productionCost);
@@ -120,7 +120,7 @@ public class UnitBuilder : MonoBehaviour
             if(cell.owner == -1 || cell.owner != newOwnerID)
             {
                 cell.owner = newOwnerID;
-
+                cell.UpdateVisual();
                 //actualizar visualmente
             }
         }

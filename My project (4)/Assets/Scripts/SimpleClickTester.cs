@@ -122,28 +122,64 @@ public class SimpleClickTester : MonoBehaviour
         {
             HexTile hoveredTile = hit.collider.GetComponentInParent<HexTile>();
 
+            // Solo calculamos si la casilla ha cambiado para ahorrar rendimiento
             if (hoveredTile != null && hoveredTile != lastHoveredTile)
             {
                 lastHoveredTile = hoveredTile;
+
                 Unit selectedUnit = GameManager.Instance.selectedUnit;
 
-                if (selectedUnit != null && Pathfinding.Instance != null)
+                if (selectedUnit != null && Pathfinding.Instance != null && PathVisualizer.Instance != null)
                 {
-                    // CAMBIO: Pasamos NULL como threatMap.
-                    // El pathfinding calculará el camino más corto basándose solo en el terreno.
-                    List<Vector2Int> path = Pathfinding.Instance.FindSmartPath(
+                    // 1. Calcular la ruta completa (sin amenazas)
+                    List<Vector2Int> fullPath = Pathfinding.Instance.FindSmartPath(
                         selectedUnit.misCoordenadasActuales,
-                        hoveredTile.AxialCoordinates, // O GetCellDataFromTile(hoveredTile).coordinates
-                        null // <--- ¡AQUÍ! Sin mapa de amenaza para el humano.
+                        hoveredTile.AxialCoordinates,
+                        null
                     );
 
-                    // Dibujamos la línea
-                    if (PathVisualizer.Instance != null) PathVisualizer.Instance.DrawPath(path);
+                    // --- NUEVA LÓGICA: FILTRAR POR PUNTOS DE MOVIMIENTO ---
+
+                    List<Vector2Int> reachablePath = new List<Vector2Int>();
+                    int movementCostSum = 0;
+                    int maxMovePoints = selectedUnit.movimientosRestantes;
+
+                    // Siempre añadimos el punto de inicio (donde está la unidad)
+                    if (fullPath.Count > 0) reachablePath.Add(fullPath[0]);
+
+                    // Recorremos el resto del camino (empezando por el paso 1)
+                    for (int i = 1; i < fullPath.Count; i++)
+                    {
+                        // Obtenemos el coste de la casilla
+                        CellData cell = BoardManager.Instance.GetCell(fullPath[i]);
+
+                        if (cell != null)
+                        {
+                            int stepCost = cell.cost; // Por defecto es 1, o 2 en bosques, etc.
+
+                            // Verificamos si nos alcanza
+                            if (movementCostSum + stepCost <= maxMovePoints)
+                            {
+                                movementCostSum += stepCost;
+                                reachablePath.Add(fullPath[i]);
+                            }
+                            else
+                            {
+                                // ¡No tenemos gasolina para llegar a esta casilla!
+                                // Cortamos la línea aquí.
+                                break;
+                            }
+                        }
+                    }
+
+                    // 2. Dibujar solo el camino alcanzable
+                    PathVisualizer.Instance.DrawPath(reachablePath);
                 }
             }
         }
         else
         {
+            // Si sacamos el ratón del tablero, borrar línea
             if (lastHoveredTile != null)
             {
                 lastHoveredTile = null;
@@ -244,7 +280,7 @@ public class SimpleClickTester : MonoBehaviour
         // ¡Importante! Si no hay nada seleccionado, volvemos al modo Selección
         currentMode = PlayerInputMode.Selection;
         GameManager.Instance.DeselectAll();
-        BoardManager.Instance.HideAllBorders();
+        BoardManager.Instance.UpdateAllBorders();
 
     }
 
@@ -550,6 +586,7 @@ public class SimpleClickTester : MonoBehaviour
         // Mostrar borde SOLO en la casilla actual
         if (cellActual.visualTile != null)
             cellActual.visualTile.SetBorderVisible(true);
+        
     }
 
     

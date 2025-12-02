@@ -103,8 +103,77 @@ public class BoardManager : MonoBehaviour
             for (int y = 0; y < height; y++)
             {
                 CellData cell = gridData[x, y];
+
                 if (cell != null && cell.visualTile != null)
-                    cell.visualTile.SetBorderVisible(false);
+                {
+                    // Si la celda tiene dueño (es territorio de Ciudad/Poblado)
+                    if (cell.owner != -1)
+                    {
+                        // Restauramos su estado visual de territorio (Azul/Rojo y Visible)
+                        // Esto corrige cualquier color temporal de selección que tuviera
+                        cell.UpdateVisual();
+                    }
+                    else
+                    {
+                        // Si es neutral, ocultamos el borde (limpiamos selección)
+                        cell.visualTile.SetBorderVisible(false);
+                    }
+                }
+            }
+        }
+    }
+    public void UpdateAllBorders()
+    {
+        if (gridData == null) return;
+
+        // Definimos las 6 direcciones en el MISMO ORDEN que tu array de borderSegments en HexTile
+        Vector2Int[] directions = new Vector2Int[]
+        {
+            new Vector2Int(1, 0),   // 0: Derecha
+            new Vector2Int(1, -1),  // 1: Arriba-Derecha
+            new Vector2Int(0, -1),  // 2: Arriba-Izquierda
+            new Vector2Int(-1, 0),  // 3: Izquierda
+            new Vector2Int(-1, 1),  // 4: Abajo-Izquierda
+            new Vector2Int(0, 1)    // 5: Abajo-Derecha
+        };
+
+        foreach (CellData cell in gridData)
+        {
+            if (cell == null || cell.visualTile == null) continue;
+
+            // Si la celda no tiene dueño, apagamos todos sus bordes
+            if (cell.owner == -1)
+            {
+                for (int i = 0; i < 6; i++) cell.visualTile.SetSegmentVisible(i, false, Color.white);
+                continue;
+            }
+
+            // Si TIENE dueño, miramos sus 6 vecinos para ver dónde pintar raya
+            Color myColor = (cell.owner == 0) ? Color.red : Color.yellow;
+
+            for (int i = 0; i < 6; i++)
+            {
+                Vector2Int neighborPos = cell.coordinates + directions[i];
+                CellData neighbor = GetCell(neighborPos);
+
+                // ¿Debo dibujar frontera aquí?
+                // SÍ, si el vecino NO existe (fin del mapa)
+                // SÍ, si el vecino tiene un dueño DIFERENTE al mío (frontera enemiga o neutral)
+                // NO, si el vecino tiene el MISMO dueño que yo (territorio interno)
+
+                bool drawBorder = false;
+
+                if (neighbor == null)
+                {
+                    drawBorder = true; // Borde del mapa
+                }
+                else if (neighbor.owner != cell.owner)
+                {
+                    drawBorder = true; // Frontera con otro territorio
+                }
+
+                // Aplicar al segmento específico
+                cell.visualTile.SetSegmentVisible(i, drawBorder, myColor);
             }
         }
     }

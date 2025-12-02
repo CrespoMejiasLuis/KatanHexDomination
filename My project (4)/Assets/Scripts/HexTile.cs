@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class HexTile : MonoBehaviour
@@ -6,21 +7,43 @@ public class HexTile : MonoBehaviour
     public ResourceType resourceType;
 
     [HideInInspector] public Vector2Int AxialCoordinates;
-    [SerializeField] private GameObject borderObject; // Arrástralo en el inspector
-    [SerializeField] private Material borderMaterial;
-
+    
+    [Header("Componentes Visuales")]
+    [Tooltip("Arrastra aquí el objeto padre que contiene todos los cubos del borde ('bordes')")]
+    public GameObject borderObject; 
 
     // Referencia al Animator
     private Animator animator;
-    private const string FLIP_ANIMATION_NAME = "TileFlip"; // Nombre del clip de animaci�n
-
+    private const string FLIP_ANIMATION_NAME = "TileFlip";
+    private List<Renderer> borderRenderers = new List<Renderer>();
+    // Array para guardar todos los renderers de los trozos de borde
+    private Renderer[] allBorderRenderers;
+    public GameObject[] borderSegments;
     void Awake()
     {
-        // Obtener el componente Animator (adjunto al objeto principal)
         animator = GetComponent<Animator>();
 
-        // OPCIONAL: Establecer la rotaci�n inicial del FlipContainer a 180 grados 
-        // si la animaci�n no lo hace por defecto.
+        // CONFIGURACIÓN AUTOMÁTICA DE BORDES
+        if (borderObject != null)
+        {
+            // 1. Buscamos TODOS los renderers en los hijos (Cube 1, Cube 2, etc.)
+            allBorderRenderers = borderObject.GetComponentsInChildren<Renderer>();
+            
+            // 2. Apagamos el borde al inicio
+            borderObject.SetActive(false);
+        }
+        if (borderSegments != null)
+        {
+            foreach (var segment in borderSegments)
+            {
+                if (segment != null)
+                {
+                    segment.SetActive(false);
+                    var rend = segment.GetComponent<Renderer>();
+                    if (rend != null) borderRenderers.Add(rend);
+                }
+            }
+        }
     }
 
     public void Initialize(ResourceType type, Vector2Int coordinates)
@@ -30,19 +53,13 @@ public class HexTile : MonoBehaviour
         this.gameObject.name = $"HexTile - {type}";
     }
 
-    /// <summary>
-    /// Inicia la animaci�n de volteo.
-    /// Esta funci�n es llamada desde HexGridGenerator.
-    /// </summary>
     public void StartFlipAnimation()
     {
         if (animator != null)
         {
-            
             animator.Play(FLIP_ANIMATION_NAME);
         }
     }
-   
 
     public void SetBorderVisible(bool visible)
     {
@@ -52,8 +69,40 @@ public class HexTile : MonoBehaviour
 
     public void SetBorderColor(Color color)
     {
-        if (borderMaterial != null)
-            borderMaterial.color = color;
-    }
+        // Si no hay renderers, salimos
+        if (allBorderRenderers == null || allBorderRenderers.Length == 0) return;
 
+        // Recorremos CADA trozo del borde (cada cubo) y le cambiamos el color
+        foreach (Renderer rend in allBorderRenderers)
+        {
+            if (rend != null)
+            {
+                // CORRECCIÓN URP: Usamos SetColor con "_BaseColor" para asegurar compatibilidad
+                // (Aunque material.color suele funcionar, esto es más seguro en URP Lit)
+                rend.material.SetColor("_BaseColor", color);
+                
+                // Backup por si acaso el shader es estándar
+                rend.material.color = color;
+            }
+        }
+    }
+    public void SetSegmentVisible(int directionIndex, bool visible, Color color)
+    {
+        if (directionIndex >= 0 && directionIndex < borderSegments.Length)
+        {
+            GameObject segment = borderSegments[directionIndex];
+            if (segment != null)
+            {
+                segment.SetActive(visible);
+
+                // Si lo encendemos, le ponemos el color correcto
+                if (visible && borderRenderers.Count > directionIndex)
+                {
+                    // Usar _BaseColor para URP, o color para Standard
+                    borderRenderers[directionIndex].material.color = color;
+                    // borderRenderers[directionIndex].material.SetColor("_BaseColor", color);
+                }
+            }
+        }
+    }
 }
