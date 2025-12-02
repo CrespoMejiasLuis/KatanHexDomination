@@ -1232,7 +1232,13 @@ MonoBehaviour:
   resourceType: 0
   AxialCoordinates: {x: 0, y: 0}
   borderObject: {fileID: 7404722863245843690}
-  borderMaterial: {fileID: 2100000, guid: 95d3a0f4f07ddd14296da2ad53b12fab, type: 2}
+  borderSegments:
+  - {fileID: 2405654447951552826}
+  - {fileID: 6886696512059457569}
+  - {fileID: 5944321449126185733}
+  - {fileID: 749676456999805806}
+  - {fileID: 2656635101894815156}
+  - {fileID: 5930760640368799974}
 --- !u!95 &7190272661758590856
 Animator:
   serializedVersion: 7
