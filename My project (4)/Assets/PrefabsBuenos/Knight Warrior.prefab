@@ -245,6 +245,8 @@ GameObject:
   - component: {fileID: 4738974191112861205}
   - component: {fileID: 6592261460173211349}
   - component: {fileID: 613702663106389577}
+  - component: {fileID: 8979351200923722869}
+  - component: {fileID: 4962982929075283420}
   m_Layer: 9
   m_Name: Knight Warrior
   m_TagString: Player
@@ -372,6 +374,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   moveSpeed: 5
   rotationSpeed: 10
+  isMoving: 0
 --- !u!114 &6592261460173211349
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -396,6 +399,46 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c8baa53fb1238624b902ed95d8920d56, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &8979351200923722869
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7491848878131134450}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 65d7574dcf3412542aed2d30b853a50f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  actionDelay: 0.2
+  targetDestination: {x: 0, y: 0}
+--- !u!114 &4962982929075283420
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7491848878131134450}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 698c38adc1a4fa84fab7f98e6623c90e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  actionType: 5
+  cost: 3
+  target: {fileID: 0}
+  rangeInTiles: 1
+  requiresInRange: 1
+  preConditionsConfig:
+  - key: TieneObjetivoHostil
+    value: 1
+  - key: EnRangoDeAtaque
+    value: 1
+  afterEffectsConfig:
+  - key: ObjetivoDerrotado
+    value: 1
+  running: 0
 --- !u!1 &8143801363787596157
 GameObject:
   m_ObjectHideFlags: 0
