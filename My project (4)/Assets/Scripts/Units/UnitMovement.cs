@@ -107,6 +107,24 @@ public class UnitMovement : MonoBehaviour
         {
             cellLogica.visualTile.SetBorderVisible(true);      // Resalta la nueva posición
         }
+
+        // --- CORRECCIÓN: Actualizar ocupación en el BoardManager ---
+        // 1. Liberar la casilla anterior
+        CellData oldCell = BoardManager.Instance.GetCell(unitCerebro.misCoordenadasActuales);
+        if (oldCell != null)
+        {
+            oldCell.unitOnCell = null;
+            oldCell.typeUnitOnCell = TypeUnit.None;
+        }
+
+        // 2. Ocupar la nueva casilla (para que nadie más entre mientras me muevo)
+        if (cellLogica != null)
+        {
+            cellLogica.unitOnCell = unitCerebro;
+            cellLogica.typeUnitOnCell = unitCerebro.statsBase.nombreUnidad;
+        }
+        // -----------------------------------------------------------
+
         // --- INICIO DEL MOVIMIENTO ---
         isMoving = true;
         animator.SetBool("isWalking", true);
