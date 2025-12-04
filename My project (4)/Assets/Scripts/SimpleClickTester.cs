@@ -10,6 +10,9 @@ public class SimpleClickTester : MonoBehaviour
     [Header("UI y referencias")]
     public GameObject unitActionMenu;
 
+    [Header("Visuales Seleccion")]
+    public Color selectionColor = Color.green;
+
     [Header("Configuracion de Capas")]
     public LayerMask unitLayerMask;
     public LayerMask gridLayerMask;
@@ -598,11 +601,14 @@ public class SimpleClickTester : MonoBehaviour
 
         // Mostrar borde SOLO en la casilla actual
         if (cellActual.visualTile != null)
+        {
             cellActual.visualTile.SetBorderVisible(true);
+            cellActual.visualTile.SetBorderColor(selectionColor);
+        }
         
     }
 
-    
+
 
 
 
