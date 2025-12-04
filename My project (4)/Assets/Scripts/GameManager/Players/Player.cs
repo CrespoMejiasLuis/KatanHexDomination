@@ -4,7 +4,7 @@ using System; // Necesario para Enum.GetValues
 
 public abstract class Player : MonoBehaviour
 {
-    public static event Action<Dictionary<ResourceType, int>> OnPlayerResourcesUpdated;
+    public static event Action<int, Dictionary<ResourceType, int>> OnPlayerResourcesUpdated;
     public static event Action<int> OnPlayerVictoryPointsUpdated; // Para los Puntos de Victoria
     [Header("Identificación del Jugador")]
     public int playerID;
@@ -50,7 +50,7 @@ public abstract class Player : MonoBehaviour
         resources[ResourceType.Trigo] = 5;
         resources[ResourceType.Roca] = 5;
 
-        OnPlayerResourcesUpdated?.Invoke(resources);
+        OnPlayerResourcesUpdated?.Invoke(playerID, resources);
     }
 
     // --- MÉTODOS PÚBLICOS DE GESTIÓN DE RECURSOS ---
@@ -66,7 +66,7 @@ public abstract class Player : MonoBehaviour
         Debug.Log($"Jugador {playerID} ganó {amount} de {type}. Total: {resources[type]}");
         // Aquí llamarías a la UI para actualizarse
         // UIManager.Instance.UpdateResourceUI(playerID, type, resources[type]);
-        OnPlayerResourcesUpdated?.Invoke(resources);
+        OnPlayerResourcesUpdated?.Invoke(playerID, resources);
     }
 
     /// <summary>
@@ -130,7 +130,7 @@ public abstract class Player : MonoBehaviour
         }
 
         // 3. 📢 Notificar a la UI después del gasto
-        OnPlayerResourcesUpdated?.Invoke(resources);
+        OnPlayerResourcesUpdated?.Invoke(playerID, resources);
 
         return true;
     }

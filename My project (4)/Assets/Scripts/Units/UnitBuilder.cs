@@ -120,7 +120,7 @@ public class UnitBuilder : MonoBehaviour
 
             if (cell == null) continue;
 
-            if(cell.owner == -1 || cell.owner != newOwnerID)
+            if(cell.owner == -1)
             {
                 cell.owner = newOwnerID;
                 cell.UpdateVisual();

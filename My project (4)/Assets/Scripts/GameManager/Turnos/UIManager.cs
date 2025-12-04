@@ -114,8 +114,10 @@ public class UIManager : MonoBehaviour
 
     // --- Métodos de Actualización de la UI Superior (Recursos y PV) ---
 
-    public void UpdateResourceTexts(Dictionary<ResourceType, int> resources)
+    public void UpdateResourceTexts(int playerID, Dictionary<ResourceType, int> resources)
     {
+        if (playerID != 0) return; // Solo actualizamos la UI para el jugador humano (0)
+        
         if (resources == null) return;
 
         if (woodAmountText != null && resources.ContainsKey(ResourceType.Madera))
