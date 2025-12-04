@@ -91,8 +91,8 @@ public class UnitBuilder : MonoBehaviour
         // Asumimos que el colono era la 'tropa' en esta casilla
         cellDondeEstamos.typeUnitOnCell = TypeUnit.Poblado;
         cellDondeEstamos.unitOnCell = pobladoUnit;
-        jugador.victoryPoints +=1;
-        UIManager.Instance.UpdateVictoryPointsText(jugador.victoryPoints);
+        jugador.AddVictoryPoints(1);
+        // UIManager.Instance.UpdateVictoryPointsText(jugador.victoryPoints);
         BoardManager.Instance.UpdateAllBorders();
         
         // 6. CONSUMIR EL COLONO

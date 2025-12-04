@@ -5,7 +5,7 @@ using System; // Necesario para Enum.GetValues
 public abstract class Player : MonoBehaviour
 {
     public static event Action<int, Dictionary<ResourceType, int>> OnPlayerResourcesUpdated;
-    public static event Action<int> OnPlayerVictoryPointsUpdated; // Para los Puntos de Victoria
+    public static event Action<int, int> OnPlayerVictoryPointsUpdated; // Para los Puntos de Victoria
     [Header("Identificación del Jugador")]
     public int playerID;
     public string playerName;
@@ -136,6 +136,13 @@ public abstract class Player : MonoBehaviour
     }
 
     // --- MÉTODOS DE PUNTOS DE VICTORIA (PV) ---
+    
+    public void AddVictoryPoints(int amount)
+    {
+        victoryPoints += amount;
+        Debug.Log($"Jugador {playerID} ganó {amount} PV. Total: {victoryPoints}");
+        OnPlayerVictoryPointsUpdated?.Invoke(playerID, victoryPoints);
+    }
 
     
    
