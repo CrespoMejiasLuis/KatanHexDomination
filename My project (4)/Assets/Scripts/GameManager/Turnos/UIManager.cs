@@ -139,8 +139,10 @@ public class UIManager : MonoBehaviour
             sheepAmountText.text = resources[ResourceType.Oveja].ToString();
     }
 
-    public void UpdateVictoryPointsText(int points)
+    public void UpdateVictoryPointsText(int playerID, int points)
     {
+        if (playerID != 0) return; // Solo actualizamos la UI para el jugador humano (0)
+
         if (victoryPointsText != null)
         {
             victoryPointsText.text = points.ToString() + " / 10 PV";

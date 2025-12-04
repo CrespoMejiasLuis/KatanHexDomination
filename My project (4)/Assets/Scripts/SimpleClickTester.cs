@@ -558,8 +558,8 @@ public class SimpleClickTester : MonoBehaviour
             ciudad.misCoordenadasActuales = cellDondeEstamos.coordinates;
             cellDondeEstamos.typeUnitOnCell = TypeUnit.Ciudad;
             cellDondeEstamos.unitOnCell = ciudad;
-            jugador.victoryPoints++;
-            UIManager.Instance.UpdateVictoryPointsText(jugador.victoryPoints);
+            jugador.AddVictoryPoints(1);
+            // UIManager.Instance.UpdateVictoryPointsText(jugador.victoryPoints);
             Destroy(unitCerebro.gameObject);
             jugador.ArmyManager.DeregisterUnit(unitCerebro);
         }
@@ -602,8 +602,7 @@ public class SimpleClickTester : MonoBehaviour
         // Mostrar borde SOLO en la casilla actual
         if (cellActual.visualTile != null)
         {
-            cellActual.visualTile.SetBorderVisible(true);
-            cellActual.visualTile.SetBorderColor(selectionColor);
+            cellActual.visualTile.EnableFullBorder(selectionColor);
         }
         
     }

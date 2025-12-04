@@ -105,4 +105,18 @@ public class HexTile : MonoBehaviour
             }
         }
     }
+    public void EnableFullBorder(Color color)
+    {
+        if (borderObject != null) borderObject.SetActive(true);
+
+        if (borderSegments != null)
+        {
+            foreach (var segment in borderSegments)
+            {
+                if (segment != null) segment.SetActive(true);
+            }
+        }
+
+        SetBorderColor(color);
+    }
 }
