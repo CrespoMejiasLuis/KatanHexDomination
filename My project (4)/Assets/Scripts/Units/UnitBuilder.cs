@@ -118,6 +118,8 @@ public class UnitBuilder : MonoBehaviour
         {
             CellData cell = BoardManager.Instance.GetCell(coord);
 
+            if (cell == null) continue;
+
             if(cell.owner == -1 || cell.owner != newOwnerID)
             {
                 cell.owner = newOwnerID;
