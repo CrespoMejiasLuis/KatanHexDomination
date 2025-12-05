@@ -7,6 +7,15 @@ public class UnitRecruiter : MonoBehaviour
     public GameObject artilleroPrefab;
     public GameObject caballeroPrefab;
     public GameObject colonoPrefab;   // ← AÑADIDO
+    private Player jugador; 
+    private Unit unitCerebro;
+
+    
+    void Awake()
+    {
+        unitCerebro = GetComponent<Unit>();
+        jugador = (unitCerebro.ownerID == 1) ? GameManager.Instance.IAPlayer : GameManager.Instance.humanPlayer;
+    }
 
     // -----------------------------
     //        ARTILLERO
@@ -61,6 +70,7 @@ public class UnitRecruiter : MonoBehaviour
             nuevoArtillero.ownerID = unidadCreadora.ownerID;
             nuevoArtillero.misCoordenadasActuales = unidadCreadora.misCoordenadasActuales;
         }
+        jugador.ArmyManager.RegisterUnit(nuevoArtillero);
     }
 
     // -----------------------------
@@ -116,6 +126,8 @@ public class UnitRecruiter : MonoBehaviour
             nuevoCaballero.ownerID = unidadCreadora.ownerID;
             nuevoCaballero.misCoordenadasActuales = unidadCreadora.misCoordenadasActuales;
         }
+
+        jugador.ArmyManager.RegisterUnit(nuevoCaballero);
     }
 
     // -----------------------------
@@ -171,6 +183,8 @@ public class UnitRecruiter : MonoBehaviour
             nuevoColono.ownerID = unidadCreadora.ownerID;
             nuevoColono.misCoordenadasActuales = unidadCreadora.misCoordenadasActuales;
         }
+
+        jugador.ArmyManager.RegisterUnit(nuevoColono);
     }
 
     private Player GetOwnerPlayer(int ownerID)

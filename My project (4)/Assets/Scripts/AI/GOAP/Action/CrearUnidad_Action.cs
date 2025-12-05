@@ -57,7 +57,17 @@ public class CrearUnidad_Action : GoapAction
 
         CellData cell = BoardManager.Instance.GetCell(unitAgent.misCoordenadasActuales);
 
-        //comprobar que no haya nada en esta casilla, solo poblado o ciudad
+        if (cell.unitOnCell != null)
+        {
+            // 4. ¿Es un Edificio o una Tropa?
+            // Si quieres detectar SOLO tropas/colonos y ignorar ciudades:
+            TypeUnit tipo = cell.unitOnCell.statsBase.nombreUnidad;
+            
+            if (tipo != TypeUnit.Poblado && tipo != TypeUnit.Ciudad)
+            {
+                return false;
+            }
+        }
 
         return true;
     }

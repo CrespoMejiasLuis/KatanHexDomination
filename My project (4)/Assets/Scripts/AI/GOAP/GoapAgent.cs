@@ -160,6 +160,22 @@ public class GoapAgent : MonoBehaviour
             worldState.Add("TieneRecursosParaPoblado", canAffordPoblado ? 1 : 0);
         }
 
+        if (playerAgent != null)
+        {
+            // Chequear si el jugador tiene suficientes recursos para construir UN poblado
+            // (1 Madera, 1 Oveja, 1 Trigo, 1 Arcilla)
+            var colonoCost = new Dictionary<ResourceType, int>
+            {
+                { ResourceType.Oveja, 1 },
+                { ResourceType.Trigo, 1 }
+            };
+
+            bool canAffordColono = playerAgent.CanAfford(colonoCost);
+
+            // Si el jugador tiene recursos, el planificador lo sabe (TieneRecursosParaPoblado = 1)
+            worldState.Add("TieneRecursosParaColono", canAffordColono ? 1 : 0);
+        }
+
         // --- 3. OTROS ESTADOS (Ej: Estructuras) ---
         // (Lógica para chequear si la casilla tiene poblado/ciudad)
         // CellData currentCell = BoardManager.Instance.GetCell(unit.misCoordenadasActuales);

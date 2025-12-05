@@ -74,7 +74,7 @@ public class UnitMovement : MonoBehaviour
         // 5. ¡Todo OK! Gastar el recurso e iniciar el movimiento
         unitCerebro.GastarPuntoDeMovimiento(costeMovimiento); 
 
-        Debug.Log($"Iniciando movimiento a {casillaDestino.name}. Movimientos restantes: {unitCerebro.movimientosRestantes}");
+        //Debug.Log($"Iniciando movimiento a {casillaDestino.name}. Movimientos restantes: {unitCerebro.movimientosRestantes}");
 
         StartCoroutine(MoveCoroutine(casillaDestino));
 

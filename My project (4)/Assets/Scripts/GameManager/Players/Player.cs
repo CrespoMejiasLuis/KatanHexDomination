@@ -63,7 +63,7 @@ public abstract class Player : MonoBehaviour
         if (type == ResourceType.Desierto) return;
 
         resources[type] += amount;
-        Debug.Log($"Jugador {playerID} ganó {amount} de {type}. Total: {resources[type]}");
+        //Debug.Log($"Jugador {playerID} ganó {amount} de {type}. Total: {resources[type]}");
         // Aquí llamarías a la UI para actualizarse
         // UIManager.Instance.UpdateResourceUI(playerID, type, resources[type]);
         OnPlayerResourcesUpdated?.Invoke(playerID, resources);
