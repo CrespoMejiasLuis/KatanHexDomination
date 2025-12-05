@@ -831,8 +831,8 @@ MonoBehaviour:
   - key: ArqueroProducido
     value: 1
   running: 0
-  unitTypeToProduce: 8
-  unitPrefab: {fileID: 1921159432317833422, guid: ad180da489fdff0458b48dd98d8a7689, type: 3}
+  unitTypeToProduce: 5
+  unitPrefab: {fileID: 2069702640224040037, guid: d00117277c9d3cf4d982c31e98c887a8, type: 3}
 --- !u!1 &8916727657271729478
 GameObject:
   m_ObjectHideFlags: 0
