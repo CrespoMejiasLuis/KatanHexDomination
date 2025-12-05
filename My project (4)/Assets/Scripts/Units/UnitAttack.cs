@@ -12,6 +12,7 @@ public class UnitAttack : MonoBehaviour
 
     public bool PuedeAtacar(Unit objetivo)
     {
+        if (unitData.movimientosRestantes <= 0) return false;
         if (objetivo == null) return false;
 
         int distancia = BoardManager.Instance.Distance(
@@ -27,12 +28,13 @@ public class UnitAttack : MonoBehaviour
     {
         if (!PuedeAtacar(objetivo))
         {
-            Debug.Log("Objetivo fuera de rango");
+            Debug.Log("Objetivo fuera de rango o sin movimientos");
             return;
         }
 
         int dano = unitData.statsBase.ataque;
         objetivo.RecibirDano(dano);
+        unitData.movimientosRestantes = 0;
 
         Debug.Log($"{unitData.statsBase.nombreUnidad} atac� a {objetivo.statsBase.nombreUnidad} e hizo {dano} de da�o");
     }

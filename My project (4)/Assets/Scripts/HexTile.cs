@@ -65,6 +65,14 @@ public class HexTile : MonoBehaviour
     {
         if (borderObject != null)
             borderObject.SetActive(visible);
+
+        if (!visible && borderSegments != null)
+        {
+            foreach (var segment in borderSegments)
+            {
+                if (segment != null) segment.SetActive(false);
+            }
+        }
     }
 
     public void SetBorderColor(Color color)

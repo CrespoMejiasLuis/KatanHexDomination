@@ -16,7 +16,11 @@ public class SaquearAction : GoapAction
         // Efectos esperados
         if (!Effects.ContainsKey("RecursosRobados"))
             Effects.Add("RecursosRobados", 1);
-            
+        
+        // Efecto secundario: Seguridad (Curación)
+        if (!Effects.ContainsKey("Seguro"))
+            Effects.Add("Seguro", 1);
+
         // Precondición: Estar en rango (se manejará por MoverAction)
         if (!Preconditions.ContainsKey("EstaEnRango"))
             Preconditions.Add("EstaEnRango", 1);
@@ -75,10 +79,19 @@ public class SaquearAction : GoapAction
                 {
                     ownerPlayer.AddResource(type, 1);
                     Debug.Log($"💰 ¡Saqueo exitoso! {ownerPlayer.playerName} obtuvo 1 de {type}.");
+                    
+                    // Curación por saqueo
+                    if (unitAgent != null)
+                    {
+                        unitAgent.RecibirCuracion(20);
+                        Debug.Log($"🩹 {agent.name} se ha curado 20 puntos al saquear.");
+                    }
                 }
 
-                // 2. Aplicar Cooldown (daña la producción del dueño)
-                cell.lootedCooldown = 1; // Un turno de penalización
+                // 2. Aplicar Cooldown y Visual
+                cell.lootedCooldown = 1; 
+                cell.isRaided = true;
+                cell.UpdateVisual();
                 
                 // 3. Feedback Visual (Opcional: cambiar color temporalmente, partículas...)
                 // tile.SetBorderColor(Color.black); // Ejemplo

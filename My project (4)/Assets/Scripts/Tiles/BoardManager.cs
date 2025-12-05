@@ -115,8 +115,17 @@ public class BoardManager : MonoBehaviour
                     }
                     else
                     {
-                        // Si es neutral, ocultamos el borde (limpiamos selección)
-                        cell.visualTile.SetBorderVisible(false);
+                        // Si es neutral...
+                        if (cell.isRaided)
+                        {
+                            // Si está saqueada, mostramos borde negro
+                            cell.UpdateVisual(); 
+                        }
+                        else
+                        {
+                            // Si no, ocultamos todo
+                            cell.visualTile.SetBorderVisible(false);
+                        }
                     }
                 }
             }
@@ -161,10 +170,17 @@ public class BoardManager : MonoBehaviour
         {
             if (cell == null || cell.visualTile == null) continue;
 
+            // Si la celda está saqueada, PRIORIDAD TOTAL: Borde Negro
+            if (cell.isRaided)
+            {
+                cell.visualTile.EnableFullBorder(Color.black);
+                continue;
+            }
+
             // Si la celda no tiene dueño, apagamos todos sus bordes
             if (cell.owner == -1)
             {
-                for (int i = 0; i < 6; i++) cell.visualTile.SetSegmentVisible(i, false, Color.white);
+                cell.visualTile.SetBorderVisible(false);
                 continue;
             }
 

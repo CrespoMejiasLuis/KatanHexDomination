@@ -114,6 +114,7 @@ public class GameManager : MonoBehaviour
             case GameState.PlayerTurn:
                 OnPlayerTurnStart?.Invoke(); // Llama al evento
                 Debug.Log("📢 Evento OnPlayerTurnStart disparado.");
+                ProcessCooldowns();
                 CollectTurnResources(1);     // L�gica de "Civilization": recolectar recursos al inicio del turno
                 break;
 
@@ -175,6 +176,29 @@ public class GameManager : MonoBehaviour
     /// <summary>
     /// L�gica de tu juego: Otorga recursos al jugador activo al inicio de su turno.
     /// </summary>
+    /// <summary>
+    /// Procesa los cooldowns de todas las celdas del tablero (ej. Saqueo).
+    /// </summary>
+    private void ProcessCooldowns()
+    {
+        if (BoardManager.Instance == null || BoardManager.Instance.gridData == null) return;
+
+        Debug.Log("⏳ Procesando cooldowns globales...");
+        foreach (CellData cell in BoardManager.Instance.gridData)
+        {
+            if (cell != null && cell.lootedCooldown > 0)
+            {
+                cell.lootedCooldown--;
+                if (cell.lootedCooldown == 0)
+                {
+                    cell.isRaided = false;
+                    cell.UpdateVisual();
+                    Debug.Log($"✅ Casilla {cell.coordinates} recuperada del saqueo.");
+                }
+            }
+        }
+    }
+
     private void CollectTurnResources(int playerID)
     {
         Debug.Log($"Recolectando recursos para el jugador {playerID}...");
@@ -236,7 +260,7 @@ public class GameManager : MonoBehaviour
                         if (neighborCell.lootedCooldown > 0)
                         {
                             Debug.Log($"La casilla {neighborCell.coordinates} fue saqueada. No produce recursos.");
-                            neighborCell.lootedCooldown--;
+                            // Cooldown se maneja en ProcessCooldowns
                         }
                         else
                         {

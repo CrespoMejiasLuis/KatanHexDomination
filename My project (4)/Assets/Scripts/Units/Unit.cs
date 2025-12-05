@@ -115,6 +115,15 @@ public class Unit : MonoBehaviour
         }
     }
 
+    public void RecibirCuracion(int cantidad)
+    {
+        vidaActual += cantidad;
+        if (vidaActual > statsBase.vidaMaxima)
+        {
+            vidaActual = statsBase.vidaMaxima;
+        }
+    }
+
     private void Morir()
     {
         // Lógica de muerte (animación, notificar al juego, etc.)

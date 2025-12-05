@@ -11,7 +11,7 @@ public class HuirAction : GoapAction
         goapAgent = GetComponent<GoapAgent>();
 
         actionType = ActionType.Huir;
-        cost = 0.0f; // Prioridad máxima (coste nulo hace que el planner lo prefiera siempre si es posible)
+        cost = 20.0f; // Coste más alto que Saquear (15) para preferir saquear+curarse si es posible
         rangeInTiles = 0; // El destino ES la seguridad
         requiresInRange = true;
 
@@ -26,7 +26,13 @@ public class HuirAction : GoapAction
 
     public override bool CheckProceduralPrecondition(GameObject agent)
     {
-        if (goapAgent == null) return false;
+        if (goapAgent == null || unitAgent == null) return false;
+
+        // Si tenemos más del 50% de vida, no necesitamos huir específicamente
+        if (unitAgent.vidaActual > unitAgent.statsBase.vidaMaxima * 0.5f)
+        {
+            return false;
+        }
 
         // Validar que tenemos un destino de huida asignado
         Vector2Int escapeDest = goapAgent.targetDestination;

@@ -49,7 +49,7 @@ public class CellData
         }
         if(isRaided)
         {
-            visualTile.SetBorderColor(Color.black);
+            visualTile.EnableFullBorder(Color.black);
         }
     }
 
