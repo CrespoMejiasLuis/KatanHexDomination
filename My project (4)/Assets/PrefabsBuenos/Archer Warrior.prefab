@@ -185,7 +185,7 @@ MonoBehaviour:
   actionType: 5
   cost: 5
   target: {fileID: 0}
-  rangeInTiles: 1
+  rangeInTiles: 2
   requiresInRange: 1
   preConditionsConfig:
   - key: TieneObjetivoHostil

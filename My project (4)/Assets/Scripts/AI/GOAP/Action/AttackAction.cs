@@ -97,7 +97,7 @@ public class AttackAction : GoapAction
 
         // 2. Consumir Puntos de Movimiento
         // CAMBIO CRUCIAL: Consumimos un punto de movimiento para representar la acción.
-        unitAgent.movimientosRestantes--;
+        unitAgent.movimientosRestantes=0;
 
         // 3. Finalizar la acción (es instantánea)
         running = false;
