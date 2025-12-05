@@ -113,8 +113,41 @@ public class UnitMovement : MonoBehaviour
         CellData oldCell = BoardManager.Instance.GetCell(unitCerebro.misCoordenadasActuales);
         if (oldCell != null)
         {
-            oldCell.unitOnCell = null;
-            oldCell.typeUnitOnCell = TypeUnit.None;
+            // --- FIX: Antes de borrar, comprobar si hay OTRA unidad (ej. Poblado/Ciudad) ---
+            Collider[] colliders = Physics.OverlapSphere(transform.position, 0.5f);
+            Unit otherUnit = null;
+            foreach(var c in colliders)
+            {
+                Unit u = c.GetComponentInParent<Unit>();
+                
+                // Check if unit is moving via its movement component
+                bool unitIsMoving = false;
+                if(u != null)
+                {
+                     UnitMovement um = u.GetComponent<UnitMovement>();
+                     if(um != null) unitIsMoving = um.isMoving;
+                }
+
+                if(u != null && u != unitCerebro && !unitIsMoving)
+                {
+                    // Asumimos que si hay otro, es el poblado/ciudad
+                    otherUnit = u; 
+                    break;
+                }
+            }
+
+            if(otherUnit != null)
+            {
+                // Restauramos el poblado
+                oldCell.unitOnCell = otherUnit;
+                oldCell.typeUnitOnCell = otherUnit.statsBase.nombreUnidad;
+            }
+            else
+            {
+                // Si no hay nadie más, entonces sí limpiamos
+                oldCell.unitOnCell = null;
+                oldCell.typeUnitOnCell = TypeUnit.None;
+            }
         }
 
         // 2. Ocupar la nueva casilla (para que nadie más entre mientras me muevo)

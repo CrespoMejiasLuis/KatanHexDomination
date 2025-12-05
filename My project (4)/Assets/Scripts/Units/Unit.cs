@@ -13,6 +13,7 @@ public class Unit : MonoBehaviour
     [Header("Propiedad")]
     // 0 = Jugador Humano, 1 = IA
     public int ownerID = 0;
+    public bool startWithZeroMovement = false;
 
     // 2. ESTADO ACTUAL DE LA UNIDAD
     // Estas son las variables que cambian durante el juego
@@ -53,7 +54,14 @@ public class Unit : MonoBehaviour
         if (statsBase != null)
         {
             vidaActual = statsBase.vidaMaxima;
-            movimientosRestantes = statsBase.puntosMovimiento;
+            if(startWithZeroMovement)
+            {
+               movimientosRestantes = 0;
+            }
+            else
+            {
+                movimientosRestantes = statsBase.puntosMovimiento;
+            }
         }
         else
         {
@@ -129,6 +137,36 @@ public class Unit : MonoBehaviour
         // Lógica de muerte (animación, notificar al juego, etc.)
         OnUnitDied?.Invoke(this);
         Debug.Log(statsBase.nombreUnidad + " ha muerto.");
+        
+        // --- FIX: Restaurar casilla si estabamos sobre un Poblado ---
+        CellData currentCell = BoardManager.Instance.GetCell(misCoordenadasActuales);
+        if(currentCell != null && currentCell.unitOnCell == this)
+        {
+             // Chequear si hay OTRO (poblado) físicamente ahí
+            Collider[] colliders = Physics.OverlapSphere(transform.position, 0.5f);
+            Unit otherUnit = null;
+             foreach(var c in colliders)
+            {
+                Unit u = c.GetComponentInParent<Unit>();
+                if(u != null && u != this)
+                {
+                    otherUnit = u;
+                    break;
+                }
+            }
+
+            if(otherUnit != null)
+            {
+                currentCell.unitOnCell = otherUnit;
+                currentCell.typeUnitOnCell = otherUnit.statsBase.nombreUnidad;
+            }
+            else
+            {
+                currentCell.unitOnCell = null;
+                currentCell.typeUnitOnCell = TypeUnit.None;
+            }
+        }
+
         GameManager.OnPlayerTurnStart -= OnTurnStart;
         GameManager.OnAITurnStart -= OnTurnStart;
         Destroy(gameObject);

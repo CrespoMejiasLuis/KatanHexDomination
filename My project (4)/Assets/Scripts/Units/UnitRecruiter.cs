@@ -48,6 +48,20 @@ public class UnitRecruiter : MonoBehaviour
 
         if (jugador == null) return;
 
+        if (ciudadCell.unitOnCell != null && ciudadCell.unitOnCell != unidadCreadora)
+        {
+            Debug.Log("Poblado ocupado, no se puede crear unidad.");
+            return;
+        }
+
+        //Check Unit on cell
+        Unit unidadEnCasilla = ciudadCell.unitOnCell;
+        if(unidadEnCasilla != null && unidadEnCasilla != unidadCreadora)
+        {
+             Debug.Log("Casilla ocupada");
+             return;
+        }
+
         Dictionary<ResourceType, int> coste = artilleroUnitPrefab.statsBase.GetProductCost();
 
         if (!jugador.CanAfford(coste))
@@ -69,6 +83,11 @@ public class UnitRecruiter : MonoBehaviour
         {
             nuevoArtillero.ownerID = unidadCreadora.ownerID;
             nuevoArtillero.misCoordenadasActuales = unidadCreadora.misCoordenadasActuales;
+            nuevoArtillero.startWithZeroMovement = true;
+            
+            // --- FIX: Asegurar que la Celda Lógica sepa que ahora hay una unidad ---
+            ciudadCell.unitOnCell = nuevoArtillero;
+            ciudadCell.typeUnitOnCell = nuevoArtillero.statsBase.nombreUnidad;
         }
         jugador.ArmyManager.RegisterUnit(nuevoArtillero);
     }
@@ -104,6 +123,12 @@ public class UnitRecruiter : MonoBehaviour
 
         if (jugador == null) return;
         
+        if (ciudadCell.unitOnCell != null && ciudadCell.unitOnCell != unidadCreadora)
+        {
+            Debug.Log("Poblado ocupado, no se puede crear unidad.");
+            return;
+        }
+
         Dictionary<ResourceType, int> coste = caballeroUnitPrefab.statsBase.GetProductCost();
 
         if (!jugador.CanAfford(coste))
@@ -125,6 +150,11 @@ public class UnitRecruiter : MonoBehaviour
         {
             nuevoCaballero.ownerID = unidadCreadora.ownerID;
             nuevoCaballero.misCoordenadasActuales = unidadCreadora.misCoordenadasActuales;
+            nuevoCaballero.startWithZeroMovement = true;
+            
+             // --- FIX: Asegurar que la Celda Lógica sepa que ahora hay una unidad ---
+            ciudadCell.unitOnCell = nuevoCaballero;
+            ciudadCell.typeUnitOnCell = nuevoCaballero.statsBase.nombreUnidad;
         }
 
         jugador.ArmyManager.RegisterUnit(nuevoCaballero);
@@ -161,6 +191,12 @@ public class UnitRecruiter : MonoBehaviour
 
         if (jugador == null) return;
 
+        if (ciudadCell.unitOnCell != null && ciudadCell.unitOnCell != unidadCreadora)
+        {
+            Debug.Log("Poblado ocupado, no se puede crear unidad.");
+            return;
+        }
+
         Dictionary<ResourceType, int> coste = colonoUnitPrefab.statsBase.GetProductCost();
 
         if (!jugador.CanAfford(coste))
@@ -182,6 +218,11 @@ public class UnitRecruiter : MonoBehaviour
         {
             nuevoColono.ownerID = unidadCreadora.ownerID;
             nuevoColono.misCoordenadasActuales = unidadCreadora.misCoordenadasActuales;
+            nuevoColono.startWithZeroMovement = true;
+
+             // --- FIX: Asegurar que la Celda Lógica sepa que ahora hay una unidad ---
+            ciudadCell.unitOnCell = nuevoColono;
+            ciudadCell.typeUnitOnCell = nuevoColono.statsBase.nombreUnidad;
         }
 
         jugador.ArmyManager.RegisterUnit(nuevoColono);

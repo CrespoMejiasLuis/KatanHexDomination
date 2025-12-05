@@ -93,7 +93,11 @@ public class SimpleClickTester : MonoBehaviour
                         break;
 
                     case PlayerInputMode.MoveTargeting:
-                        // Por si quieres soportar mover haciendo clic en unidad
+                        if(unidadClickada.ownerID != unidadSeleccionada.ownerID)
+                        {
+                            IntentarAtacar(unidadClickada);
+                            return;
+                        }
                         break;
                 }
                 return;
@@ -199,6 +203,17 @@ public class SimpleClickTester : MonoBehaviour
                 break;
 
             case PlayerInputMode.MoveTargeting:
+                // 1. Revisar si la casilla tiene un enemigo -> Atacar
+                CellData targetCell = BoardManager.Instance.GetCell(casillaClicada.AxialCoordinates);
+                if (targetCell != null && targetCell.unitOnCell != null)
+                {
+                    if (targetCell.unitOnCell.ownerID != unidadSeleccionada.ownerID)
+                    {
+                        IntentarAtacar(targetCell.unitOnCell);
+                        return;
+                    }
+                }
+
                 if (unidadSeleccionada != null)
                 {
                     UnitMovement mover = unidadSeleccionada.GetComponent<UnitMovement>();
