@@ -122,6 +122,26 @@ public class BoardManager : MonoBehaviour
             }
         }
     }
+
+    public List<CellData> GetCellsInRange(Vector2Int center, int range)
+    {
+        List<CellData> results = new List<CellData>();
+        for (int q = -range; q <= range; q++)
+        {
+            for (int r = -range; r <= range; r++)
+            {
+                int s = -q - r;
+                if (Mathf.Abs(q) <= range && Mathf.Abs(r) <= range && Mathf.Abs(s) <= range)
+                {
+                    Vector2Int neighborCoord = center + new Vector2Int(q, r);
+                    // No incluir el centro si no quieres, pero para chequear ocupación da igual
+                    CellData c = GetCell(neighborCoord);
+                    if (c != null) results.Add(c);
+                }
+            }
+        }
+        return results;
+    }   
     public void UpdateAllBorders()
     {
         if (gridData == null) return;

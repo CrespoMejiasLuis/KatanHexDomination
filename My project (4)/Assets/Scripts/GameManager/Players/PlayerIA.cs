@@ -131,7 +131,7 @@ public class PlayerIA : Player
             if (generalBrain.CurrentOrder == TacticalAction.EarlyExpansion)
             {
                 // 1. Encontrar el mejor lugar (Datos para la acción)
-                Vector2Int? bestSpot = aiAnalysis.GetBestPositionForExpansion();
+                Vector2Int? bestSpot = aiAnalysis.GetBestPositionForExpansion(unit, this);
                 GoapAgent agent = unit.GetComponent<GoapAgent>();
                 // En PlayerIA.CalculateGoapGoal, fuerza esto:
                 agent.targetDestination = unit.misCoordenadasActuales + new Vector2Int(1, 0);

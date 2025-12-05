@@ -34,7 +34,7 @@ public class EconomyState : AIState
         }
 
         // 3. LOGICA ECONÓMICA (Si no hay guerra)
-        Vector2Int? bestSpot = context.aiAnalysis.GetBestPositionForExpansion();
+        /*Vector2Int? bestSpot = context.aiAnalysis.GetBestPositionForExpansion();
 
         if (bestSpot.HasValue)
         {
@@ -43,7 +43,7 @@ public class EconomyState : AIState
         else
         {
             context.CurrentOrder = TacticalAction.Development;
-        }
+        }*/
     }
 
     public override void OnExit() { }

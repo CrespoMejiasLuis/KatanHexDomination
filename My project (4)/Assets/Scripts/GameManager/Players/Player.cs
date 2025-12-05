@@ -69,6 +69,18 @@ public abstract class Player : MonoBehaviour
         OnPlayerResourcesUpdated?.Invoke(playerID, resources);
     }
 
+    public int GetResourceAmount(ResourceType type)
+    {
+        if (resources.ContainsKey(type))
+            return resources[type];
+        return 0;
+    }
+
+    public bool HasResourceKey(ResourceType type)
+    {
+        return resources.ContainsKey(type);
+    }
+
     /// <summary>
     /// Comprueba si el jugador tiene suficientes recursos para gastar.
     /// </summary>
