@@ -87,6 +87,7 @@ public class GameManager : MonoBehaviour
         CurrentState = newState;
         Debug.Log("Nuevo estado del juego: " + newState);
 
+        /*
         if (cameraManager != null)
         {
             // 🔑 Llamada clave: Mover la cámara antes de que empiece el turno
@@ -99,6 +100,7 @@ public class GameManager : MonoBehaviour
                 cameraManager.ChangePerspective(false); // false = vista de la IA
             }
         }
+        */
 
         // Dispara el evento correspondiente al nuevo estado
         switch (newState)
@@ -230,10 +232,18 @@ public class GameManager : MonoBehaviour
                     // 6. Si la celda vecina existe (no está fuera del mapa)...
                     if (neighborCell != null)
                     {
-                        // 7. ...¡Añadir su recurso al jugador!
-                        type = neighborCell.resource;
-                        currentPlayer.AddResource(type, yieldAmount); 
-                        // (El método AddResource ya imprime el log de "ganó X")
+                        // 7. Chequear si ha sido saqueada
+                        if (neighborCell.lootedCooldown > 0)
+                        {
+                            Debug.Log($"La casilla {neighborCell.coordinates} fue saqueada. No produce recursos.");
+                            neighborCell.lootedCooldown--;
+                        }
+                        else
+                        {
+                            // 8. ...¡Añadir su recurso al jugador!
+                            type = neighborCell.resource;
+                            currentPlayer.AddResource(type, yieldAmount); 
+                        }
                     }
                 }
             }

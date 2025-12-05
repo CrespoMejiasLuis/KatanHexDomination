@@ -10,6 +10,7 @@ public class CellData
     public Vector2Int coordinates;
     public HexTile visualTile; // Puedes descomentar esto si lo necesitas
     public bool isRaided = false;
+    public int lootedCooldown;
 
     public CellData(ResourceType resource, Vector2Int coords)
     {
@@ -32,7 +33,7 @@ public class CellData
 
         switch (owner)
         {
-            case -1: // Sin dueño
+            case -1: // Sin dueÃ±o
                 visualTile.SetBorderVisible(false);
                 break;
 
@@ -45,6 +46,10 @@ public class CellData
                 visualTile.SetBorderColor(Color.red);
                 visualTile.SetBorderVisible(true);
                 break;
+        }
+        if(isRaided)
+        {
+            visualTile.SetBorderColor(Color.black);
         }
     }
 
