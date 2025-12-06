@@ -5705,7 +5705,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: 0, y: -22.348022}
+  m_AnchoredPosition: {x: 0, y: -22.348145}
   m_SizeDelta: {x: 800, y: 44.696}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &664187725
@@ -12126,6 +12126,9 @@ MonoBehaviour:
   gizmoRadius: 0.3
   convolutionSteps: 2
   decayFactor: 0.5
+  strategicSecureMultiplier: 5
+  minDistanceBetweenCities: 2
+  distancePenalty: 0.5
 --- !u!4 &1403644516
 Transform:
   m_ObjectHideFlags: 0
@@ -12595,7 +12598,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 33.0852, y: 30.6745}
+  m_AnchoredPosition: {x: 33.085205, y: 30.67456}
   m_SizeDelta: {x: 66.1708, y: 61.3485}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!4 &1449789310 stripped

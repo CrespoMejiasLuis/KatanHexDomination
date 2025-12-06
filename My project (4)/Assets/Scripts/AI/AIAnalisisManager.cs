@@ -273,7 +273,13 @@ public class AIAnalysisManager : MonoBehaviour
                 // 1. Filtro de Legalidad (Tu función existente)
                 if (!IsBuildLocationValid(cell, aiPlayer.playerID)) continue;
 
-                // 2. Datos base
+                // 2. Filtro de Recurso: NO construir en desiertos
+                if (cell.resource == ResourceType.Desierto)
+                {
+                    continue; // Saltar casillas sin recursos
+                }
+
+                // 3. Datos base
                 float baseValue = resourceMap[x, y];
                 float threat = threatMap[x, y];
                 if (threat > 20f) continue;
@@ -282,7 +288,10 @@ public class AIAnalysisManager : MonoBehaviour
                 // Le pasamos 'hasStoneSource' para que sepa si debe priorizar la roca
                 float dynamicValue = CalculateDynamicUtility(cell, baseValue, aiPlayer, hasStoneSource);
 
-                // 4. Penalización por distancia
+                // 4. Verificar que tenga valor mínimo real (no solo valor heredado de convolución)
+                if (dynamicValue < 1.0f) continue; // Ignorar casillas con valor muy bajo
+
+                // 5. Penalización por distancia
                 int dist = BoardManager.Instance.Distance(unitPos, cell.coordinates);
                 float distPenalty = dist * distancePenalty;
 
@@ -297,7 +306,14 @@ public class AIAnalysisManager : MonoBehaviour
             }
         }
 
-        if (found) return bestCoords;
+        if (found)
+        {
+            CellData selectedCell = BoardManager.Instance.gridData[bestCoords.x + (BoardManager.Instance.gridRadius - 1), bestCoords.y + (BoardManager.Instance.gridRadius - 1)];
+            Debug.Log($"🎯 Mejor posición encontrada: {bestCoords} | Recurso: {selectedCell?.resource} | Score: {bestScore:F2}");
+            return bestCoords;
+        }
+        
+        Debug.LogWarning("⚠️ No se encontró ninguna posición válida para expansión");
         return null;
     }
 
@@ -307,15 +323,14 @@ public class AIAnalysisManager : MonoBehaviour
     private bool IsBuildLocationValid(CellData cell, int playerID)
     {
         // ---------------------------------------------------------
-        // 1. REGLA DE PROPIEDAD (Solución al problema de territorio propio)
+        // 1. REGLA DE PROPIEDAD
         // ---------------------------------------------------------
         
-        // Antes permitías 'cell.owner == playerID'. 
-        // AHORA: Solo permitimos casillas NEUTRALES (-1).
-        // Si la casilla tiene CUALQUIER dueño (sea yo o el enemigo), no se puede fundar.
-        if (cell.owner != -1) 
+        // Solo bloquear si la casilla pertenece al ENEMIGO
+        // Permitir casillas neutrales (-1) o que no estén ocupadas
+        if (cell.owner != -1 && cell.owner != playerID)
         {
-            return false; 
+            return false; // Es territorio enemigo
         }
 
         // A. Debe estar vacía de unidades físicas
@@ -337,11 +352,12 @@ public class AIAnalysisManager : MonoBehaviour
 
             // CONDICIÓN DE MAR:
             // Si el vecino es NULL, significa que estamos al borde del grid (Vacío/Mar).
-            // Si no quieres ciudades costeras, retornamos false aquí.
-            if (neighbor == null) 
-            {
-                return false; 
-            }
+            // OPCIONAL: Comentado para permitir construcción en bordes del mapa
+            // Descomentar si quieres evitar construcción costera
+            // if (neighbor == null) 
+            // {
+            //     return false; 
+            // }
 
             // Opcional: Si tienes un ResourceType.Agua explícito:
             // if (neighbor.resource == ResourceType.Agua) return false;

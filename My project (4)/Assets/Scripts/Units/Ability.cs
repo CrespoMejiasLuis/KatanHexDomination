@@ -36,8 +36,14 @@ public class Ability : MonoBehaviour
         // Marcar la casilla como saqueada (impide recursos 1 turno)
         targetCell.isRaided = true; // Necesitas agregar este bool en CellData
 
-        // Dar un recurso al jugador
-        Player jugador = GameManager.Instance.humanPlayer; // asumir jugador humano
+        // Dar un recurso al jugador correcto (el dueño de la unidad que saquea)
+        Player jugador = GameManager.Instance.GetPlayer(unitData.ownerID);
+        if (jugador == null)
+        {
+            Debug.LogError($"No se pudo obtener el jugador para ownerID {unitData.ownerID}");
+            return;
+        }
+        
         jugador.AddResource(targetCell.resource, 1);
 
         // Gastar un punto de movimiento

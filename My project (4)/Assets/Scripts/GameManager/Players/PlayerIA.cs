@@ -145,17 +145,20 @@ public class PlayerIA : Player
                 // 1. Encontrar el mejor lugar (Datos para la acción)
                 Vector2Int? bestSpot = aiAnalysis.GetBestPositionForExpansion(unit, this);
                 GoapAgent agent = unit.GetComponent<GoapAgent>();
-                // En PlayerIA.CalculateGoapGoal, fuerza esto:
-                agent.targetDestination = unit.misCoordenadasActuales + new Vector2Int(1, 0);
 
-                if (bestSpot.HasValue && agent!=null)
+                if (bestSpot.HasValue && agent != null)
                 {
-                    // PASO CRITICO: Asignar el destino a la unidad para que Action_Moverse sepa dónde ir.
-                    // Necesitarás añadir una variable 'targetDestination' a tu script Unit o GoapAgent.
-                    agent.targetDestination = bestSpot.Value; 
+                    // Asignar el destino calculado
+                    agent.targetDestination = bestSpot.Value;
+                    
+                    Debug.Log($"🏗️ Colono en {unit.misCoordenadasActuales} asignado a construir en {bestSpot.Value}");
 
                     // 2. Establecer el Objetivo GOAP
                     goal.Add("PobladoConstruido", 1);
+                }
+                else
+                {
+                    Debug.LogWarning($"⚠️ No se encontró ubicación válida para colono en {unit.misCoordenadasActuales}");
                 }
             }
             return goal;

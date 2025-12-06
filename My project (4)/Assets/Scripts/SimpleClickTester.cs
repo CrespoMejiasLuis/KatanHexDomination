@@ -542,8 +542,14 @@ public class SimpleClickTester : MonoBehaviour
             bool recursosNecesarios = unitCerebro.RecursosNecesarios(ciudadUnitPrefab);
             if (!recursosNecesarios) return; //si no tienes materiales suficientes no construye
 
-            //Gastar recursos
-            Player jugador = GameManager.Instance.humanPlayer;
+            //Gastar recursos - Obtener el jugador correcto basándose en el dueño de la unidad
+            Player jugador = GameManager.Instance.GetPlayer(unitCerebro.ownerID);
+            if (jugador == null)
+            {
+                Debug.LogError("No se pudo obtener el jugador para la unidad con ownerID: " + unitCerebro.ownerID);
+                return;
+            }
+
             Dictionary<ResourceType, int> productionCost = ciudadUnitPrefab.statsBase.GetProductCost();
 
             bool recursosGastados = jugador.SpendResources(productionCost);

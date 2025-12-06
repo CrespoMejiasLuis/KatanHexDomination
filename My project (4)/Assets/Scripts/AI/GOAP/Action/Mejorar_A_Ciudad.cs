@@ -30,7 +30,15 @@ public class Mejorar_A_Ciudad : GoapAction
         //1.Verificar que es un poblado
         if(unitAgent.statsBase.nombreUnidad != TypeUnit.Poblado) return false;
         
-        //2.Verificar recursos
+        //2.Verificar que el poblado pertenece al agente (evitar mejorar poblados del jugador humano)
+        Unit agentUnit = agent.GetComponent<Unit>();
+        if(agentUnit != null && unitAgent.ownerID != agentUnit.ownerID)
+        {
+            Debug.Log($"GOAP: Mejorar_A_Ciudad rechazado - el poblado no pertenece al agente. Poblado owner: {unitAgent.ownerID}, Agente owner: {agentUnit.ownerID}");
+            return false;
+        }
+        
+        //3.Verificar recursos
         if(simpleClickTester != null && simpleClickTester.ciudadPrefab != null)
         {
             Unit ciudadUnitPrefab = simpleClickTester.ciudadPrefab.GetComponent<Unit>();

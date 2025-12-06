@@ -18,9 +18,13 @@ public class MoverAction : GoapAction
         path = new List<Vector2Int>();
 
         actionType = ActionType.Mover;
-        cost = 10.0f;
+        cost = 1.0f; // Bajo para que el movimiento sea atractivo
         rangeInTiles = 1; // Un paso adyacente
-        requiresInRange = false; 
+        requiresInRange = false;
+
+        // Configuración GOAP: Moverse cumple el objetivo de "estar en rango"
+        if (!Effects.ContainsKey("EstaEnRango"))
+            Effects.Add("EstaEnRango", 1);
     }
 
     public override bool CheckProceduralPrecondition(GameObject agent)
@@ -79,11 +83,12 @@ public class MoverAction : GoapAction
         }
 
         // 2. Esperar si la unidad se está moviendo visualmente
-        // (Necesitas hacer pública la variable 'isMoving' en UnitMovement o crear un getter)
-        if (movementComponent.isMoving) // Asegúrate que 'isMoving' sea public o usa un método IsMoving()
+        if (movementComponent.isMoving)
         {
             return false; // Seguimos en esta acción, esperando
         }
+
+        // 3. Limpiar casilla actual del path si ya estamos ahí
         if (path.Count > 0 && path[0] == unitAgent.misCoordenadasActuales)
         {
             path.RemoveAt(0);
@@ -95,7 +100,7 @@ public class MoverAction : GoapAction
             running = false;
             return true;
         }
-        // 3. Iniciar el siguiente paso
+        // 4. Iniciar el siguiente paso
         CellData cellTarget = BoardManager.Instance.GetCell(path[0]);
 
         if (cellTarget != null && cellTarget.visualTile != null)
@@ -105,13 +110,13 @@ public class MoverAction : GoapAction
 
             if (movementStarted)
             {
-                path.RemoveAt(0); // Consumimos el paso
-                return false;     // Seguimos en la acción (ahora isMoving será true)
+                // NO eliminamos aquí, esperamos a que termine el movimiento visual
+                return false; // Seguimos en la acción (ahora isMoving será true)
             }
             else
             {
                 // Si falla (ej. casilla ocupada de repente), abortamos
-                Debug.Log("MoverAction: Falló al intentar mover. Abortando.");
+                Debug.LogWarning($"MoverAction: Falló al intentar mover a {path[0]}. Abortando.");
                 running = false;
                 return true;
             }
