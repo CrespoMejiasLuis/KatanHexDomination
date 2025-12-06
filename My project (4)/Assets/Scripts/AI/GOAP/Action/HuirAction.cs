@@ -28,8 +28,8 @@ public class HuirAction : GoapAction
     {
         if (goapAgent == null || unitAgent == null) return false;
 
-        // Si tenemos más del 50% de vida, no necesitamos huir específicamente
-        if (unitAgent.vidaActual > unitAgent.statsBase.vidaMaxima * 0.5f)
+        // Si tenemos más del 40% de vida, no necesitamos huir específicamente
+        if (unitAgent.vidaActual > unitAgent.statsBase.vidaMaxima * 0.4f)
         {
             return false;
         }
