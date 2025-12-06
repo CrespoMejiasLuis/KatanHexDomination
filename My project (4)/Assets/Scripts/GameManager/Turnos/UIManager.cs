@@ -226,6 +226,12 @@ public class UIManager : MonoBehaviour
 
             // Configurar interactividad
             actionAttackButton.interactable = unit.statsBase.ataque > 0;
+            // SI ES CABALLERO (no dispara), desactivamos el botón de ataque
+            if(unit.statsBase.nombreUnidad == TypeUnit.Caballero)
+            {
+                 actionAttackButton.gameObject.SetActive(false);
+            }
+            
             actionMoveButton.interactable = unit.movimientosRestantes > 0;
             if (actionPassButton != null) actionPassButton.interactable = true;
 
@@ -238,7 +244,7 @@ public class UIManager : MonoBehaviour
             if (colonoLogic != null)
             {
                 actionSpecialButton.gameObject.SetActive(true);
-               // accionSaquear.gameObject.SetActive(true);
+                accionSaquear.gameObject.SetActive(false);
                 actionSpecialButtonText.text = "Construir";
                 actionSpecialButton.interactable = true; // El UnitBuilder comprobará los recursos
 
