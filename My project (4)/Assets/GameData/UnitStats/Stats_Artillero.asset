@@ -22,4 +22,4 @@ MonoBehaviour:
   costePiedra: 0
   costeTrigo: 1
   costeArcilla: 0
-  costeOveja: 0
+  costeOveja: 2
