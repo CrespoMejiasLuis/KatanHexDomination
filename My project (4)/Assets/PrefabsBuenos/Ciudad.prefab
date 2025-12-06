@@ -270,6 +270,12 @@ GameObject:
   - component: {fileID: 835614266452587887}
   - component: {fileID: 5462790164019119449}
   - component: {fileID: 4461004456554925958}
+  - component: {fileID: -1102991443987764728}
+  - component: {fileID: 8386552538900260942}
+  - component: {fileID: -2541283509933871489}
+  - component: {fileID: -6245103444020994998}
+  - component: {fileID: 1731706071281577165}
+  - component: {fileID: -2913280912465604076}
   m_Layer: 9
   m_Name: Ciudad
   m_TagString: Untagged
@@ -406,10 +412,132 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   statsBase: {fileID: 11400000, guid: ebf11c038c72d264b8d1c3db9236a802, type: 2}
   ownerID: 0
+  startWithZeroMovement: 0
   vidaActual: 0
   movimientosRestantes: 0
   misCoordenadasActuales: {x: 0, y: 0}
   spawnInDuration: 1.5
+--- !u!114 &-1102991443987764728
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2719055414579701877}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1a10878b57984204db80bf58e21d7aa6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  tradeMenu: {fileID: 0}
+  unitCerebro: {fileID: 0}
+--- !u!114 &8386552538900260942
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2719055414579701877}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5ceecf19d124fa4888942f77e7fc838, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  artilleroPrefab: {fileID: 7520341672977643540, guid: b0e8c80702d87fb4f9c231b669dcffd3, type: 3}
+  caballeroPrefab: {fileID: 7491848878131134450, guid: 7e504df8b9b239c48a52baf30848dfa5, type: 3}
+  colonoPrefab: {fileID: 1921159432317833422, guid: ad180da489fdff0458b48dd98d8a7689, type: 3}
+--- !u!114 &-2541283509933871489
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2719055414579701877}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 65d7574dcf3412542aed2d30b853a50f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  actionDelay: 0.2
+  targetDestination: {x: 0, y: 0}
+--- !u!114 &-6245103444020994998
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2719055414579701877}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 88eac3bfd5de05d4d9b8471a20453214, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  actionType: 4
+  cost: 1
+  target: {fileID: 0}
+  rangeInTiles: 1
+  requiresInRange: 1
+  preConditionsConfig:
+  - key: TieneRecursosParaColono
+    value: 1
+  afterEffectsConfig:
+  - key: ColonoProducido
+    value: 1
+  running: 0
+  unitTypeToProduce: 8
+  unitPrefab: {fileID: 1921159432317833422, guid: ad180da489fdff0458b48dd98d8a7689, type: 3}
+--- !u!114 &1731706071281577165
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2719055414579701877}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 88eac3bfd5de05d4d9b8471a20453214, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  actionType: 4
+  cost: 1
+  target: {fileID: 0}
+  rangeInTiles: 1
+  requiresInRange: 1
+  preConditionsConfig:
+  - key: TieneRecursosParaCaballero
+    value: 1
+  afterEffectsConfig:
+  - key: CaballeroProducido
+    value: 1
+  running: 0
+  unitTypeToProduce: 6
+  unitPrefab: {fileID: 7491848878131134450, guid: 7e504df8b9b239c48a52baf30848dfa5, type: 3}
+--- !u!114 &-2913280912465604076
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2719055414579701877}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 88eac3bfd5de05d4d9b8471a20453214, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  actionType: 4
+  cost: 1
+  target: {fileID: 0}
+  rangeInTiles: 1
+  requiresInRange: 1
+  preConditionsConfig:
+  - key: TieneRecursosParaArquero
+    value: 1
+  afterEffectsConfig:
+  - key: ArqueroProducido
+    value: 1
+  running: 0
+  unitTypeToProduce: 5
+  unitPrefab: {fileID: 2069702640224040037, guid: d00117277c9d3cf4d982c31e98c887a8, type: 3}
 --- !u!1 &3333576536738103707
 GameObject:
   m_ObjectHideFlags: 0

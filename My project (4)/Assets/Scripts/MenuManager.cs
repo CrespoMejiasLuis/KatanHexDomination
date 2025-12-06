@@ -6,8 +6,8 @@ public class MenuManager : MonoBehaviour
     [Header("UI Panels")]
     public GameObject sizeSelectionPanel;
 
-    // Guardaremos la opción elegida
-    public static int selectedBoardRadius = 3; // default
+    // Guardaremos la opciï¿½n elegida
+    public static int selectedBoardRadius = 10; // default
 
     public void OpenSizeSelectionPanel()
     {

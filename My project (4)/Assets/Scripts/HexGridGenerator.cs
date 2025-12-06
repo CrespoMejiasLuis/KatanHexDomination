@@ -17,7 +17,7 @@ public class HexGridGenerator : MonoBehaviour
     // --- Configuración Global ---
     [Header("Configuración Global del Tablero")]
     [Tooltip("El número de anillos de TIERRA (sin incluir el borde de agua). 3 = 19 casillas.")]
-    public int boardRadius = 3; // ¡NUEVO! Reemplaza la constante GRID_RADIUS
+    [HideInInspector]public int boardRadius = MenuManager.selectedBoardRadius; // ¡NUEVO! Reemplaza la constante GRID_RADIUS
     public float hexRadius = 1f;
     public Transform hexParent;
 
