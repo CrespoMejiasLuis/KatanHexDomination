@@ -15,26 +15,35 @@ public class Mejorar_A_Ciudad : GoapAction
         simpleClickTester = FindFirstObjectByType<SimpleClickTester>();
 
         actionType = ActionType.Mejorar_A_Ciudad;
-        cost = 50.0f;
-        rangeInTiles = 0; // Un paso adyacente
-        requiresInRange = false; 
+        cost = 10.0f; // Costo razonable
+        rangeInTiles = 0; // Debe ser el propio poblado
+        requiresInRange = false;
+
+        // Configuración GOAP: necesita recursos y efecto final
+        if (!Preconditions.ContainsKey("TieneRecursosParaCiudad"))
+            Preconditions.Add("TieneRecursosParaCiudad", 1);
+
+        if (!Effects.ContainsKey("Mejorar_A_Ciudad"))
+            Effects.Add("Mejorar_A_Ciudad", 1);
 
         if(simpleClickTester == null)
         {
-            Debug.Log("Action Mejorar_A_Ciudad no encuentra el SimpleClickTester");
+            Debug.LogWarning("Action Mejorar_A_Ciudad no encuentra el SimpleClickTester");
         }
     }
 
     public override bool CheckProceduralPrecondition(GameObject agent)
     {
         //1.Verificar que es un poblado
-        if(unitAgent.statsBase.nombreUnidad != TypeUnit.Poblado) return false;
+        if(unitAgent.statsBase.nombreUnidad != TypeUnit.Poblado)
+        {
+            return false;
+        }
         
         //2.Verificar que el poblado pertenece al agente (evitar mejorar poblados del jugador humano)
         Unit agentUnit = agent.GetComponent<Unit>();
         if(agentUnit != null && unitAgent.ownerID != agentUnit.ownerID)
         {
-            Debug.Log($"GOAP: Mejorar_A_Ciudad rechazado - el poblado no pertenece al agente. Poblado owner: {unitAgent.ownerID}, Agente owner: {agentUnit.ownerID}");
             return false;
         }
         
@@ -44,18 +53,35 @@ public class Mejorar_A_Ciudad : GoapAction
             Unit ciudadUnitPrefab = simpleClickTester.ciudadPrefab.GetComponent<Unit>();
             if(ciudadUnitPrefab != null)
             {
-                return unitAgent.RecursosNecesarios(ciudadUnitPrefab);
+                bool hasResources = unitAgent.RecursosNecesarios(ciudadUnitPrefab);
+                if (!hasResources)
+                {
+                    Debug.Log($"GOAP: Mejorar_A_Ciudad - No hay recursos suficientes");
+                }
+                return hasResources;
             }
         }
 
-        return true;
+        return false;
     }
 
     public override bool Perform(GameObject agent)
     {
-        if(simpleClickTester == null) return true;
+        if(simpleClickTester == null)
+        {
+            Debug.LogError("GOAP: Mejorar_A_Ciudad - SimpleClickTester es null");
+            running = false;
+            return true; // Terminar con error
+        }
 
+        running = true;
+        
+        Debug.Log($"GOAP: Mejorando {unitAgent.statsBase.nombreUnidad} a Ciudad en {unitAgent.misCoordenadasActuales}");
+        
+        // UpgradeCiudad es síncrono, se completa inmediatamente
         simpleClickTester.UpgradeCiudad(unitAgent);
-        return true;
+        
+        running = false;
+        return true; // Acción completada
     }
 }

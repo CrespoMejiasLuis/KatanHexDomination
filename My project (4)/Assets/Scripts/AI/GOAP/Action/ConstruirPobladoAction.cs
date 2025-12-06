@@ -35,8 +35,8 @@ public class ConstruirPobladoAction : GoapAction
             Preconditions.Add("TieneRecursosParaPoblado", 1);
 
         // 3. El resultado es que existe un poblado
-        if (!Effects.ContainsKey("TienePoblado"))
-            Effects.Add("TienePoblado", 1);
+        if (!Effects.ContainsKey("PobladoConstruido"))
+            Effects.Add("PobladoConstruido", 1);
     }
 
     public override bool CheckProceduralPrecondition(GameObject agent)

@@ -16,13 +16,41 @@ public class CrearUnidad_Action : GoapAction
         base.Awake();
         
         recruiter = GetComponent<UnitRecruiter>();
-        actionType = ActionType.Crear_Unidad; 
+        actionType = ActionType.Crear_Unidad;
         
-        // Coste de planificación: Le ponemos un coste algo alto para que la IA
-        // no espamee unidades si tiene otras prioridades más baratas.
-        cost = 20.0f; 
-        rangeInTiles = 0; 
+        rangeInTiles = 0;
         requiresInRange = true;
+
+        // Configuración GOAP dinámica basada en el tipo de unidad
+        switch (unitTypeToProduce)
+        {
+            case TypeUnit.Colono:
+                cost = 8.0f;
+                if (!Effects.ContainsKey("ColonoProducido"))
+                    Effects.Add("ColonoProducido", 1);
+                if (!Preconditions.ContainsKey("TieneRecursosParaColono"))
+                    Preconditions.Add("TieneRecursosParaColono", 1);
+                break;
+
+            case TypeUnit.Artillero:
+                cost = 12.0f;
+                if (!Effects.ContainsKey("ArqueroProducido"))
+                    Effects.Add("ArqueroProducido", 1);
+                // Los artilleros usan los mismos recursos que otros (configurar según tu juego)
+                break;
+
+            case TypeUnit.Caballero:
+                cost = 12.0f;
+                if (!Effects.ContainsKey("CaballeroProducido"))
+                    Effects.Add("CaballeroProducido", 1);
+                break;
+
+            default:
+                cost = 15.0f; // Costo genérico
+                if (!Effects.ContainsKey("TropaProducida"))
+                    Effects.Add("TropaProducida", 1);
+                break;
+        }
     }
 
     private void Start()
