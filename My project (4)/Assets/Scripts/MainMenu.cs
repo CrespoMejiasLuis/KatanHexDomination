@@ -1,15 +1,30 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class MainMenu : MonoBehaviour
+public class MenuManager : MonoBehaviour
 {
-    public void Jugar()
+    [Header("UI Panels")]
+    public GameObject sizeSelectionPanel;
+
+    // Guardaremos la opción elegida
+    public static int selectedBoardRadius = 3; // default
+
+    public void OpenSizeSelectionPanel()
     {
-        SceneManager.LoadScene("MainScene");
+        sizeSelectionPanel.SetActive(true);
     }
 
-    public void Salir()
+    public void SelectBoardSize(int radius)
     {
-        Application.Quit();
+        selectedBoardRadius = radius;
+        sizeSelectionPanel.SetActive(false);
+
+        // Cambiar a la escena del MainScene
+        SceneManager.LoadScene("Escena Luis");
+    }
+
+    public void ClosePanel()
+    {
+        sizeSelectionPanel.SetActive(false);
     }
 }

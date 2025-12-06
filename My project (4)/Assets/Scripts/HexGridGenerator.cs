@@ -55,6 +55,10 @@ public class HexGridGenerator : MonoBehaviour
     };
 
     // ---------------------------------------------------------------------
+    void Awake()
+    {
+        boardRadius = MenuManager.selectedBoardRadius;
+    }
 
     // Start() se usa para validaciones
     void Start()

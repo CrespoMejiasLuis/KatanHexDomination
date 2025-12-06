@@ -3279,6 +3279,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   unidadSeleccionada: {fileID: 0}
   unitActionMenu: {fileID: 796229086}
+  selectionColor: {r: 0, g: 1, b: 0, a: 1}
   unitLayerMask:
     serializedVersion: 2
     m_Bits: 512
@@ -12062,6 +12063,9 @@ MonoBehaviour:
   gizmoRadius: 0.3
   convolutionSteps: 2
   decayFactor: 0.5
+  strategicSecureMultiplier: 5
+  minDistanceBetweenCities: 2
+  distancePenalty: 0.5
 --- !u!4 &1403644516
 Transform:
   m_ObjectHideFlags: 0
@@ -14354,8 +14358,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   aiAnalysis: {fileID: 1403644515}
+  myPlayer: {fileID: 0}
   warThreshold: 1000
   peaceThreshold: 40
+  opportunismFactor: 1.5
 --- !u!4 &1667635766
 Transform:
   m_ObjectHideFlags: 0
