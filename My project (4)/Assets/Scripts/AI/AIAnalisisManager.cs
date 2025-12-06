@@ -430,4 +430,162 @@ public class AIAnalysisManager : MonoBehaviour
         }
         return false; // No tenemos ninguna fuente
     }
+
+    // ======================================================================
+    // MÉTODOS DE COMBATE
+    // ======================================================================
+
+    /// <summary>
+    /// Encuentra la posición más amenazada cerca de ciudades propias
+    /// para enviar unidades defensivas
+    /// </summary>
+    public Vector2Int? GetBestDefensePosition(int aiPlayerID, Vector2Int unitPos)
+    {
+        if (threatMap == null || territoryMap == null) return null;
+
+        float bestScore = -1f;
+        Vector2Int bestCoords = Vector2Int.zero;
+        bool found = false;
+
+        // Buscar casillas propias con alta amenaza
+        for (int x = 0; x < width; x++)
+        {
+            for (int y = 0; y < height; y++)
+            {
+                CellData cell = BoardManager.Instance.gridData[x, y];
+                if (cell == null) continue;
+
+                // Solo defender territorio propio o neutral cerca de nuestras ciudades
+                if (cell.owner != aiPlayerID && cell.owner != -1) continue;
+
+                float threat = threatMap[x, y];
+                float territory = territoryMap[x, y];
+
+                // Buscar zonas con amenaza alta Y cerca de territorio propio
+                if (threat > 15f && territory >= 0)
+                {
+                    // Priorizar casillas más cercanas
+                    int dist = BoardManager.Instance.Distance(unitPos, cell.coordinates);
+                    float score = threat - (dist * 2f);
+
+                    if (score > bestScore)
+                    {
+                        bestScore = score;
+                        bestCoords = cell.coordinates;
+                        found = true;
+                    }
+                }
+            }
+        }
+
+        if (found)
+        {
+            Debug.Log($"🛡️ Posición defensiva encontrada: {bestCoords} (Amenaza: {bestScore:F1})");
+            return bestCoords;
+        }
+
+        return null;
+    }
+
+    /// <summary>
+    /// Encuentra el mejor objetivo enemigo para atacar
+    /// Prioriza: ciudades débiles > unidades aisladas > targets cercanos
+    /// </summary>
+    public Unit GetBestAttackTarget(int aiPlayerID, Vector2Int unitPos)
+    {
+        if (BoardManager.Instance == null) return null;
+
+        CellData[,] grid = BoardManager.Instance.gridData;
+        Unit bestTarget = null;
+        float bestScore = -9999f;
+
+        for (int x = 0; x < width; x++)
+        {
+            for (int y = 0; y < height; y++)
+            {
+                CellData cell = grid[x, y];
+                if (cell == null || cell.unitOnCell == null) continue;
+
+                // Solo unidades enemigas
+                if (cell.unitOnCell.ownerID == aiPlayerID) continue;
+
+                Unit enemy = cell.unitOnCell;
+                float score = 0f;
+
+                // PRIORIDAD 1: Ciudades y poblados (objetivos estratégicos)
+                if (cell.typeUnitOnCell == TypeUnit.Ciudad)
+                {
+                    score = 100f;
+                }
+                else if (cell.typeUnitOnCell == TypeUnit.Poblado)
+                {
+                    score = 80f;
+                }
+                else
+                {
+                    // PRIORIDAD 2: Unidades militares (según poder)
+                    score = enemy.statsBase.ataque * 2f + enemy.statsBase.vidaMaxima * 0.5f;
+                }
+
+                // Penalización por distancia
+                int dist = BoardManager.Instance.Distance(unitPos, cell.coordinates);
+                score -= dist * 3f;
+
+                if (score > bestScore)
+                {
+                    bestScore = score;
+                    bestTarget = enemy;
+                }
+            }
+        }
+
+        if (bestTarget != null)
+        {
+            Debug.Log($"⚔️ Objetivo de ataque encontrado: {bestTarget.name} en {bestTarget.misCoordenadasActuales}");
+        }
+
+        return bestTarget;
+    }
+
+    /// <summary>
+    /// Encuentra una posición de patrulla en el borde del territorio
+    /// </summary>
+    public Vector2Int? GetPatrolPosition(int aiPlayerID, Vector2Int unitPos)
+    {
+        if (territoryMap == null) return null;
+
+        CellData[,] grid = BoardManager.Instance.gridData;
+        List<Vector2Int> borderTiles = new List<Vector2Int>();
+
+        // Buscar casillas en el borde (propias con vecinos neutrales/enemigos)
+        for (int x = 0; x < width; x++)
+        {
+            for (int y = 0; y < height; y++)
+            {
+                CellData cell = grid[x, y];
+                if (cell == null || cell.owner != aiPlayerID) continue;
+
+                // Chequear si tiene vecinos no-propios
+                foreach (Vector2Int dir in GameManager.axialNeighborDirections)
+                {
+                    Vector2Int neighborCoords = cell.coordinates + dir;
+                    CellData neighbor = BoardManager.Instance.GetCell(neighborCoords);
+
+                    if (neighbor != null && neighbor.owner != aiPlayerID)
+                    {
+                        borderTiles.Add(cell.coordinates);
+                        break;
+                    }
+                }
+            }
+        }
+
+        if (borderTiles.Count > 0)
+        {
+            // Elegir una posición aleatoria del borde
+            return borderTiles[Random.Range(0, borderTiles.Count)];
+        }
+
+        return null;
+    }
 }

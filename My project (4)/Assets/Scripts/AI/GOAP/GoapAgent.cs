@@ -16,7 +16,9 @@ public class GoapAgent : MonoBehaviour
     // --- DATOS COMPARTIDOS (Blackboard) ---
     [HideInInspector]
     public Vector2Int targetDestination;
-    private Dictionary<string, int> lastGoal; // <-- NUEVA VARIABLE------------------------------
+    [HideInInspector]
+    public Unit targetEnemy; // <-- Para asignar un enemigo específico a atacar
+    private Dictionary<string, int> lastGoal;
 
     // --- ESTADO DEL MUNDO (Memoria del Agente) ---
     public Dictionary<string, int> worldState = new Dictionary<string, int>();
@@ -192,12 +194,52 @@ public class GoapAgent : MonoBehaviour
             worldState.Add("TieneRecursosParaColono", canAffordColono ? 1 : 0);
         }
 
-        // --- 3. OTROS ESTADOS (Ej: Estructuras) ---
-        // (Lógica para chequear si la casilla tiene poblado/ciudad)
-        // CellData currentCell = BoardManager.Instance.GetCell(unit.misCoordenadasActuales);
-        // if(currentCell != null)
-        // {
-        //     worldState.Add("TienePoblado", currentCell.hasSettlement ? 1 : 0);
-        // }
+        // --- 3. ESTADOS DE COMBATE ---
+        AIAnalysisManager aiAnalysis = FindFirstObjectByType<AIAnalysisManager>();
+        
+        if (aiAnalysis != null && aiAnalysis.threatMap != null)
+        {
+            // Convertir coordenadas axiales a índices del array
+            int gridRadius = BoardManager.Instance.gridRadius;
+            int arrayX = unit.misCoordenadasActuales.x + (gridRadius - 1);
+            int arrayY = unit.misCoordenadasActuales.y + (gridRadius - 1);
+
+            // Verificar si estoy en una zona de amenaza
+            if (arrayX >= 0 && arrayX < aiAnalysis.threatMap.GetLength(0) &&
+                arrayY >= 0 && arrayY < aiAnalysis.threatMap.GetLength(1))
+            {
+                float threatLevel = aiAnalysis.threatMap[arrayX, arrayY];
+                worldState.Add("IsThreatened", threatLevel > 20f ? 1 : 0);
+            }
+        }
+
+        // ¿Tengo un enemigo asignado?
+        worldState.Add("HasEnemyTarget", targetEnemy != null ? 1 : 0);
+
+        // ¿Estoy en la posición de combate asignada?
+        if (unit.misCoordenadasActuales == targetDestination)
+        {
+            worldState.Add("IsAtCombatPosition", 1);
+        }
+        else
+        {
+            worldState.Add("IsAtCombatPosition", 0);
+        }
+
+        // ¿Hay un enemigo adyacente que pueda atacar?
+        bool hasAdjacentEnemy = false;
+        foreach (Vector2Int dir in GameManager.axialNeighborDirections)
+        {
+            Vector2Int neighborCoords = unit.misCoordenadasActuales + dir;
+            CellData neighbor = BoardManager.Instance.GetCell(neighborCoords);
+            
+            if (neighbor != null && neighbor.unitOnCell != null && 
+                neighbor.unitOnCell.ownerID != unit.ownerID)
+            {
+                hasAdjacentEnemy = true;
+                break;
+            }
+        }
+        worldState.Add("CanAttackEnemy", hasAdjacentEnemy ? 1 : 0);
     }
 }

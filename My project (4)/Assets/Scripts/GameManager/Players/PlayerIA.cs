@@ -165,13 +165,62 @@ public class PlayerIA : Player
         }
 
         // --- C. TROPAS DE COMBATE ---
-        if(unit.statsBase.nombreUnidad == TypeUnit.Artillero || unit.statsBase.nombreUnidad == TypeUnit.Caballero || unit.statsBase.nombreUnidad == TypeUnit.Caballeria)
+        if(unit.statsBase.nombreUnidad == TypeUnit.Artillero || 
+           unit.statsBase.nombreUnidad == TypeUnit.Caballero || 
+           unit.statsBase.nombreUnidad == TypeUnit.Caballeria)
         {
+            GoapAgent combatAgent = unit.GetComponent<GoapAgent>();
+            if (combatAgent == null) return goal;
 
-            goal.Add("Seguro", 1);///mirar
+            // Decidir comportamiento según el estado estratégico (FSM)
+            switch(generalBrain.CurrentOrder)
+            {
+                case TacticalAction.ActiveDefense:
+                    // Defender zonas amenazadas
+                    Vector2Int? defensePos = aiAnalysis.GetBestDefensePosition(this.playerID, unit.misCoordenadasActuales);
+                    if (defensePos.HasValue)
+                    {
+                        combatAgent.targetDestination = defensePos.Value;
+                        goal.Add("IsAtCombatPosition", 1);
+                        Debug.Log($"🛡️ {unit.name} asignado a DEFENDER en {defensePos.Value}");
+                    }
+                    else
+                    {
+                        // Si no hay amenazas, patrullar
+                        Vector2Int? patrolPos = aiAnalysis.GetPatrolPosition(this.playerID, unit.misCoordenadasActuales);
+                        if (patrolPos.HasValue)
+                        {
+                            combatAgent.targetDestination = patrolPos.Value;
+                            goal.Add("IsAtCombatPosition", 1);
+                        }
+                    }
+                    break;
+
+                case TacticalAction.Assault:
+                    // Atacar al enemigo más valioso
+                    Unit target = aiAnalysis.GetBestAttackTarget(this.playerID, unit.misCoordenadasActuales);
+                    if (target != null)
+                    {
+                        combatAgent.targetEnemy = target;
+                        combatAgent.targetDestination = target.misCoordenadasActuales;
+                        goal.Add("IsAtCombatPosition", 1);
+                        Debug.Log($"⚔️ {unit.name} asignado a ATACAR {target.name} en {target.misCoordenadasActuales}");
+                    }
+                    break;
+
+                case TacticalAction.EarlyExpansion:
+                case TacticalAction.Development:
+                    // En paz, solo patrullar fronteras
+                    Vector2Int? patrolPosition = aiAnalysis.GetPatrolPosition(this.playerID, unit.misCoordenadasActuales);
+                    if (patrolPosition.HasValue)
+                    {
+                        combatAgent.targetDestination = patrolPosition.Value;
+                        goal.Add("IsAtCombatPosition", 1);
+                        Debug.Log($"👁️ {unit.name} asignado a PATRULLAR en {patrolPosition.Value}");
+                    }
+                    break;
+            }
         }
-        // (logica para Soldados, Caballeros, etc.)
-        // if (unit.EsTropaCombatiente) ...
 
         return goal; // Objetivo vacio si no hay nada que hacer
     }
