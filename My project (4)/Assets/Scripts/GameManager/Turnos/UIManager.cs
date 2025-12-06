@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
 using System;
+using UnityEngine.SceneManagement;
 
 // Nota: Necesitas definir el enum ResourceType en un archivo separado.
 
@@ -53,6 +54,12 @@ public class UIManager : MonoBehaviour
     public Button recruitCaballeriaButton;
     public Button recruitColonoButton;
 
+    [Header("Panel Game Over")]
+    public GameObject gameOverPanel;
+    public TextMeshProUGUI gameOverText;
+    public Button restartButton;
+    public Button exitButton;
+
     void Awake()
     {
         if (Instance == null)
@@ -65,6 +72,10 @@ public class UIManager : MonoBehaviour
         }
         
         if(constructionPanelContainer!=null) constructionPanelContainer.SetActive(false);
+        if(gameOverPanel != null) gameOverPanel.SetActive(false);
+        
+        if (restartButton != null) restartButton.onClick.AddListener(OnRestartPressed);
+        if (exitButton != null) exitButton.onClick.AddListener(OnExitPressed);
     }
 
     void Start()
@@ -383,6 +394,40 @@ public class UIManager : MonoBehaviour
         }
     }
 
+    public void ShowGameOver(bool playerWon)
+    {
+        if (gameOverPanel != null)
+        {
+            gameOverPanel.SetActive(true);
+            
+            if (gameOverText != null)
+            {
+                if (playerWon)
+                {
+                    gameOverText.text = "¡VICTORIA!\nHas conquistado el mapa.";
+                    gameOverText.color = Color.green; // Opcional
+                }
+                else
+                {
+                    gameOverText.text = "DERROTA...\nLa IA ha dominado.";
+                    gameOverText.color = Color.red; // Opcional
+                }
+            }
+        }
+    }
+
+    public void OnRestartPressed()
+    {
+        // Reiniciar la escena actual (o ir al Menu Principal si es la escena 0)
+        // Por ahora, recargamos la escena activa
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+    }
+
+    public void OnExitPressed()
+    {
+        Debug.Log("Volviendo al inicio...");
+        SceneManager.LoadScene("inicio");
+    }
 
 }
 

@@ -136,9 +136,9 @@ public class GameManager : MonoBehaviour
                 }
                 break;
 
+            
             case GameState.EndTurnResolution:
-                // Aqu� podr�as comprobar condiciones de victoria
-                // Y luego pasar al siguiente turno
+                // Estado 'puente', si alguna vez lo usamos.
                 if (CurrentState == GameState.PlayerTurn)
                     SetState(GameState.AITurn);
                 else
@@ -156,6 +156,8 @@ public class GameManager : MonoBehaviour
     /// </summary>
     public void EndPlayerTurn()
     {
+        if (CheckVictory()) return;
+
         if (CurrentState == GameState.PlayerTurn)
         {
             OnPlayerTurnEnd?.Invoke();
@@ -165,6 +167,8 @@ public class GameManager : MonoBehaviour
 
     public void EndAITurn()
     {
+        if (CheckVictory()) return;
+
         if (CurrentState == GameState.AITurn)
         {
             OnAITurnEnd?.Invoke();
@@ -319,5 +323,25 @@ public class GameManager : MonoBehaviour
         if(ownerID == 0) return humanPlayer;
         if(ownerID == 1) return IAPlayer;
         return null;
+    }
+
+    private bool CheckVictory()
+    {
+        // --- CONDICION DE VICTORIA (10 Puntos) ---
+        if (humanPlayer != null && humanPlayer.victoryPoints >= 10)
+        {
+            Debug.Log("¡JUGADOR GANA! Has alcanzado 10 Puntos de Victoria.");
+            if (UIManager.Instance != null) UIManager.Instance.ShowGameOver(true);
+            SetState(GameState.GameOver);
+            return true;
+        }
+        else if (IAPlayer != null && IAPlayer.victoryPoints >= 10)
+        {
+            Debug.Log("¡IA GANA! La IA ha alcanzado 10 Puntos de Victoria.");
+            if (UIManager.Instance != null) UIManager.Instance.ShowGameOver(false);
+            SetState(GameState.GameOver);
+            return true;
+        }
+        return false;
     }
 }
