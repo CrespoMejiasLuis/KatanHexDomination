@@ -515,6 +515,10 @@ public class SimpleClickTester : MonoBehaviour
             Debug.Log("No hay unidad por mejorar");
             return;
         }
+        else
+        {
+            unidadSeleccionada = unitToUpgrade;
+        }
 
         if (unidadSeleccionada == null)
         {
@@ -627,9 +631,5 @@ public class SimpleClickTester : MonoBehaviour
         }
         
     }
-
-
-
-
 
 }

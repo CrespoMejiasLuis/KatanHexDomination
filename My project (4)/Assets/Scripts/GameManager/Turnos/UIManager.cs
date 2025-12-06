@@ -46,12 +46,10 @@ public class UIManager : MonoBehaviour
 
     [Header("Panel de Construcción")]
     public GameObject constructionPanelContainer; // Contenedor del nuevo panel
-    public Button buildRoadButton;
     public Button buildSettlementButton;
     public Button upgradeCityButton;
     public Button recruitArtilleroButton;
     public Button recruitCaballeroButton;
-    public Button recruitCaballeriaButton;
     public Button recruitColonoButton;
 
     [Header("Panel Game Over")]
