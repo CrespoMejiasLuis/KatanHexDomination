@@ -140,7 +140,7 @@ public class PlayerIA : Player
         // --- B. COLONOS (Constructores) ---
         if (unit.statsBase.nombreUnidad == TypeUnit.Colono)
         {
-            if (generalBrain.CurrentOrder == TacticalAction.EarlyExpansion)
+            if (generalBrain.CurrentOrder == TacticalAction.EarlyExpansion || generalBrain.CurrentOrder == TacticalAction.Development)
             {
                 // 1. Encontrar el mejor lugar (Datos para la acción)
                 Vector2Int? bestSpot = aiAnalysis.GetBestPositionForExpansion(unit, this);

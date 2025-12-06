@@ -682,6 +682,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   statsBase: {fileID: 11400000, guid: 74fa39c520d0c1d45b4dec0ff0137646, type: 2}
   ownerID: 0
+  startWithZeroMovement: 0
   vidaActual: 0
   movimientosRestantes: 0
   misCoordenadasActuales: {x: 0, y: 0}
@@ -747,12 +748,10 @@ MonoBehaviour:
   rangeInTiles: 1
   requiresInRange: 1
   preConditionsConfig:
-  - key: TieneRecursosParaPoblado
-    value: 1
-  - key: EstaEnPoblado
+  - key: TieneRecursosParaCiudad
     value: 1
   afterEffectsConfig:
-  - key: Mejorado_A_Ciudad
+  - key: Mejorar_A_Ciudad
     value: 1
   running: 0
 --- !u!114 &8054782917757999271

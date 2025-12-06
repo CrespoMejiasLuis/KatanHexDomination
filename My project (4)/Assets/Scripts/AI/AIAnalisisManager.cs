@@ -11,6 +11,7 @@ public class AIAnalysisManager : MonoBehaviour
     [Header("Configuración de IA")]
     public int convolutionSteps = 2;
     public float decayFactor = 0.5f;
+    public float strategicSecureMultiplier = 5.0f; // Valor alto para forzar la decisión
 
     [Header("Configuración de Expansión")]
     public int minDistanceBetweenCities = 2; // Distancia mínima en casillas (Regla Catan)
@@ -256,42 +257,35 @@ public class AIAnalysisManager : MonoBehaviour
         float bestScore = -9999f;
         Vector2Int bestCoords = Vector2Int.zero;
         bool found = false;
-
-        // Cacheamos la posición del colono para no pedirla en cada iteración
         Vector2Int unitPos = builderUnit.misCoordenadasActuales;
 
-        for (int x = 0; x < width; x++) // width y height deben estar definidos en tu clase
+        // 🔑 PASO NUEVO: Chequeo Estratégico Previo
+        // ¿Tenemos asegurado el futuro? (¿Tenemos Piedra?)
+        bool hasStoneSource = HasResourceSource(aiPlayer.playerID, ResourceType.Roca);
+
+        for (int x = 0; x < width; x++)
         {
             for (int y = 0; y < height; y++)
             {
                 CellData cell = BoardManager.Instance.gridData[x, y];
                 if (cell == null) continue;
 
-                // --- 1. FILTRO DE LEGALIDAD (Opción 1) ---
-                if (!IsBuildLocationValid(cell, aiPlayer.playerID))
-                {
-                    continue; // Si no es válida, pasamos a la siguiente inmediatamente
-                }
+                // 1. Filtro de Legalidad (Tu función existente)
+                if (!IsBuildLocationValid(cell, aiPlayer.playerID)) continue;
 
-                // --- 2. VALOR BASE Y AMENAZA ---
-                // Usamos el resourceMap (que ya tiene convolución de vecinos) como base de riqueza
+                // 2. Datos base
                 float baseValue = resourceMap[x, y];
                 float threat = threatMap[x, y];
+                if (threat > 20f) continue;
 
-                // Si la amenaza es muy alta, ignoramos (a menos que seas muy agresivo)
-                if (threat > 20f) continue; 
+                // 3. UTILIDAD DINÁMICA (Modificada para recibir el dato de la piedra)
+                // Le pasamos 'hasStoneSource' para que sepa si debe priorizar la roca
+                float dynamicValue = CalculateDynamicUtility(cell, baseValue, aiPlayer, hasStoneSource);
 
-                // --- 3. UTILIDAD DINÁMICA (Opción 4) ---
-                // Ajustamos el valor según lo que la IA necesite
-                float dynamicValue = CalculateDynamicUtility(cell, baseValue, aiPlayer);
-
-                // --- 4. PENALIZACIÓN POR DISTANCIA (Opción 2) ---
-                // Calculamos distancia axial
+                // 4. Penalización por distancia
                 int dist = BoardManager.Instance.Distance(unitPos, cell.coordinates);
                 float distPenalty = dist * distancePenalty;
 
-                // --- PUNTUACIÓN FINAL ---
-                // Score = ValorDinámico - Amenaza - CosteDeViaje
                 float finalScore = dynamicValue - (threat * 2.0f) - distPenalty;
 
                 if (finalScore > bestScore)
@@ -373,32 +367,51 @@ public class AIAnalysisManager : MonoBehaviour
     }
 
     // --- HELPER 2: UTILIDAD DINÁMICA ---
-    private float CalculateDynamicUtility(CellData cell, float baseMapScore, Player player)
+    // 🔑 Añadimos el parámetro 'hasStoneSource'
+    private float CalculateDynamicUtility(CellData cell, float baseMapScore, Player player, bool hasStoneSource)
     {
-        // Empezamos con el valor del mapa (que ya tiene en cuenta la riqueza de la zona)
         float score = baseMapScore;
-
-        // Miramos qué recurso específico ofrece esta casilla central
         ResourceType res = cell.resource;
 
         if (res != ResourceType.Desierto)
         {
-            // Verificamos cuánto tiene el jugador de ese recurso
-            int currentStock = 0;
-            // Usamos un try-catch o ContainsKey por seguridad si tu diccionario no tiene todos los keys
-            if (player.HasResourceKey(res)) // Necesitarás un método público para checkear o acceder al diccionario
+            // --- LÓGICA DE FUTURO (PIEDRA) ---
+            // Si el recurso es ROCA y NO tenemos ninguna fuente de roca...
+            if (res == ResourceType.Roca && !hasStoneSource)
             {
-                currentStock = player.GetResourceAmount(res); // Método ficticio, usa tu acceso al diccionario
+                // ¡PRIORIDAD MÁXIMA!
+                // Multiplicamos x5 (strategicSecureMultiplier). 
+                // Esto hará que una casilla de Roca lejana valga más que una de Madera cercana.
+                return score * strategicSecureMultiplier; 
             }
 
-            // FÓRMULA DE ESCASEZ:
-            // Si tengo 0, el multiplicador es alto (ej. 3.0).
-            // Si tengo 10, el multiplicador es bajo (casi 1.0).
-            float scarcityFactor = 1.0f + (SCARCITY_MULTIPLIER / (currentStock + 1));
+            // --- LÓGICA DE NECESIDAD ACTUAL (Tu lógica anterior) ---
+            int currentStock = 0;
+            if (player.HasResourceKey(res)) 
+            {
+                currentStock = player.GetResourceAmount(res); 
+            }
 
+            // Escasez normal (para madera, trigo, etc.)
+            float scarcityFactor = 1.0f + (3.0f / (currentStock + 1));
             score *= scarcityFactor;
         }
 
         return score;
+    }
+
+    // Comprueba si el jugador ya es dueño de al menos una casilla de este recurso
+    private bool HasResourceSource(int playerID, ResourceType typeToCheck)
+    {
+        CellData[,] grid = BoardManager.Instance.gridData;
+        
+        foreach (CellData cell in grid)
+        {
+            if (cell != null && cell.owner == playerID && cell.resource == typeToCheck)
+            {
+                return true; // Ya tenemos una fuente de esto
+            }
+        }
+        return false; // No tenemos ninguna fuente
     }
 }

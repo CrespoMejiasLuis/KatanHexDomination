@@ -164,6 +164,22 @@ public class GoapAgent : MonoBehaviour
         {
             // Chequear si el jugador tiene suficientes recursos para construir UN poblado
             // (1 Madera, 1 Oveja, 1 Trigo, 1 Arcilla)
+            var ciudadCost = new Dictionary<ResourceType, int>
+            {
+                { ResourceType.Roca, 3 }, 
+                { ResourceType.Trigo, 2 }
+            };
+
+            bool canAffordCiudad = playerAgent.CanAfford(ciudadCost);
+
+            // Si el jugador tiene recursos, el planificador lo sabe (TieneRecursosParaPoblado = 1)
+            worldState.Add("TieneRecursosParaCiudad", canAffordCiudad ? 1 : 0);
+        }
+
+        if (playerAgent != null)
+        {
+            // Chequear si el jugador tiene suficientes recursos para construir UN poblado
+            // (1 Madera, 1 Oveja, 1 Trigo, 1 Arcilla)
             var colonoCost = new Dictionary<ResourceType, int>
             {
                 { ResourceType.Oveja, 1 },

@@ -42,7 +42,12 @@ public class UnitBuilder : MonoBehaviour
         //Necesitamos el componente Unit del prefab
         Unit pobladoUnitPrefab = pobladoPrefab.GetComponent<Unit>();
         bool recursosNecesarios = unitCerebro.RecursosNecesarios(pobladoUnitPrefab);
-        if (!recursosNecesarios) return;
+
+        if (!recursosNecesarios)
+        {
+            Debug.Log("No tiene recursos necesarios para poblado");
+            return;
+        } 
 
         //Gastar recursos
         Player jugador = (unitCerebro.ownerID == 1) ? GameManager.Instance.IAPlayer : GameManager.Instance.humanPlayer;
