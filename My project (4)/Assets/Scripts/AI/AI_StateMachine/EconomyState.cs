@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 public class EconomyState : AIState
 {
@@ -6,45 +7,90 @@ public class EconomyState : AIState
 
     public override void OnEnter()
     {
-        Debug.Log("🕊️ Entrando en Estado: ECONOMÍA");
+        // Al entrar en Economía, empezamos expandiéndonos
         context.CurrentOrder = TacticalAction.EarlyExpansion;
     }
 
-    public override void Execute(float threatLevel)
+    public override void Execute(float totalThreat)
     {
-        // 1. ANÁLISIS DE SEGURIDAD (Reactivo)
-        // Si la amenaza es demasiado alta, nos defendemos obligatoriamente.
-        if (threatLevel > context.warThreshold)
+        // 1. CHEQUEO DE SEGURIDAD GLOBAL (Prioridad Máxima)
+        if (totalThreat > context.warThreshold)
         {
-            Debug.Log("❗ IA: Amenaza detectada. Entrando en Guerra Defensiva.");
-            context.ChangeState(new WarState(context));
-            return; 
-        }
-
-        // 2. ANÁLISIS DE OPORTUNIDAD (Proactivo) - ¡NUEVO!
-        // Calculamos nuestra fuerza
-        float myPower = context.CalculateMyMilitaryPower();
-        
-
-        if (myPower > threatLevel * context.opportunismFactor && myPower > 10f) // >10 para no atacar con 1 soldado
-        {
-            Debug.Log("😈 IA: Soy superior. Iniciando Guerra Ofensiva.");
             context.ChangeState(new WarState(context));
             return;
         }
 
-        // 3. LOGICA ECONÓMICA (Si no hay guerra)
-        /*Vector2Int? bestSpot = context.aiAnalysis.GetBestPositionForExpansion();
-
-        if (bestSpot.HasValue)
+        // 2. MÁQUINA DE SUB-ESTADOS (Dependiendo del CurrentOrder)
+        switch (context.CurrentOrder)
         {
+            // --- FASE 1: EXPANSIÓN ---
+            case TacticalAction.EarlyExpansion:
+                ExecuteExpansionLogic();
+                break;
+
+            // --- FASE 2: DESARROLLO ---
+            case TacticalAction.Development:
+                ExecuteDevelopmentLogic();
+                break;
+        }
+    }
+
+    // --- LÓGICA FASE 1: Expandirse hasta llegar a 5 ---
+    private void ExecuteExpansionLogic()
+    {
+        int currentExpansionCount = CountExpansionUnits();
+
+        // Condición de transición interna
+        if (currentExpansionCount >= 5)
+        {
+            Debug.Log($"🧠 ECONOMY: Límite alcanzado ({currentExpansionCount}). Cambiando orden a DEVELOPMENT.");
+            
+            // CAMBIO DE SUB-ESTADO
+            context.CurrentOrder = TacticalAction.Development; 
+            
+            // Opcional: Llamar a ExecuteDevelopmentLogic() aquí si quieres que empiece en este mismo frame
+            return;
+        }
+
+        // Si no hemos llegado al límite, la IA sigue buscando sitios (PlayerIA leerá 'EarlyExpansion' y actuará)
+        // No necesitas llamar a nada aquí si PlayerIA ya reacciona al enum 'EarlyExpansion'.
+    }
+
+    // --- LÓGICA FASE 2: Mejorar Ciudades / Tecnologías ---
+    private void ExecuteDevelopmentLogic()
+    {
+        // Aquí ya no buscamos expandirnos. 
+        // Simplemente mantenemos el orden 'Development'.
+        // El script 'PlayerIA.cs' leerá este orden y asignará objetivos de "UpgradeCiudad" o "Recruit".
+        
+        // Opcional: Podrías chequear si perdiste unidades y necesitas volver a expandirte
+        /*
+        if (CountExpansionUnits() < 3) {
             context.CurrentOrder = TacticalAction.EarlyExpansion;
         }
-        else
-        {
-            context.CurrentOrder = TacticalAction.Development;
-        }*/
+        */
     }
 
     public override void OnExit() { }
+
+    // --- HELPER (Igual que antes) ---
+    private int CountExpansionUnits()
+    {
+        PlayerIA myPlayer = context.myPlayer;
+        Debug.Log(myPlayer == null);
+        if (myPlayer == null || myPlayer.ArmyManager == null) return 0;
+
+        int count = 0;
+        foreach (Unit u in myPlayer.ArmyManager.GetAllUnits())
+        {
+            if (u == null) continue;
+            if (u.statsBase.nombreUnidad == TypeUnit.Colono || 
+                u.statsBase.nombreUnidad == TypeUnit.Poblado || 
+                u.statsBase.nombreUnidad == TypeUnit.Ciudad)
+            {
+                count++;
+            }
+        }
+        return count;
+    }
 }

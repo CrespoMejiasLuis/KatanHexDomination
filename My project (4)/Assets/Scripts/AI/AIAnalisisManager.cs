@@ -308,32 +308,68 @@ public class AIAnalysisManager : MonoBehaviour
     }
 
     // --- HELPER 1: VALIDACIÓN DE REGLAS ---
+    // --- AIAnalysisManager.cs (Helper Method) ---
+
     private bool IsBuildLocationValid(CellData cell, int playerID)
     {
-        // A. Debe estar vacía de unidades
+        // ---------------------------------------------------------
+        // 1. REGLA DE PROPIEDAD (Solución al problema de territorio propio)
+        // ---------------------------------------------------------
+        
+        // Antes permitías 'cell.owner == playerID'. 
+        // AHORA: Solo permitimos casillas NEUTRALES (-1).
+        // Si la casilla tiene CUALQUIER dueño (sea yo o el enemigo), no se puede fundar.
+        if (cell.owner != -1) 
+        {
+            return false; 
+        }
+
+        // A. Debe estar vacía de unidades físicas
         if (cell.unitOnCell != null) return false;
 
-        // B. No puede haber ciudad ni poblado ya construido
+        // B. No puede haber ciudad ni poblado ya construido (Lógica redundante con owner != -1 pero segura)
         if (cell.typeUnitOnCell == TypeUnit.Poblado || cell.typeUnitOnCell == TypeUnit.Ciudad) 
             return false;
 
-        // C. DISTANCIA MÍNIMA A OTROS ASENTAMIENTOS (Regla Clave)
-        // Buscamos en un radio alrededor de la casilla candidata
-        List<CellData> neighbors = BoardManager.Instance.GetCellsInRange(cell.coordinates, minDistanceBetweenCities);
+        // ---------------------------------------------------------
+        // 2. REGLA DEL MAR / BORDE DEL MAPA (Solución al problema del mar)
+        // ---------------------------------------------------------
         
-        foreach (var neighbor in neighbors)
+        // Iteramos los 6 vecinos inmediatos para ver si la casilla es "Costera" o "Borde"
+        foreach (Vector2Int dir in GameManager.axialNeighborDirections)
         {
-            if (neighbor.typeUnitOnCell == TypeUnit.Poblado || neighbor.typeUnitOnCell == TypeUnit.Ciudad)
+            Vector2Int neighborCoords = cell.coordinates + dir;
+            CellData neighbor = BoardManager.Instance.GetCell(neighborCoords);
+
+            // CONDICIÓN DE MAR:
+            // Si el vecino es NULL, significa que estamos al borde del grid (Vacío/Mar).
+            // Si no quieres ciudades costeras, retornamos false aquí.
+            if (neighbor == null) 
             {
-                return false; // Hay un edificio demasiado cerca
+                return false; 
+            }
+
+            // Opcional: Si tienes un ResourceType.Agua explícito:
+            // if (neighbor.resource == ResourceType.Agua) return false;
+        }
+
+        // ---------------------------------------------------------
+        // 3. REGLA DE DISTANCIA A OTRAS CIUDADES (Regla Catan)
+        // ---------------------------------------------------------
+        
+        // Buscamos en un radio alrededor de la casilla candidata (ej. radio 2)
+        List<CellData> neighborsInRange = BoardManager.Instance.GetCellsInRange(cell.coordinates, minDistanceBetweenCities);
+        
+        foreach (var n in neighborsInRange)
+        {
+            // Si encontramos CUALQUIER asentamiento (propio o enemigo) cerca...
+            if (n.typeUnitOnCell == TypeUnit.Poblado || n.typeUnitOnCell == TypeUnit.Ciudad)
+            {
+                return false; // Hay un edificio demasiado cerca, zona inválida.
             }
         }
 
-        // D. (Opcional) Regla de Propiedad:
-        // Solo construir en terreno Propio (playerID) o Neutral (-1). No en enemigo.
-        if (cell.owner != -1 && cell.owner != playerID) return false;
-
-        return true;
+        return true; // La casilla cumple todas las reglas estrictas.
     }
 
     // --- HELPER 2: UTILIDAD DINÁMICA ---
