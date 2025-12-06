@@ -556,6 +556,11 @@ public class SimpleClickTester : MonoBehaviour
 
             Dictionary<ResourceType, int> productionCost = ciudadUnitPrefab.statsBase.GetProductCost();
 
+            if(jugador.numPoblados > 1)
+            {
+                productionCost = ciudadUnitPrefab.actualizarCostes(productionCost, jugador);
+            }
+
             bool recursosGastados = jugador.SpendResources(productionCost);
             if (!recursosGastados) return;
 

@@ -10,6 +10,7 @@ public abstract class Player : MonoBehaviour
     public int playerID;
     public string playerName;
     public int victoryPoints;
+    public int numPoblados;
     public PlayerArmyManager ArmyManager { get; private set; }
 
 
@@ -19,10 +20,15 @@ public abstract class Player : MonoBehaviour
     protected virtual void Awake()
     {
         victoryPoints = 0;
+        numPoblados = 0;
         InitializeResourceDictionary();
         ArmyManager = GetComponent<PlayerArmyManager>();
     }
 
+    void Update()
+    {
+        numPoblados = ArmyManager.GetCountOfType(TypeUnit.Poblado) + ArmyManager.GetCountOfType(TypeUnit.Ciudad);
+    }
 
     /// <summary>
     /// Rellena el diccionario con todos los tipos de recursos, empezando en 0.
