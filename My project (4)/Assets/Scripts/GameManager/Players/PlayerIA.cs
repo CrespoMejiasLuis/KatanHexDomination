@@ -112,6 +112,18 @@ public class PlayerIA : Player
                     goal.Add("ColonoProducido", 1);
                     break;
                 
+                case TacticalAction.Development:
+                    if (unit.statsBase.nombreUnidad == TypeUnit.Poblado)
+                    {
+                        goal.Add("Mejorar_A_Ciudad", 1); // <-- Necesitarás una Action_MejorarCiudad con este efecto
+                    }
+                    // Si ya es ciudad, quizás reclutar trabajadores o soldados
+                    else 
+                    {
+                        goal.Add("TropaProducida", 1);
+                    }
+                    break;
+
                 case TacticalAction.Assault:
                     goal.Add("ArqueroProducido", 1);
                     break;
