@@ -47,7 +47,8 @@ public class Ability : MonoBehaviour
 
         // Marcar la casilla como saqueada (impide recursos 1 turno)
         targetCell.isRaided = true; 
-        targetCell.lootedCooldown = 2; // Dura 2 fases (Turno Jugador + Turno IA) para bloquear producción el siguiente turno IA
+        targetCell.lootedCooldown = 2; // Dura 2 fases (Turno Jugador + Turno IA) para bloquear producción
+        targetCell.UpdateVisual();
 
         // Dar un recurso al jugador correcto (el dueño de la unidad que saquea)
         Player jugador = GameManager.Instance.GetPlayer(unitData.ownerID);
