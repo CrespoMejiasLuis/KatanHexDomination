@@ -77,6 +77,12 @@ public class PlayerArmyManager : MonoBehaviour
         return playerUnits.Where(unit => unit.statsBase.nombreUnidad == type).ToList();
     }
 
+    public int GetCountOfType(TypeUnit type)
+    {
+        // Usamos LINQ para contar cuántas cumplen la condición
+        return playerUnits.Count(unit => unit.statsBase.nombreUnidad == type);
+    }
+
     /// <summary>
     /// Encuentra si este jugador tiene una unidad en una coordenada espec�fica.
     /// </summary>

@@ -218,4 +218,23 @@ public class Unit : MonoBehaviour
         return activePlayer.CanAfford(productionCost);
     }
 
+    public Dictionary<ResourceType, int> actualizarCostes(Dictionary<ResourceType, int> baseCost, Player jugador)
+    {
+        Dictionary<ResourceType, int> finalCost = new Dictionary<ResourceType, int>();
+
+        foreach(var resourcePair in baseCost)
+        {
+            ResourceType type = resourcePair.Key;
+            int originalAmount = resourcePair.Value;
+            
+            int adjustedAmount = originalAmount + jugador.numPoblados; 
+            
+            // Guardar en el nuevo diccionario
+            finalCost.Add(type, adjustedAmount);
+            
+            // Debug opcional para ver el cambio
+            // Debug.Log($"Recurso {type}: Base {originalAmount} -> Final {adjustedAmount}");
+        }
+        return finalCost;
+    }
 }
