@@ -35,19 +35,16 @@ public class MoverAction : GoapAction
             return false;
         }
 
-        Vector2Int currentCoord = unitAgent.misCoordenadasActuales;
-        Vector2Int finalCoord = goapAgent.targetDestination;
+        Vector2Int start = unitAgent.misCoordenadasActuales;
+        Vector2Int goal = goapAgent.targetDestination;
 
         // 1. Si ya estamos en el destino final, esta acción no es necesaria.
-        if (currentCoord == finalCoord)
+        if (start == goal)
         {
             return false;
         }
 
         //llamamos a A* para comprobar si existe ruta
-        Vector2Int start = unitAgent.misCoordenadasActuales;
-        Vector2Int goal = goapAgent.targetDestination;
-
         // Obtener el mapa de amenaza (asumiendo que está en GameManager o AIAnalysisManager)
         float[,] threatMap = GameManager.Instance.aiAnalysis.threatMap; 
 
