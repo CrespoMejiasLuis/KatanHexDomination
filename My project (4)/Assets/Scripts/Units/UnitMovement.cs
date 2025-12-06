@@ -113,40 +113,29 @@ public class UnitMovement : MonoBehaviour
         CellData oldCell = BoardManager.Instance.GetCell(unitCerebro.misCoordenadasActuales);
         if (oldCell != null)
         {
-            // --- FIX: Antes de borrar, comprobar si hay OTRA unidad (ej. Poblado/Ciudad) ---
-            Collider[] colliders = Physics.OverlapSphere(transform.position, 0.5f);
-            Unit otherUnit = null;
-            foreach(var c in colliders)
+                if (oldCell.typeUnitOnCell == TypeUnit.Poblado || oldCell.typeUnitOnCell == TypeUnit.Ciudad)
             {
-                Unit u = c.GetComponentInParent<Unit>();
-                
-                // Check if unit is moving via its movement component
-                bool unitIsMoving = false;
-                if(u != null)
-                {
-                     UnitMovement um = u.GetComponent<UnitMovement>();
-                     if(um != null) unitIsMoving = um.isMoving;
-                }
-
-                if(u != null && u != unitCerebro && !unitIsMoving)
-                {
-                    // Asumimos que si hay otro, es el poblado/ciudad
-                    otherUnit = u; 
-                    break;
-                }
-            }
-
-            if(otherUnit != null)
-            {
-                // Restauramos el poblado
-                oldCell.unitOnCell = otherUnit;
-                oldCell.typeUnitOnCell = otherUnit.statsBase.nombreUnidad;
+               // Estamos dejando una ciudad. Necesitamos restaurar la referencia a la unidad ciudad.
+               Unit cityUnit = FindCityUnitAt(oldCell.coordinates);
+               if(cityUnit != null)
+               {
+                   oldCell.unitOnCell = cityUnit;
+                   // typeUnitOnCell ya es correcto (Poblado/Ciudad)
+               }
+               else
+               {
+                   // Fallback por si acaso
+                    oldCell.unitOnCell = null;
+                   // NO cambiamos el typeUnitOnCell si creemos que es ciudad, o sí? 
+                   // Si fallamos en encontrar la unidad, quizás deberíamos dejarlo como estaba o poner None.
+                   // Asumiremos que si el tipo dice City, ES City.
+               }
             }
             else
             {
-                // Si no hay nadie más, entonces sí limpiamos
-                oldCell.unitOnCell = null;
-                oldCell.typeUnitOnCell = TypeUnit.None;
+                 // Check if there was another unit (like a garrison swap?) - For now simple logic
+                 oldCell.unitOnCell = null;
+                 oldCell.typeUnitOnCell = TypeUnit.None;
             }
         }
 
@@ -154,7 +143,10 @@ public class UnitMovement : MonoBehaviour
         if (cellLogica != null)
         {
             cellLogica.unitOnCell = unitCerebro;
-            cellLogica.typeUnitOnCell = unitCerebro.statsBase.nombreUnidad;
+            if(cellLogica.typeUnitOnCell != TypeUnit.Poblado && cellLogica.typeUnitOnCell != TypeUnit.Ciudad)
+            {
+                cellLogica.typeUnitOnCell = unitCerebro.statsBase.nombreUnidad;
+            }
         }
         // -----------------------------------------------------------
 
@@ -286,4 +278,21 @@ public class UnitMovement : MonoBehaviour
         }
     }
 
+    private Unit FindCityUnitAt(Vector2Int coords)
+    {
+        // Enfoque robusto: Buscar todas las unidades y encontrar la que esté en coords y sea Poblado/Ciudad
+        Unit[] allUnits = FindObjectsByType<Unit>(FindObjectsSortMode.None);
+        foreach(Unit u in allUnits)
+        {
+            if(u.misCoordenadasActuales == coords && u != unitCerebro)
+            {
+                // Es otra unidad en la misma casilla. Verificamos si es estructura.
+                if(u.statsBase != null && (u.statsBase.nombreUnidad == TypeUnit.Poblado || u.statsBase.nombreUnidad == TypeUnit.Ciudad))
+                {
+                    return u;
+                }
+            }
+        }
+        return null;
+    }
 }

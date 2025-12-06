@@ -226,18 +226,13 @@ public class GameManager : MonoBehaviour
             if (cell != null && cell.owner == ownerIDToCheck && (cell.typeUnitOnCell == TypeUnit.Poblado || cell.typeUnitOnCell == TypeUnit.Ciudad))
             {
                 int yieldAmount = 0;
-                Unit unitOnCell = cell.unitOnCell;
-
-                if(unitOnCell !=null && unitOnCell.statsBase !=null)
+                if (cell.typeUnitOnCell == TypeUnit.Ciudad)
                 {
-                    if(unitOnCell.statsBase.nombreUnidad == TypeUnit.Ciudad)
-                    {
-                        yieldAmount = 2;
-                    }
-                    else if(unitOnCell.statsBase.nombreUnidad == TypeUnit.Poblado)
-                    {
-                        yieldAmount = 1;
-                    }
+                    yieldAmount = 2;
+                }
+                else if (cell.typeUnitOnCell == TypeUnit.Poblado)
+                {
+                    yieldAmount = 1;
                 }
                 Debug.Log($"Ciudad encontrada en {cell.coordinates} para Jugador {playerID}. Comprobando vecinos.");
                 
