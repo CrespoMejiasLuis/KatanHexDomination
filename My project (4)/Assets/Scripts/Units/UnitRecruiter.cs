@@ -87,7 +87,11 @@ public class UnitRecruiter : MonoBehaviour
             
             // --- FIX: Asegurar que la Celda Lógica sepa que ahora hay una unidad ---
             ciudadCell.unitOnCell = nuevoArtillero;
-            ciudadCell.typeUnitOnCell = nuevoArtillero.statsBase.nombreUnidad;
+            // Solo cambiamos el TIPO si NO es ciudad/poblado
+            if (ciudadCell.typeUnitOnCell != TypeUnit.Ciudad && ciudadCell.typeUnitOnCell != TypeUnit.Poblado)
+            {
+               ciudadCell.typeUnitOnCell = nuevoArtillero.statsBase.nombreUnidad;
+            }
         }
         jugador.ArmyManager.RegisterUnit(nuevoArtillero);
     }
@@ -154,7 +158,12 @@ public class UnitRecruiter : MonoBehaviour
             
              // --- FIX: Asegurar que la Celda Lógica sepa que ahora hay una unidad ---
             ciudadCell.unitOnCell = nuevoCaballero;
-            ciudadCell.typeUnitOnCell = nuevoCaballero.statsBase.nombreUnidad;
+            
+             // Solo cambiamos el TIPO si NO es ciudad/poblado
+            if (ciudadCell.typeUnitOnCell != TypeUnit.Ciudad && ciudadCell.typeUnitOnCell != TypeUnit.Poblado)
+            {
+                ciudadCell.typeUnitOnCell = nuevoCaballero.statsBase.nombreUnidad;
+            }
         }
 
         jugador.ArmyManager.RegisterUnit(nuevoCaballero);
@@ -222,7 +231,12 @@ public class UnitRecruiter : MonoBehaviour
 
              // --- FIX: Asegurar que la Celda Lógica sepa que ahora hay una unidad ---
             ciudadCell.unitOnCell = nuevoColono;
-            ciudadCell.typeUnitOnCell = nuevoColono.statsBase.nombreUnidad;
+
+            // Solo cambiamos el TIPO si NO es ciudad/poblado
+            if (ciudadCell.typeUnitOnCell != TypeUnit.Ciudad && ciudadCell.typeUnitOnCell != TypeUnit.Poblado)
+            {
+                ciudadCell.typeUnitOnCell = nuevoColono.statsBase.nombreUnidad;
+            }
         }
 
         jugador.ArmyManager.RegisterUnit(nuevoColono);
