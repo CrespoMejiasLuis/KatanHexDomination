@@ -247,6 +247,7 @@ GameObject:
   - component: {fileID: 613702663106389577}
   - component: {fileID: 8979351200923722869}
   - component: {fileID: 4962982929075283420}
+  - component: {fileID: 6832367176890218241}
   m_Layer: 9
   m_Name: Knight Warrior
   m_TagString: Player
@@ -334,6 +335,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   statsBase: {fileID: 11400000, guid: a04019a47a0fa67448ec0f39d6f1306e, type: 2}
   ownerID: 0
+  startWithZeroMovement: 0
   vidaActual: 0
   movimientosRestantes: 0
   misCoordenadasActuales: {x: 0, y: 0}
@@ -347,9 +349,9 @@ Animator:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7491848878131134450}
   m_Enabled: 1
-  m_Avatar: {fileID: 9000000, guid: 6113d0ea44252774db53fa756483807d, type: 3}
-  m_Controller: {fileID: 9100000, guid: 1bd48d36d3280cc4f966198224c78b9c, type: 2}
-  m_CullingMode: 0
+  m_Avatar: {fileID: 9000000, guid: 417a287abb2cab94889f1f1ddd91f928, type: 3}
+  m_Controller: {fileID: 9100000, guid: 73478c453abaf8f4781e778d08f76190, type: 2}
+  m_CullingMode: 1
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
   m_LinearVelocityBlending: 0
@@ -387,6 +389,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 463fcf1b92c37a349b6062352a665459, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  hitSound: {fileID: 8300000, guid: e975e42215ed3454eaab5fe1b573abb6, type: 3}
 --- !u!114 &613702663106389577
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -439,6 +442,103 @@ MonoBehaviour:
   - key: ObjetivoDerrotado
     value: 1
   running: 0
+--- !u!82 &6832367176890218241
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7491848878131134450}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: 0}
+  m_audioClip: {fileID: 8300000, guid: e975e42215ed3454eaab5fe1b573abb6, type: 3}
+  m_Resource: {fileID: 8300000, guid: e975e42215ed3454eaab5fe1b573abb6, type: 3}
+  m_PlayOnAwake: 0
+  m_Volume: 1
+  m_Pitch: 1
+  Loop: 0
+  Mute: 0
+  Spatialize: 0
+  SpatializePostEffects: 0
+  Priority: 128
+  DopplerLevel: 1
+  MinDistance: 1
+  MaxDistance: 500
+  Pan2D: 0
+  rolloffMode: 0
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!1 &8143801363787596157
 GameObject:
   m_ObjectHideFlags: 0
@@ -601,7 +701,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 9122619001184092469}
-  - component: {fileID: 9122619001176354483}
   m_Layer: 9
   m_Name: Knight
   m_TagString: Untagged
@@ -628,28 +727,6 @@ Transform:
   - {fileID: 9122619001184092473}
   m_Father: {fileID: 7491848878131356626}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!95 &9122619001176354483
-Animator:
-  serializedVersion: 7
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 9122619001183739093}
-  m_Enabled: 1
-  m_Avatar: {fileID: 9000000, guid: 417a287abb2cab94889f1f1ddd91f928, type: 3}
-  m_Controller: {fileID: 9100000, guid: 5fbed9cae3571aa4f8273283e531893a, type: 2}
-  m_CullingMode: 1
-  m_UpdateMode: 0
-  m_ApplyRootMotion: 1
-  m_LinearVelocityBlending: 0
-  m_StabilizeFeet: 0
-  m_AnimatePhysics: 0
-  m_WarningMessage: 
-  m_HasTransformHierarchy: 1
-  m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorStateOnDisable: 0
-  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &9122619001183739095
 GameObject:
   m_ObjectHideFlags: 0
