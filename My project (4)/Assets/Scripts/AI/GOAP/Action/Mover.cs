@@ -34,40 +34,62 @@ public class MoverAction : GoapAction
             path.Clear();
         }
 
-        if (goapAgent == null || BoardManager.Instance == null || unitAgent == null || unitAgent.movimientosRestantes <= 0)
+        // === LOG 1: Validaciones Básicas ===
+        if (goapAgent == null)
         {
+            Debug.LogWarning($"❌ MoverAction [{unitAgent?.name}]: GoapAgent es null");
+            return false;
+        }
+
+        if (BoardManager.Instance == null)
+        {
+            Debug.LogWarning($"❌ MoverAction [{unitAgent?.name}]: BoardManager.Instance es null");
+            return false;
+        }
+
+        if (unitAgent == null)
+        {
+            Debug.LogWarning($"❌ MoverAction: unitAgent es null");
+            return false;
+        }
+
+        if (unitAgent.movimientosRestantes <= 0)
+        {
+            Debug.LogWarning($"❌ MoverAction [{unitAgent.name}]: Sin movimientos restantes (tiene {unitAgent.movimientosRestantes})");
             return false;
         }
 
         Vector2Int start = unitAgent.misCoordenadasActuales;
         Vector2Int goal = goapAgent.targetDestination;
 
-        // 1. Si ya estamos en el destino final, esta acción no es necesaria.
+        // === LOG 2: Validación de Destino ===
         if (start == goal)
         {
+            Debug.Log($"✅ MoverAction [{unitAgent.name}]: Ya está en destino {goal}. Acción no necesaria.");
             return false;
         }
 
-        //llamamos a A* para comprobar si existe ruta
-        // Obtener el mapa de amenaza (asumiendo que está en GameManager o AIAnalysisManager)
+        Debug.Log($"🔍 MoverAction [{unitAgent.name}]: Buscando camino desde {start} hasta {goal}");
+
+        // === LOG 3: Pathfinding ===
         float[,] threatMap = GameManager.Instance.aiAnalysis.threatMap; 
 
-        if (Pathfinding.Instance != null)
+        if (Pathfinding.Instance == null)
         {
-            path = Pathfinding.Instance.FindSmartPath(start, goal, threatMap);
-            Debug.Log("Numero de camino:" + path.Count);
-            if(path == null || path.Count == 0) return false;
-
-
-            if(path.Count <= 0)
-            {
-                return false;
-            }
-
-            return true;
+            Debug.LogWarning($"❌ MoverAction [{unitAgent.name}]: Pathfinding.Instance es null");
+            return false;
         }
 
-        return false;
+        path = Pathfinding.Instance.FindSmartPath(start, goal, threatMap);
+
+        if(path == null || path.Count == 0)
+        {
+            Debug.LogWarning($"❌ MoverAction [{unitAgent.name}]: NO se encontró camino de {start} a {goal}");
+            return false;
+        }
+
+        Debug.Log($"✅ MoverAction [{unitAgent.name}]: Camino encontrado con {path.Count} pasos. Destino: {goal}");
+        return true;
     }
 
     public override bool Perform(GameObject agent)

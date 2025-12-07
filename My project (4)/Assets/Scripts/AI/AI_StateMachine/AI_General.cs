@@ -6,11 +6,21 @@ public class AI_General : MonoBehaviour
     public AIAnalysisManager aiAnalysis;
     public PlayerIA myPlayer;
     [Header("Configuración de Umbrales")]
-    [Tooltip("Amenaza necesaria para entrar en guerra (> 50)")]
-    public float warThreshold = 50f;
     
-    [Tooltip("Amenaza baja necesaria para volver a paz (< 40)")]
-    public float peaceThreshold = 40f;
+    // 🔧 FIX ALTO #6: Umbrales de ENTRADA (triggering)
+    [Tooltip("Amenaza necesaria para entrar en guerra (ciudad enemiga + tropas)")]
+    public float warThreshold = 500f;
+    
+    [Tooltip("Amenaza moderada para empezar militarización (2-3 unidades enemigas)")]
+    public float militarizationThreshold = 250f;  // 🔧 Reducido de 300 a 250
+    
+    // 🔧 FIX ALTO #6: Umbrales de SALIDA (con histéresis)
+    [Tooltip("Amenaza baja para salir de guerra y volver a economía")]
+    public float exitWarThreshold = 150f;  // Más bajo que militarizationThreshold
+    
+    [Tooltip("Amenaza muy baja para salir de militarización")]
+    public float exitMilitarizationThreshold = 80f;  // Muy bajo para confirmar paz
+    
     public float opportunismFactor = 1.5f;
     private AIState currentStrategicState;
 

@@ -39,7 +39,8 @@ public class PlayerIA : Player
         // 2. Decision Estrategica Global (FSM)
         if (generalBrain != null) generalBrain.DecideStrategy();
         
-        yield return new WaitForSeconds(3f); // pausa para "pensar"
+        // 🔧 FIX ALTO #7: Eliminar pausa innecesaria - CurrentOrder debe estar actualizado inmediatamente
+        // yield return new WaitForSeconds(3f); // ❌ REMOVIDO
 
         // 3. Asignacion de Objetivos GOAP a las Unidades
         AssignGoapGoals();
@@ -59,7 +60,8 @@ public class PlayerIA : Player
             yield return null;
         }
 
-        yield return new WaitForSeconds(3f); // pausa para "pensar"
+        // 🔧 FIX ALTO #7: Reducir pausa visual final de 3s a 1s
+        yield return new WaitForSeconds(1f); // Pausa visual breve
 
         // 5. FIN
         Debug.Log("🔴 IA: Fin de turno. Pasando al jugador.");
@@ -120,6 +122,18 @@ public class PlayerIA : Player
                     }
                     break;
 
+                case TacticalAction.BuildArmy:
+                    // Durante militarización, producir unidades militares
+                    if (unit.statsBase.nombreUnidad == TypeUnit.Ciudad)
+                    {
+                        goal.Add("CaballeroProducido", 1);  // Ciudades → Caballeros
+                    }
+                    else // Poblados
+                    {
+                        goal.Add("ArqueroProducido", 1);  // Poblados → Arqueros (más baratos)
+                    }
+                    break;
+
                 case TacticalAction.Assault:
                     goal.Add("ArqueroProducido", 1);
                     break;
@@ -127,6 +141,8 @@ public class PlayerIA : Player
                 case TacticalAction.ActiveDefense:
                     goal.Add("CaballeroProducido", 1);
                     break;
+
+                
             }
             
             
@@ -136,7 +152,10 @@ public class PlayerIA : Player
         // --- B. COLONOS (Constructores) ---
         if (unit.statsBase.nombreUnidad == TypeUnit.Colono)
         {
-            if (generalBrain.CurrentOrder == TacticalAction.EarlyExpansion || generalBrain.CurrentOrder == TacticalAction.Development)
+            // En militarización TAMBIÉN queremos expandirnos si es posible (economía de guerra)
+            if (generalBrain.CurrentOrder == TacticalAction.EarlyExpansion || 
+                generalBrain.CurrentOrder == TacticalAction.Development ||
+                generalBrain.CurrentOrder == TacticalAction.BuildArmy)
             {
                 // 1. Encontrar el mejor lugar (Datos para la acción)
                 Vector2Int? bestSpot = aiAnalysis.GetBestPositionForExpansion(unit, this);
@@ -166,57 +185,26 @@ public class PlayerIA : Player
             GoapAgent combatAgent = unit.GetComponent<GoapAgent>();
             if (combatAgent == null) return goal;
 
-            // Decidir comportamiento según el estado estratégico (FSM)
             switch(generalBrain.CurrentOrder)
             {
+                case TacticalAction.BuildArmy:
+                    // Durante militarización, posicionarse cerca de nuestras ciudades
+                    // Por ahora, simplemente usar un objetivo de combate genérico
+                    goal.Add("EstaEnRango", 1); // "EstaEnRango" es el efecto de MoverAction
+                    Debug.Log($"🛡️ {unit.name} asignado a preparación militar (Posición)");
+                    break;
+
                 case TacticalAction.ActiveDefense:
-                    // Defender zonas amenazadas
-                    Vector2Int? defensePos = aiAnalysis.GetBestDefensePosition(this.playerID, unit.misCoordenadasActuales);
-                    if (defensePos.HasValue)
-                    {
-                        combatAgent.targetDestination = defensePos.Value;
-                        goal.Add("IsAtCombatPosition", 1);
-                        Debug.Log($"🛡️ {unit.name} asignado a DEFENDER en {defensePos.Value}");
-                    }
-                    else
-                    {
-                        // Si no hay amenazas, patrullar
-                        Vector2Int? patrolPos = aiAnalysis.GetPatrolPosition(this.playerID, unit.misCoordenadasActuales);
-                        if (patrolPos.HasValue)
-                        {
-                            combatAgent.targetDestination = patrolPos.Value;
-                            goal.Add("IsAtCombatPosition", 1);
-                        }
-                    }
-                    break;
-
                 case TacticalAction.Assault:
-                    // Atacar al enemigo más valioso
-                    Unit target = aiAnalysis.GetBestAttackTarget(this.playerID, unit.misCoordenadasActuales);
-                    if (target != null)
-                    {
-                        combatAgent.targetEnemy = target;
-                        combatAgent.targetDestination = target.misCoordenadasActuales;
-                        goal.Add("IsAtCombatPosition", 1);
-                        Debug.Log($"⚔️ {unit.name} asignado a ATACAR {target.name} en {target.misCoordenadasActuales}");
-                    }
-                    break;
-
-                case TacticalAction.EarlyExpansion:
-                case TacticalAction.Development:
-                    // En paz, solo patrullar fronteras
-                    Vector2Int? patrolPosition = aiAnalysis.GetPatrolPosition(this.playerID, unit.misCoordenadasActuales);
-                    if (patrolPosition.HasValue)
-                    {
-                        combatAgent.targetDestination = patrolPosition.Value;
-                        goal.Add("IsAtCombatPosition", 1);
-                        Debug.Log($"👁️ {unit.name} asignado a PATRULLAR en {patrolPosition.Value}");
-                    }
+                    // Lógica existente para defensa/ataque activo
+                    goal.Add("Seguro", 1);
                     break;
             }
+            
+            return goal;
         }
 
-        return goal; // Objetivo vacio si no hay nada que hacer
+        return goal; // Return goal si no coincide con ningún tipo
     }
 
     //compruba si alguan unidad de mi ejercito hace cosas

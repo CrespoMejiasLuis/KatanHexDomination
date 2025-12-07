@@ -7,7 +7,8 @@
 public enum TacticalAction
 { 
     EarlyExpansion, 
-    Development,    
+    Development,
+    BuildArmy,      // NUEVO: Construcción preventiva de ejército
     ActiveDefense,  
     Assault        
 }

@@ -36,13 +36,18 @@ public class CrearUnidad_Action : GoapAction
                 cost = 12.0f;
                 if (!Effects.ContainsKey("ArqueroProducido"))
                     Effects.Add("ArqueroProducido", 1);
-                // Los artilleros usan los mismos recursos que otros (configurar según tu juego)
+                // 🔧 FIX CRÍTICO #3: Añadir precondición de recursos
+                if (!Preconditions.ContainsKey("TieneRecursosParaArquero"))
+                    Preconditions.Add("TieneRecursosParaArquero", 1);
                 break;
 
             case TypeUnit.Caballero:
                 cost = 12.0f;
                 if (!Effects.ContainsKey("CaballeroProducido"))
                     Effects.Add("CaballeroProducido", 1);
+                // 🔧 FIX CRÍTICO #3: Añadir precondición de recursos
+                if (!Preconditions.ContainsKey("TieneRecursosParaCaballero"))
+                    Preconditions.Add("TieneRecursosParaCaballero", 1);
                 break;
 
             default:
@@ -83,18 +88,13 @@ public class CrearUnidad_Action : GoapAction
             return false; // No hay recursos, la acción no es válida ahora
         }
 
-        CellData cell = BoardManager.Instance.GetCell(unitAgent.misCoordenadasActuales);
-
-        if (cell.unitOnCell != null)
+        // 4. Validar Espacio (Usando la misma lógica que el Recruiter)
+        Vector2Int spawnPos = UnitRecruiter.GetValidSpawnPosition(unitAgent.misCoordenadasActuales, unitAgent);
+        
+        // Si devuelve el valor de error, no hay sitio
+        if (spawnPos.x == -999) 
         {
-            // 4. ¿Es un Edificio o una Tropa?
-            // Si quieres detectar SOLO tropas/colonos y ignorar ciudades:
-            TypeUnit tipo = cell.unitOnCell.statsBase.nombreUnidad;
-            
-            if (tipo != TypeUnit.Poblado && tipo != TypeUnit.Ciudad)
-            {
-                return false;
-            }
+            return false;
         }
 
         return true;

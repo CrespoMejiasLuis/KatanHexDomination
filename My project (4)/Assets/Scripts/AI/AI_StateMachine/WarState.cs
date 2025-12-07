@@ -20,9 +20,10 @@ public class WarState : AIState
         }
 
         // 2. CHEQUEO DE PAZ (Victoria o Retirada enemiga)
-        if (threatLevel < context.peaceThreshold)
+        // 🔧 FIX ALTO #6: Usar umbral de salida para histéresis
+        if (threatLevel < context.exitWarThreshold)
         {
-            Debug.Log("🏳️ IA: Amenaza baja. Volviendo a Economía.");
+            Debug.Log($"🏳️ WAR: Amenaza baja ({threatLevel:F0} < {context.exitWarThreshold}). Volviendo a Economía.");
             context.ChangeState(new EconomyState(context));
             return;
         }
