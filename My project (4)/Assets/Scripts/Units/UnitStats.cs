@@ -25,6 +25,11 @@ public class UnitStats : ScriptableObject // <- Fíjate que hereda de Scriptable
     public int costeArcilla;
     public int costeOveja;
 
+    [Header("Audio")]
+    public AudioClip attackSound;
+    public float attackSoundDelay = 0.5f;
+    public AudioClip buildSound;
+
     public Dictionary<ResourceType, int> GetProductCost()
     {
         Dictionary <ResourceType, int> costs = new Dictionary<ResourceType, int>();

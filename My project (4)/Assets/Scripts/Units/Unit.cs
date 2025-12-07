@@ -142,29 +142,46 @@ public class Unit : MonoBehaviour
         CellData currentCell = BoardManager.Instance.GetCell(misCoordenadasActuales);
         if(currentCell != null && currentCell.unitOnCell == this)
         {
-             // Chequear si hay OTRO (poblado) físicamente ahí
-            Collider[] colliders = Physics.OverlapSphere(transform.position, 0.5f);
-            Unit otherUnit = null;
-             foreach(var c in colliders)
-            {
-                Unit u = c.GetComponentInParent<Unit>();
-                if(u != null && u != this)
-                {
-                    otherUnit = u;
-                    break;
-                }
-            }
+             // Chequear si hay OTRA unidad (ej: poblado) lógicamente ahí
+             Unit otherUnit = null;
 
-            if(otherUnit != null)
-            {
-                currentCell.unitOnCell = otherUnit;
-                currentCell.typeUnitOnCell = otherUnit.statsBase.nombreUnidad;
-            }
-            else
-            {
-                currentCell.unitOnCell = null;
-                currentCell.typeUnitOnCell = TypeUnit.None;
-            }
+             // 1. Buscar en el jugador humano
+             if(GameManager.Instance != null && GameManager.Instance.humanPlayer != null)
+             {
+                 foreach(Unit u in GameManager.Instance.humanPlayer.ArmyManager.GetAllUnits())
+                 {
+                     if(u != null && u != this && u.misCoordenadasActuales == misCoordenadasActuales)
+                     {
+                         otherUnit = u;
+                         break;
+                     }
+                 }
+             }
+
+             // 2. Buscar en la IA (si no hemos encontrado nada aún)
+             if(otherUnit == null && GameManager.Instance != null && GameManager.Instance.IAPlayer != null)
+             {
+                 foreach(Unit u in GameManager.Instance.IAPlayer.ArmyManager.GetAllUnits())
+                 {
+                     if(u != null && u != this && u.misCoordenadasActuales == misCoordenadasActuales)
+                     {
+                         otherUnit = u;
+                         break;
+                     }
+                 }
+             }
+ 
+             if(otherUnit != null)
+             {
+                 currentCell.unitOnCell = otherUnit;
+                 currentCell.typeUnitOnCell = otherUnit.statsBase.nombreUnidad;
+                 Debug.Log($"[Fix] Casilla {misCoordenadasActuales} restaurada a: {otherUnit.name}");
+             }
+             else
+             {
+                 currentCell.unitOnCell = null;
+                 currentCell.typeUnitOnCell = TypeUnit.None;
+             }
         }
 
         GameManager.OnPlayerTurnStart -= OnTurnStart;
@@ -200,7 +217,7 @@ public class Unit : MonoBehaviour
     public bool RecursosNecesarios(Unit unitPrefabToRecruit)
     {
         //1.Obtener referenccia al jugador
-        Player activePlayer = GameManager.Instance.humanPlayer;
+        Player activePlayer = GameManager.Instance.GetPlayer(unitPrefabToRecruit.ownerID);
 
         if (activePlayer == null) return false;
 
@@ -215,7 +232,31 @@ public class Unit : MonoBehaviour
 
         Dictionary<ResourceType, int> productionCost = stats.GetProductCost();
 
+        if(activePlayer.numPoblados > 1)
+        {
+            productionCost = actualizarCostes(productionCost, activePlayer);
+        }
+
         return activePlayer.CanAfford(productionCost);
     }
 
+    public Dictionary<ResourceType, int> actualizarCostes(Dictionary<ResourceType, int> baseCost, Player jugador)
+    {
+        Dictionary<ResourceType, int> finalCost = new Dictionary<ResourceType, int>();
+
+        foreach(var resourcePair in baseCost)
+        {
+            ResourceType type = resourcePair.Key;
+            int originalAmount = resourcePair.Value;
+            
+            int adjustedAmount = originalAmount + jugador.numPoblados; 
+            
+            // Guardar en el nuevo diccionario
+            finalCost.Add(type, adjustedAmount);
+            
+            // Debug opcional para ver el cambio
+            // Debug.Log($"Recurso {type}: Base {originalAmount} -> Final {adjustedAmount}");
+        }
+        return finalCost;
+    }
 }

@@ -33,8 +33,22 @@ public class Ability : MonoBehaviour
             return;
         }
 
+        if (targetCell.owner == -1)
+        {
+            Debug.Log("No puedes saquear territorio neutral.");
+            return;
+        }
+
+        if (targetCell.isRaided)
+        {
+            Debug.Log("Esta casilla ya ha sido saqueada recientemente.");
+            return;
+        }
+
         // Marcar la casilla como saqueada (impide recursos 1 turno)
-        targetCell.isRaided = true; // Necesitas agregar este bool en CellData
+        targetCell.isRaided = true; 
+        targetCell.lootedCooldown = 2; // Dura 2 fases (Turno Jugador + Turno IA) para bloquear producción
+        targetCell.UpdateVisual();
 
         // Dar un recurso al jugador correcto (el dueño de la unidad que saquea)
         Player jugador = GameManager.Instance.GetPlayer(unitData.ownerID);
@@ -44,7 +58,16 @@ public class Ability : MonoBehaviour
             return;
         }
         
-        jugador.AddResource(targetCell.resource, 1);
+        // Solo dar recurso si NO es desierto
+        if (targetCell.resource != ResourceType.Desierto)
+        {
+            jugador.AddResource(targetCell.resource, 1);
+            Debug.Log($"Saqueaste la casilla {targetCell.coordinates} y ganaste 1 {targetCell.resource}");
+        }
+        else
+        {
+            Debug.Log($"Saqueaste la casilla {targetCell.coordinates} pero es Desierto (0 recursos).");
+        }
 
         // Gastar un punto de movimiento
         unitData.GastarPuntoDeMovimiento(targetCell.cost);

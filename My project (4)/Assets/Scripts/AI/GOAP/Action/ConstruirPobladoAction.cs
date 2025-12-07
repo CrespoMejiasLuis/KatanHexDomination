@@ -4,7 +4,7 @@ using System.Collections.Generic;
 public class ConstruirPobladoAction : GoapAction
 {
     // Definimos el coste estándar (esto debe coincidir con lo que comprueba UnitBuilder)
-    private readonly Dictionary<ResourceType, int> CostoConstruccion = new Dictionary<ResourceType, int>
+    private Dictionary<ResourceType, int> CostoConstruccion = new Dictionary<ResourceType, int>
     {
         { ResourceType.Madera, 1 },
         { ResourceType.Oveja, 1 },
@@ -49,11 +49,18 @@ public class ConstruirPobladoAction : GoapAction
             int ownerID = unitAgent.ownerID;
             if (GameManager.Instance != null)
             {
-                playerAgent = (ownerID == 1) ? GameManager.Instance.IAPlayer : GameManager.Instance.humanPlayer;
+                playerAgent = GameManager.Instance.IAPlayer;
             }
         }
 
         if (playerAgent == null || goapAgent == null || BoardManager.Instance == null) return false;
+
+        Unit unit = GetComponent<Unit>();
+
+        if(playerAgent.numPoblados > 1)
+        {
+            CostoConstruccion = unit.actualizarCostes(CostoConstruccion, playerAgent);
+        }
 
         // 2. Chequear Recursos Económicos
         if (!playerAgent.CanAfford(CostoConstruccion))

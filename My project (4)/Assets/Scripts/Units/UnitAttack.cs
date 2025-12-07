@@ -1,13 +1,18 @@
 using UnityEngine;
+using System.Collections;
 [RequireComponent(typeof(Animator))]
 public class UnitAttack : MonoBehaviour
 {
     private Unit unitData;
-
+    private Animator animator;
+    private AudioSource audioSource;
+    public AudioClip hitSound;
 
     void Awake()
     {
         unitData = GetComponent<Unit>();
+        animator = GetComponent<Animator>();
+        audioSource = GetComponent<AudioSource>();
     }
 
     public bool PuedeAtacar(Unit objetivo)
@@ -32,10 +37,33 @@ public class UnitAttack : MonoBehaviour
             return;
         }
 
+        // --- ANIMACIÓN ---
+        if (animator != null)
+        {
+            animator.SetTrigger("attack");
+        }
+
         int dano = unitData.statsBase.ataque;
+        if (audioSource != null && hitSound != null)
+        {
+           StartCoroutine(PlayAttackSoundWithDelay());
+        }
         objetivo.RecibirDano(dano);
         unitData.movimientosRestantes = 0;
 
-        Debug.Log($"{unitData.statsBase.nombreUnidad} atac� a {objetivo.statsBase.nombreUnidad} e hizo {dano} de da�o");
+        Debug.Log($"{unitData.statsBase.nombreUnidad} atacó a {objetivo.statsBase.nombreUnidad} e hizo {dano} de daño");
+    }
+
+
+    private IEnumerator PlayAttackSoundWithDelay()
+    {
+        if(unitData.statsBase != null)
+        {
+            yield return new WaitForSeconds(unitData.statsBase.attackSoundDelay);
+            if(audioSource!=null && hitSound!=null)
+            {
+                audioSource.PlayOneShot(hitSound);
+            }
+        }
     }
 }

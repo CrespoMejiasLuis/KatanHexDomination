@@ -344,4 +344,23 @@ public class GameManager : MonoBehaviour
         }
         return false;
     }
+    public void OnPlayerEliminated(Player eliminatedPlayer)
+    {
+        if (CurrentState == GameState.GameOver) return;
+
+        Debug.Log($"☠️ JUGADOR ELIMINADO: {eliminatedPlayer.playerName}");
+
+        if (eliminatedPlayer == humanPlayer)
+        {
+            Debug.Log("¡DERROTA! Te has quedado sin unidades.");
+            if (UIManager.Instance != null) UIManager.Instance.ShowGameOver(false); // False = Perdiste
+        }
+        else if (eliminatedPlayer == IAPlayer)
+        {
+            Debug.Log("¡VICTORIA! La IA se ha quedado sin unidades.");
+            if (UIManager.Instance != null) UIManager.Instance.ShowGameOver(true); // True = Ganaste
+        }
+
+        SetState(GameState.GameOver);
+    }
 }

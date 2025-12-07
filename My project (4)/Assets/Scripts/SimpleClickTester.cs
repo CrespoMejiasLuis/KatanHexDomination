@@ -12,6 +12,7 @@ public class SimpleClickTester : MonoBehaviour
 
     [Header("Visuales Seleccion")]
     public Color selectionColor = Color.green;
+    public Color attackRangeColor = Color.yellow;
 
     [Header("Configuracion de Capas")]
     public LayerMask unitLayerMask;
@@ -208,6 +209,14 @@ public class SimpleClickTester : MonoBehaviour
                 if (targetCell != null && targetCell.unitOnCell != null)
                 {
                     if (targetCell.unitOnCell.ownerID != unidadSeleccionada.ownerID)
+                    {
+                        IntentarAtacar(targetCell.unitOnCell);
+                        return;
+                    }
+                }
+                if (targetCell != null && (targetCell.typeUnitOnCell == TypeUnit.Poblado|| targetCell.typeUnitOnCell == TypeUnit.Ciudad))
+                {
+                    if (targetCell.owner  != unidadSeleccionada.ownerID)
                     {
                         IntentarAtacar(targetCell.unitOnCell);
                         return;
@@ -412,6 +421,8 @@ public class SimpleClickTester : MonoBehaviour
         if (unitActionMenu != null)
             unitActionMenu.SetActive(false);
 
+        HighlightAttackRange(unidadSeleccionada);
+
         Debug.Log("Modo atacar activado. Selecciona un objetivo enemigo.");
     }
 
@@ -447,6 +458,8 @@ public class SimpleClickTester : MonoBehaviour
         attack.Atacar(objetivo);
 
         currentMode = PlayerInputMode.Selection;
+        // Restaurar visuales normal (o deseleccionar si se acaban los puntos)
+        if(unidadSeleccionada != null) HighlightAdjacents(unidadSeleccionada);
     }
 
     public void BotonCrearArtilleroPulsado()
@@ -556,6 +569,11 @@ public class SimpleClickTester : MonoBehaviour
 
             Dictionary<ResourceType, int> productionCost = ciudadUnitPrefab.statsBase.GetProductCost();
 
+            if(jugador.numPoblados > 1)
+            {
+                productionCost = ciudadUnitPrefab.actualizarCostes(productionCost, jugador);
+            }
+
             bool recursosGastados = jugador.SpendResources(productionCost);
             if (!recursosGastados) return;
 
@@ -577,7 +595,12 @@ public class SimpleClickTester : MonoBehaviour
             if (ciudad != null)
             {
                 ciudad.ownerID = unitCerebro.ownerID;
-                //jugador.ArmyManager.RegisterUnit(ciudad);
+                jugador.ArmyManager.RegisterUnit(ciudad);
+
+                if (ciudad.statsBase != null && ciudad.statsBase.buildSound != null)
+                {
+                    AudioSource.PlayClipAtPoint(ciudad.statsBase.buildSound, Camera.main.transform.position);
+                }
             }
 
             ciudad.misCoordenadasActuales = cellDondeEstamos.coordinates;
@@ -630,6 +653,30 @@ public class SimpleClickTester : MonoBehaviour
             cellActual.visualTile.EnableFullBorder(selectionColor);
         }
         
+    }
+
+    
+
+    private void HighlightAttackRange(Unit unit)
+    {
+        BoardManager.Instance.HideAllBorders();
+        
+        if (unit == null || BoardManager.Instance == null || BoardManager.Instance.gridData == null) return;
+
+        int range = unit.statsBase.rangoAtaque;
+        Vector2Int unitCoords = unit.misCoordenadasActuales;
+
+        foreach (CellData cell in BoardManager.Instance.gridData)
+        {
+            if (cell != null && cell.visualTile != null)
+            {
+                int dist = BoardManager.Instance.Distance(unitCoords, cell.coordinates);
+                if (dist <= range && dist > 0) // dist > 0 para no resaltar la propia unidad si no se quiere
+                {
+                    cell.visualTile.EnableFullBorder(attackRangeColor);
+                }
+            }
+        }
     }
 
 }

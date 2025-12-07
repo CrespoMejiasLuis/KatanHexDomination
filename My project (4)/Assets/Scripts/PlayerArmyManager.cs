@@ -56,6 +56,16 @@ public class PlayerArmyManager : MonoBehaviour
         playerUnits.Remove(deadUnit);
 
         Debug.Log($"[{owner.playerName}] ha perdido a: {deadUnit.statsBase.nombreUnidad}. Unidades restantes: {playerUnits.Count}");
+
+        // --- CHECK DE DERROTA POR ANIQUILACIÓN ---
+        if (playerUnits.Count == 0 && GameManager.Instance != null)
+        {
+             // Solo si la partida está en curso (no durante setup, etc)
+             if(GameManager.Instance.CurrentState == GameState.PlayerTurn || GameManager.Instance.CurrentState == GameState.AITurn)
+             {
+                 GameManager.Instance.OnPlayerEliminated(owner);
+             }
+        }
     }
 
     // --- FUNCIONES DE ACCESO (La "Librer�a") ---
@@ -75,6 +85,12 @@ public class PlayerArmyManager : MonoBehaviour
     public List<Unit> GetUnitsByType(TypeUnit type)
     {
         return playerUnits.Where(unit => unit.statsBase.nombreUnidad == type).ToList();
+    }
+
+    public int GetCountOfType(TypeUnit type)
+    {
+        // Usamos LINQ para contar cuántas cumplen la condición
+        return playerUnits.Count(unit => unit.statsBase.nombreUnidad == type);
     }
 
     /// <summary>

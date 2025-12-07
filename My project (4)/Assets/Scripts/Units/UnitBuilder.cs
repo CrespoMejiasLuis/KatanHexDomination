@@ -53,6 +53,11 @@ public class UnitBuilder : MonoBehaviour
         Player jugador = (unitCerebro.ownerID == 1) ? GameManager.Instance.IAPlayer : GameManager.Instance.humanPlayer;
         Dictionary<ResourceType, int> productionCost = pobladoUnitPrefab.statsBase.GetProductCost();
 
+        if(jugador.numPoblados > 1)
+        {
+            productionCost = pobladoUnitPrefab.actualizarCostes(productionCost, jugador);
+        }
+
         bool recursosGastados = jugador.SpendResources(productionCost);
         if(!recursosGastados) return; 
 
@@ -88,6 +93,11 @@ public class UnitBuilder : MonoBehaviour
             pobladoUnit.ownerID = unitCerebro.ownerID;
             jugador.ArmyManager.RegisterUnit(pobladoUnit);
             //jugador.ArmyManager.RegisterUnit(pobladoUnit);
+
+            if (pobladoUnit.statsBase.buildSound != null)
+            {
+                AudioSource.PlayClipAtPoint(pobladoUnit.statsBase.buildSound, Camera.main.transform.position);
+            }
         }
 
         // 5. ACTUALIZAR EL BOARDMANAGER 
@@ -129,8 +139,6 @@ public class UnitBuilder : MonoBehaviour
             {
                 cell.owner = newOwnerID;
                 cell.UpdateVisual();
-
-                //actualizar visualmente
             }
         }
     }
