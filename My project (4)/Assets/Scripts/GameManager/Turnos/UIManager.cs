@@ -146,6 +146,9 @@ public class UIManager : MonoBehaviour
 
         if (sheepAmountText != null && resources.ContainsKey(ResourceType.Oveja))
             sheepAmountText.text = resources[ResourceType.Oveja].ToString();
+
+        // Actualizar los costes en los botones cuando cambian los recursos
+        UpdateAllCosts();
     }
 
     public void UpdateVictoryPointsText(int playerID, int points)
@@ -157,6 +160,134 @@ public class UIManager : MonoBehaviour
             victoryPointsText.text = points.ToString() + " / 10 PV";
         }
     }
+
+    /// <summary>
+    /// Actualiza los textos de coste en los botones del panel de construcción
+    /// basándose en el número actual de poblados del jugador
+    /// </summary>
+    [Header("Ajustes Visuales 'Acciones'")]
+    [Tooltip("Posición X de la segunda columna (ej: 80)")]
+    public float costXSpacing = 40f;
+    [Tooltip("Desplazamiento vertical de cada línea (ej: 10 para líneas normales, 0 para la última)")]
+    public float costYOffset = 10f;
+
+    /// <summary>
+    /// Actualiza el texto centralizado de "Acciones" con los costes de todas las unidades/edificios
+    /// </summary>
+    public void UpdateAllCosts()
+    {
+        if (GameManager.Instance == null || GameManager.Instance.humanPlayer == null) return;
+        if (constructionPanelContainer == null) return;
+
+        Transform accionesTransform = constructionPanelContainer.transform.Find("Acciones");
+        if (accionesTransform == null)
+        {
+             foreach(Transform child in constructionPanelContainer.transform)
+             {
+                 if(child.name == "Acciones")
+                 {
+                     accionesTransform = child;
+                     break;
+                 }
+             }
+        }
+
+        if (accionesTransform == null) return;
+
+        TextMeshProUGUI accionesText = accionesTransform.GetComponent<TextMeshProUGUI>();
+        if (accionesText == null) accionesText = accionesTransform.GetComponentInChildren<TextMeshProUGUI>();
+
+        if (accionesText == null) return;
+
+        Player humanPlayer = GameManager.Instance.humanPlayer;
+        System.Text.StringBuilder sb = new System.Text.StringBuilder();
+
+        // Helper local para formatear con alineación precisa usando tags de TMP
+        // overrideY: permite sobreescribir el offset vertical por defecto
+        string GetFormattedRow(Unit prefab, Player player, ResourceType r1, ResourceType r2, float? overrideY = null)
+        {
+            if (prefab == null || prefab.statsBase == null) return "-";
+            
+            Dictionary<ResourceType, int> baseCost = prefab.statsBase.GetProductCost();
+            Dictionary<ResourceType, int> finalCost = baseCost;
+            
+            if (player.numPoblados > 1) 
+            {
+                finalCost = prefab.actualizarCostes(baseCost, player);
+            }
+
+            int val1 = finalCost.ContainsKey(r1) ? finalCost[r1] : 0;
+            int val2 = finalCost.ContainsKey(r2) ? finalCost[r2] : 0;
+
+            float yVal = overrideY.HasValue ? overrideY.Value : 10f;
+
+            // <voffset> desplaza verticalmente la línea
+            // <pos> fija la posición horizontal absoluta de la segunda columna
+            return $"<voffset={yVal}>{val1}x<pos=40>{val2}x</voffset>";
+        }
+
+        // --- 1. Ciudad (Roca, Trigo) ---
+        SimpleClickTester clickTester = FindFirstObjectByType<SimpleClickTester>();
+        Unit ciudadPrefab = (clickTester != null && clickTester.ciudadPrefab != null) ? clickTester.ciudadPrefab.GetComponent<Unit>() : null;
+        // Asumo Roca y Trigo basado en la imagen (Gris -> Roca, Amarillo -> Trigo)
+        sb.AppendLine(GetFormattedRow(ciudadPrefab, humanPlayer, ResourceType.Roca, ResourceType.Trigo));
+
+        // --- Recolectar Prefabs de Reclutamiento ---
+        UnitRecruiter[] recruiters = FindObjectsByType<UnitRecruiter>(FindObjectsSortMode.None);
+        UnitRecruiter recruiter = (recruiters.Length > 0) ? recruiters[0] : null;
+
+        // --- 2. Artillero (Oveja, Trigo) ---
+        Unit artilleroPrefab = (recruiter != null && recruiter.artilleroPrefab != null) ? recruiter.artilleroPrefab.GetComponent<Unit>() : null;
+        // Asumo Oveja y Trigo (Blanco/Piel -> Oveja, Amarillo -> Trigo)
+        sb.AppendLine(GetFormattedRow(artilleroPrefab, humanPlayer, ResourceType.Oveja, ResourceType.Trigo));
+
+        // --- 3. Caballero (Oveja, Trigo) ---
+        Unit caballeroPrefab = (recruiter != null && recruiter.caballeroPrefab != null) ? recruiter.caballeroPrefab.GetComponent<Unit>() : null;
+        sb.AppendLine(GetFormattedRow(caballeroPrefab, humanPlayer, ResourceType.Oveja, ResourceType.Trigo));
+
+        // --- 4. Colono (Oveja, Trigo) ---
+        Unit colonoPrefab = (recruiter != null && recruiter.colonoPrefab != null) ? recruiter.colonoPrefab.GetComponent<Unit>() : null;
+        sb.Append(GetFormattedRow(colonoPrefab, humanPlayer, ResourceType.Oveja, ResourceType.Trigo, 0f)); // Sin nueva línea al final
+
+        accionesText.text = sb.ToString();
+        // Debug.Log($"[UI] Text Updated:\n{accionesText.text}");
+    }
+
+    /// <summary>
+    /// Convierte un diccionario de costes en una cadena legible para la UI
+    /// </summary>
+    private string GetCostString(Dictionary<ResourceType, int> costs)
+    {
+        if (costs == null || costs.Count == 0) return "";
+
+        System.Text.StringBuilder sb = new System.Text.StringBuilder();
+        
+        foreach (var costPair in costs)
+        {
+            string icon = GetResourceIcon(costPair.Key);
+            sb.Append($"{icon}{costPair.Value} ");
+        }
+
+        return sb.ToString().TrimEnd();
+    }
+
+    /// <summary>
+    /// Obtiene el icono/emoji para cada tipo de recurso
+    /// </summary>
+    private string GetResourceIcon(ResourceType type)
+    {
+        switch (type)
+        {
+            case ResourceType.Madera: return "🪵";
+            case ResourceType.Roca: return "🪨";
+            case ResourceType.Trigo: return "🌾";
+            case ResourceType.Arcilla: return "🏺";
+            case ResourceType.Oveja: return "🐑";
+            default: return "?";
+        }
+    }
+
+
 
     // --- Controladores de Eventos de Turno ---
     private void ShowPlayerUI()
@@ -245,7 +376,10 @@ public class UIManager : MonoBehaviour
             {
                 actionSpecialButton.gameObject.SetActive(true);
                 accionSaquear.gameObject.SetActive(false);
-                actionSpecialButtonText.text = "Construir";
+                if (actionSpecialButtonText != null)
+                {
+                    actionSpecialButtonText.text = "Construir";
+                }
                 actionSpecialButton.interactable = true; // El UnitBuilder comprobará los recursos
 
                 // Conectamos el botón al SimpleClickTester

@@ -20,6 +20,10 @@ public class AttackAction : GoapAction
         cost = 5.0f; // Coste bajo para priorizar el combate
         rangeInTiles = 1;
         requiresInRange = true;
+        
+        // Efecto para satisfacer objetivos de seguridad (ActiveDefense/Assault)
+        if (!Effects.ContainsKey("Seguro"))
+            Effects.Add("Seguro", 1);
     }
 
     //---------------------------------------------------------

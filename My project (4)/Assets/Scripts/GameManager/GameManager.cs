@@ -48,6 +48,7 @@ public class GameManager : MonoBehaviour
         else
         {
             Instance = this;
+            transform.SetParent(null); // Ensure it's a root object
             DontDestroyOnLoad(gameObject); // Opcional, si persiste entre escenas
         }
 

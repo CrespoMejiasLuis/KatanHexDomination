@@ -103,6 +103,12 @@ public class SettlementUnit : MonoBehaviour
         if(tradeMenu !=null)
         {
             tradeMenu.SetActive(true);
+            
+            // Actualizar los costes cuando se abre el menú
+            if (UIManager.Instance != null)
+            {
+                UIManager.Instance.UpdateAllCosts();
+            }
         }
     }
 }

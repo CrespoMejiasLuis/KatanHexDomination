@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
+using System.Linq;
 
 public class ConstruirPobladoAction : GoapAction
 {
@@ -41,51 +42,85 @@ public class ConstruirPobladoAction : GoapAction
 
     public override bool CheckProceduralPrecondition(GameObject agent)
     {
-        // 1. Encontrar al Jugador (Dueño)
+        // === LOG 1: Validación de Referencias ===
         if (playerAgent == null)
         {
-            // Buscamos la referencia en el GameManager usando el ID de la unidad
-            // Asumiendo: ownerID 1 es IA, 0 es Humano
             int ownerID = unitAgent.ownerID;
             if (GameManager.Instance != null)
             {
                 playerAgent = GameManager.Instance.IAPlayer;
+                Debug.Log($"🔍 ConstruirPoblado [{unitAgent?.name}]: Referencia de playerAgent obtenida (OwnerID: {ownerID})");
+            }
+            else
+            {
+                Debug.LogWarning($"❌ ConstruirPoblado [{unitAgent?.name}]: GameManager.Instance es null");
+                return false;
             }
         }
 
-        if (playerAgent == null || goapAgent == null || BoardManager.Instance == null) return false;
-
-        Unit unit = GetComponent<Unit>();
-
-        if(playerAgent.numPoblados > 1)
+        if (playerAgent == null)
         {
-            CostoConstruccion = unit.actualizarCostes(CostoConstruccion, playerAgent);
-        }
-
-        // 2. Chequear Recursos Económicos
-        if (!playerAgent.CanAfford(CostoConstruccion))
-        {
+            Debug.LogWarning($"❌ ConstruirPoblado [{unitAgent?.name}]: No se pudo obtener playerAgent");
             return false;
         }
 
-        // 3. Validar Destino y Asignar Target Físico
-        // El GoapAgent ya debería tener el 'targetDestination' asignado por PlayerIA
-        CellData cellData = BoardManager.Instance.GetCell(goapAgent.targetDestination);
-
-        if (cellData == null || cellData.visualTile == null)
+        if (goapAgent == null)
         {
-            return false; // Casilla inválida
+            Debug.LogWarning($"❌ ConstruirPoblado [{unitAgent?.name}]: GoapAgent es null");
+            return false;
         }
 
-        // Seguridad: No construir encima de otro edificio
+        if (BoardManager.Instance == null)
+        {
+            Debug.LogWarning($"❌ ConstruirPoblado [{unitAgent?.name}]: BoardManager.Instance es null");
+            return false;
+        }
+
+        Unit unit = GetComponent<Unit>();
+
+        // === LOG 2: Actualización de Costos ===
+        if(playerAgent.numPoblados > 1)
+        {
+            CostoConstruccion = unit.actualizarCostes(CostoConstruccion, playerAgent);
+            Debug.Log($"🔍 ConstruirPoblado [{unitAgent.name}]: Costos actualizados (numPoblados: {playerAgent.numPoblados})");
+        }
+
+        // === LOG 3: Validación de Recursos ===
+        if (!playerAgent.CanAfford(CostoConstruccion))
+        {
+            string costStr = string.Join(", ", CostoConstruccion.Select(kv => $"{kv.Key}:{kv.Value}"));
+            Debug.LogWarning($"❌ ConstruirPoblado [{unitAgent.name}]: Recursos insuficientes. Necesita: {costStr}");
+            return false;
+        }
+
+        Debug.Log($"✅ ConstruirPoblado [{unitAgent.name}]: Recursos disponibles");
+
+        // === LOG 4: Validación de Destino ===
+        CellData cellData = BoardManager.Instance.GetCell(goapAgent.targetDestination);
+
+        if (cellData == null)
+        {
+            Debug.LogWarning($"❌ ConstruirPoblado [{unitAgent.name}]: CellData es null en destino {goapAgent.targetDestination}");
+            return false;
+        }
+
+        if (cellData.visualTile == null)
+        {
+            Debug.LogWarning($"❌ ConstruirPoblado [{unitAgent.name}]: VisualTile es null en destino {goapAgent.targetDestination}");
+            return false;
+        }
+
+        // === LOG 5: Validación de Ocupación ===
         if (cellData.typeUnitOnCell == TypeUnit.Poblado || cellData.typeUnitOnCell == TypeUnit.Ciudad)
         {
+            Debug.LogWarning($"❌ ConstruirPoblado [{unitAgent.name}]: Casilla {goapAgent.targetDestination} ya tiene edificio ({cellData.typeUnitOnCell})");
             return false;
         }
 
         // Asignamos el objeto físico para que GoapAction.IsInRange() funcione
         target = cellData.visualTile.gameObject;
 
+        Debug.Log($"✅ ConstruirPoblado [{unitAgent.name}]: Todas las precondiciones cumplidas. Target asignado: {goapAgent.targetDestination}");
         return true;
     }
 

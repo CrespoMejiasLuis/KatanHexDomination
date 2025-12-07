@@ -16,7 +16,11 @@ public class GoapAgent : MonoBehaviour
     // --- DATOS COMPARTIDOS (Blackboard) ---
     [HideInInspector]
     public Vector2Int targetDestination;
-    private Dictionary<string, int> lastGoal; // <-- NUEVA VARIABLE------------------------------
+    private Dictionary<string, int> lastGoal;
+
+    // 🔧 FIX CRÍTICO #1: Protección contra re-planning infinito
+    private int failedPlanAttempts = 0;
+    private const int MAX_PLAN_ATTEMPTS = 3;
 
     // --- ESTADO DEL MUNDO (Memoria del Agente) ---
     public Dictionary<string, int> worldState = new Dictionary<string, int>();
@@ -58,13 +62,22 @@ public class GoapAgent : MonoBehaviour
             {
                 // El plan falló a mitad de camino. Abortar.
                 Debug.LogWarning($"GOAP: Plan interrumpido. La acción {currentAction.GetType().Name} ya no es válida. Abortando plan.");
+                
+                // 🔧 FIX CRÍTICO #1: Incrementar contador de fallos
+                failedPlanAttempts++;
                 AbortPlan();
-                if (lastGoal != null)
+                
+                // Solo reintentar si no hemos superado el límite
+                if (failedPlanAttempts < MAX_PLAN_ATTEMPTS && lastGoal != null)
                 {
-                    // Debe hacerse en el siguiente frame para evitar problemas de recursividad
-                    // y permitir que el sistema se estabilice, pero llamaremos a SetGoal directamente 
-                    // ya que el AbortPlan puso IsActing en false.
+                    Debug.Log($"⚠️ GOAP: Reintento {failedPlanAttempts}/{MAX_PLAN_ATTEMPTS} - Recalculando plan...");
                     SetGoal(lastGoal);
+                }
+                else
+                {
+                    Debug.LogWarning($"❌ GOAP: {name} falló {failedPlanAttempts} veces. Abandonando objetivo para evitar bucle infinito.");
+                    failedPlanAttempts = 0;
+                    // La unidad queda idle hasta que PlayerIA le asigne nuevo objetivo en el próximo turno
                 }
             }
             return;
@@ -81,15 +94,27 @@ public class GoapAgent : MonoBehaviour
     // Punto de entrada. PlayerIA llama a esto para darle una orden a la unidad.
     public void SetGoal(Dictionary<string, int> goal)
     {
+        // 🔧 FIX CRÍTICO #1: Resetear contador si el objetivo es diferente
+        if (!GoalsAreEqual(lastGoal, goal))
+        {
+            failedPlanAttempts = 0;
+            Debug.Log($"🎯 GOAP: {name} recibe NUEVO objetivo (reseteando intentos fallidos)");
+        }
+        
         lastGoal = new Dictionary<string, int>(goal);
+        
+        Debug.Log($"╔═══════════════════════════════════════════════════╗");
+        Debug.Log($"║ 🎯 GOAP AGENT: {name} recibe nuevo objetivo       ");
+        Debug.Log($"╚═══════════════════════════════════════════════════╝");
+        
         // 1. Construir la vision actual del mundo
         UpdateWorldState();
 
-        string stateLog = "WorldState: ";
+        string stateLog = "🌍 ESTADO DEL MUNDO: ";
         foreach(var kvp in worldState) stateLog += $"[{kvp.Key}:{kvp.Value}] ";
         Debug.Log(stateLog);
 
-        string goalLog = "Goal: ";
+        string goalLog = "🎯 OBJETIVO ASIGNADO: ";
         foreach(var kvp in goal) goalLog += $"[{kvp.Key}:{kvp.Value}] ";
         Debug.Log(goalLog);
 
@@ -102,11 +127,21 @@ public class GoapAgent : MonoBehaviour
             currentAction = null;
             IsActing = true;
 
-            Debug.Log($"GOAP: Plan generado para {name} con {plan.Count} pasos.");
+            Debug.Log($"✅ GOAP AGENT: Plan generado para {name} con {plan.Count} pasos:");
+            int stepNum = 1;
+            foreach(var action in plan)
+            {
+                Debug.Log($"   Paso {stepNum}: {action.GetType().Name}");
+                stepNum++;
+            }
         }
         else
         {
-            Debug.Log($"GOAP: {name} no pudo encontrar un plan para el objetivo {string.Join(", ", goal.Select(kv => $"{kv.Key}={kv.Value}"))}.");
+            Debug.LogWarning($"❌ GOAP AGENT: {name} NO pudo encontrar un plan para el objetivo:");
+            foreach(var kv in goal)
+            {
+                Debug.LogWarning($"   - Requiere: [{kv.Key}] = {kv.Value}");
+            }
             IsActing = false;
         }
     }
@@ -122,6 +157,21 @@ public class GoapAgent : MonoBehaviour
         IsActing = false;
     }
 
+
+    
+    // 🔧 FIX CRÍTICO #1: Función auxiliar para comparar objetivos
+    private bool GoalsAreEqual(Dictionary<string, int> goal1, Dictionary<string, int> goal2)
+    {
+        if (goal1 == null || goal2 == null) return false;
+        if (goal1.Count != goal2.Count) return false;
+        
+        foreach (var kvp in goal1)
+        {
+            if (!goal2.ContainsKey(kvp.Key) || goal2[kvp.Key] != kvp.Value)
+                return false;
+        }
+        return true;
+    }
 
     // Traduce los datos del juego (Unit, Player, Grid) al lenguaje del GOAP (Strings).
     private void UpdateWorldState()
@@ -188,8 +238,7 @@ public class GoapAgent : MonoBehaviour
 
         if (playerAgent != null)
         {
-            // Chequear si el jugador tiene suficientes recursos para construir UN poblado
-            // (1 Madera, 1 Oveja, 1 Trigo, 1 Arcilla)
+            // Recursos para Colono
             var colonoCost = new Dictionary<ResourceType, int>
             {
                 { ResourceType.Oveja, 1 },
@@ -202,17 +251,71 @@ public class GoapAgent : MonoBehaviour
             }
 
             bool canAffordColono = playerAgent.CanAfford(colonoCost);
-
-            // Si el jugador tiene recursos, el planificador lo sabe (TieneRecursosParaPoblado = 1)
             worldState.Add("TieneRecursosParaColono", canAffordColono ? 1 : 0);
+
+            // 🔧 FIX CRÍTICO #3: Recursos para Arquero (Artillero)
+            var arqueroCost = new Dictionary<ResourceType, int>
+            {
+                { ResourceType.Roca, 1 },
+                { ResourceType.Madera, 1 }
+            };
+
+            if(playerAgent.numPoblados > 1)
+            {
+                arqueroCost = unit.actualizarCostes(arqueroCost, playerAgent);
+            }
+
+            bool canAffordArquero = playerAgent.CanAfford(arqueroCost);
+            worldState.Add("TieneRecursosParaArquero", canAffordArquero ? 1 : 0);
+
+            // 🔧 FIX CRÍTICO #3: Recursos para Caballero
+            var caballeroCost = new Dictionary<ResourceType, int>
+            {
+                { ResourceType.Roca, 1 },
+                { ResourceType.Oveja, 1 }
+            };
+
+            if(playerAgent.numPoblados > 1)
+            {
+                caballeroCost = unit.actualizarCostes(caballeroCost, playerAgent);
+            }
+
+            bool canAffordCaballero = playerAgent.CanAfford(caballeroCost);
+            worldState.Add("TieneRecursosParaCaballero", canAffordCaballero ? 1 : 0);
         }
 
-        // --- 3. OTROS ESTADOS (Ej: Estructuras) ---
-        // (Lógica para chequear si la casilla tiene poblado/ciudad)
-        // CellData currentCell = BoardManager.Instance.GetCell(unit.misCoordenadasActuales);
-        // if(currentCell != null)
-        // {
-        //     worldState.Add("TienePoblado", currentCell.hasSettlement ? 1 : 0);
-        // }
+        // --- 3. ESTADO DE SEGURIDAD ---
+        // 🔧 FIX CRÍTICO #2 y #4: Añadir worldState "Seguro" para objetivos de combate
+        bool isSafe = true;
+        
+        // Chequeo 1: Salud baja = NO seguro
+        if (unit != null && unit.statsBase != null)
+        {
+            float healthPercent = unit.vidaActual / (float)unit.statsBase.vidaMaxima;
+            if (healthPercent < 0.4f)
+            {
+                isSafe = false;
+            }
+        }
+
+        // Chequeo 2: Amenazas cercanas = NO seguro
+        if (GameManager.Instance?.aiAnalysis?.threatMap != null && BoardManager.Instance != null)
+        {
+            int gridRadius = BoardManager.Instance.gridRadius;
+            int x = unit.misCoordenadasActuales.x + (gridRadius - 1);
+            int y = unit.misCoordenadasActuales.y + (gridRadius - 1);
+            
+            var threatMap = GameManager.Instance.aiAnalysis.threatMap;
+            if (x >= 0 && y >= 0 && x < threatMap.GetLength(0) && y < threatMap.GetLength(1))
+            {
+                float localThreat = threatMap[x, y];
+                if (localThreat > 30f) // Umbral de peligro
+                {
+                    isSafe = false;
+                }
+            }
+        }
+
+        worldState.Add("Seguro", isSafe ? 1 : 0);
     }
 }

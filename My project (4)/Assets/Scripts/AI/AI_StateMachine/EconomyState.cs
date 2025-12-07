@@ -7,17 +7,60 @@ public class EconomyState : AIState
 
     public override void OnEnter()
     {
-        // Al entrar en Economía, empezamos expandiéndonos
-        context.CurrentOrder = TacticalAction.EarlyExpansion;
+        // 🔧 FIX ALTO #5: No sobrescribir CurrentOrder si ya es apropiado para Economy
+        // Solo resetear si venimos de un estado no-económico (War, Militarization)
+        
+        if (context.CurrentOrder != TacticalAction.EarlyExpansion && 
+            context.CurrentOrder != TacticalAction.Development)
+        {
+            // Decidir sub-estado basándose en situación actual
+            int settlementCount = CountSettlements();
+            int expansionCount = CountExpansionUnits();
+            
+            if (expansionCount >= 5 || settlementCount >= 3)
+            {
+                context.CurrentOrder = TacticalAction.Development;
+                Debug.Log($"🏗️ ECONOMY OnEnter: Entrando en DEVELOPMENT ({expansionCount} unidades expansión, {settlementCount} asentamientos)");
+            }
+            else
+            {
+                context.CurrentOrder = TacticalAction.EarlyExpansion;
+                Debug.Log($"🌱 ECONOMY OnEnter: Entrando en EARLY EXPANSION ({expansionCount} unidades expansión, {settlementCount} asentamientos)");
+            }
+        }
+        else
+        {
+            Debug.Log($"✅ ECONOMY OnEnter: Preservando CurrentOrder existente: {context.CurrentOrder}");
+        }
     }
 
     public override void Execute(float totalThreat)
     {
-        // 1. CHEQUEO DE SEGURIDAD GLOBAL (Prioridad Máxima)
+        // 1. CHEQUEO DE GUERRA (Prioridad Máxima)
         if (totalThreat > context.warThreshold)
         {
+            Debug.Log("⚠️ ECONOMY: Amenaza crítica detectada. Entrando en Guerra.");
             context.ChangeState(new WarState(context));
             return;
+        }
+        
+        // 2. CHEQUEO DE MILITARIZACIÓN (Amenaza moderada)
+        if (totalThreat > context.militarizationThreshold)
+        {
+            // VERIFICAR: Necesitamos al menos 2 asentamientos antes de militarizarnos
+            int settlementCount = CountSettlements();
+            if (settlementCount >= 2)
+            {
+                Debug.Log($"🪖 ECONOMY: Amenaza moderada ({totalThreat:F0}) + {settlementCount} asentamientos. Iniciando militarización.");
+                context.ChangeState(new MilitarizationState(context));
+                return;
+            }
+            else
+            {
+                Debug.Log($"⚠️ ECONOMY: Amenaza {totalThreat:F0} pero solo {settlementCount} asentamiento(s). Continuar expansión primero.");
+                // Seguir en expansión aunque haya amenaza
+                context.CurrentOrder = TacticalAction.EarlyExpansion;
+            }
         }
 
         // 2. MÁQUINA DE SUB-ESTADOS (Dependiendo del CurrentOrder)
@@ -72,6 +115,30 @@ public class EconomyState : AIState
     }
 
     public override void OnExit() { }
+
+    // --- HELPER: Cuenta asentamientos para verificar infraestructura ---
+    private int CountSettlements()
+    {
+        if (context.myPlayer == null || context.myPlayer.ArmyManager == null) 
+            return 0;
+
+        int count = 0;
+        var myUnits = context.myPlayer.ArmyManager.GetAllUnits();
+
+        foreach (var unit in myUnits)
+        {
+            if (unit != null && unit.statsBase != null)
+            {
+                if (unit.statsBase.nombreUnidad == TypeUnit.Poblado || 
+                    unit.statsBase.nombreUnidad == TypeUnit.Ciudad)
+                {
+                    count++;
+                }
+            }
+        }
+
+        return count;
+    }
 
     // --- HELPER (Igual que antes) ---
     private int CountExpansionUnits()

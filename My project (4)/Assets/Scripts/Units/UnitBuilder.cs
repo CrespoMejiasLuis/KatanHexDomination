@@ -110,6 +110,7 @@ public class UnitBuilder : MonoBehaviour
         // UIManager.Instance.UpdateVictoryPointsText(jugador.victoryPoints);
         BoardManager.Instance.UpdateAllBorders();
         
+        Debug.Log($"✅ Poblado construido exitosamente en {cellDondeEstamos.coordinates}");
         // 6. CONSUMIR EL COLONO
         jugador.ArmyManager.DeregisterUnit(unitCerebro);
         Destroy(gameObject);

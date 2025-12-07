@@ -326,11 +326,11 @@ public class AIAnalysisManager : MonoBehaviour
         // 1. REGLA DE PROPIEDAD
         // ---------------------------------------------------------
         
-        // Solo bloquear si la casilla pertenece al ENEMIGO
-        // Permitir casillas neutrales (-1) o que no estén ocupadas
-        if (cell.owner != -1 && cell.owner != playerID)
+        // Solo bloquear si la casilla NO es neutral (-1)
+        // Antes permitiamos 'cell.owner == playerID', pero UnitBuilder lo prohibe.
+        if (cell.owner != -1)
         {
-            return false; // Es territorio enemigo
+            return false; // Es territorio enemigo O propio prohibido para expandir
         }
 
         // A. Debe estar vacía de unidades físicas

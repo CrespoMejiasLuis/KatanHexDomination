@@ -48,19 +48,20 @@ public class UnitRecruiter : MonoBehaviour
 
         if (jugador == null) return;
 
+        // REMOVIDO EL BLOQUEO DIRECTO, USAMOS GetValidSpawnPosition LUEGO
+        /*
         if (ciudadCell.unitOnCell != null && ciudadCell.unitOnCell != unidadCreadora)
         {
             Debug.Log("Poblado ocupado, no se puede crear unidad.");
             return;
         }
+        */
 
         //Check Unit on cell
         Unit unidadEnCasilla = ciudadCell.unitOnCell;
-        if(unidadEnCasilla != null && unidadEnCasilla != unidadCreadora)
-        {
-             Debug.Log("Casilla ocupada");
-             return;
-        }
+        // YA NO BLOQUEAMOS AQUÍ, porque buscamos vecino
+        //if(unidadEnCasilla != null && unidadEnCasilla != unidadCreadora) ...
+
 
         Dictionary<ResourceType, int> coste = artilleroUnitPrefab.statsBase.GetProductCost();
 
@@ -75,27 +76,40 @@ public class UnitRecruiter : MonoBehaviour
             return;
         }
 
+        // --- NUEVO: Buscar posición válida (centro o vecinos) ---
+        Vector2Int spawnCoords = GetValidSpawnPosition(ciudadCoords, unidadCreadora);
+        if (spawnCoords == new Vector2Int(-999, -999))
+        {
+             Debug.Log("⚠️ No hay espacio para instanciar Artillero (ciudad rodeada).");
+             return; // Cancelar si no hay sitio
+        }
+
         bool gasto = jugador.SpendResources(coste);
         if (!gasto) return;
 
-        Debug.Log("Artillero creado con éxito en la celda " + ciudadCoords);
+        //Debug.Log("Artillero creado con éxito en " + spawnCoords);
 
-        Vector3 spawnPos = unidadCreadora.transform.position + Vector3.up * 1.0f;
+        // Instanciar en la posición visual de la celda encontrada
+        CellData spawnCell = BoardManager.Instance.GetCell(spawnCoords);
+        Vector3 spawnPos = spawnCell.visualTile.transform.position + Vector3.up * 0.5f;
+
         GameObject nuevoArtilleroGO = Instantiate(artilleroPrefab, spawnPos, Quaternion.identity);
-
         Unit nuevoArtillero = nuevoArtilleroGO.GetComponent<Unit>();
+
         if (nuevoArtillero != null)
         {
             nuevoArtillero.ownerID = unidadCreadora.ownerID;
-            nuevoArtillero.misCoordenadasActuales = unidadCreadora.misCoordenadasActuales;
+            nuevoArtillero.misCoordenadasActuales = spawnCoords;
             nuevoArtillero.startWithZeroMovement = true;
             
-            // --- FIX: Asegurar que la Celda Lógica sepa que ahora hay una unidad ---
-            ciudadCell.unitOnCell = nuevoArtillero;
-            // Solo cambiamos el TIPO si NO es ciudad/poblado
-            if (ciudadCell.typeUnitOnCell != TypeUnit.Ciudad && ciudadCell.typeUnitOnCell != TypeUnit.Poblado)
+            // Registrar unidad en la celda
+            spawnCell.unitOnCell = nuevoArtillero;
+            
+            // Si NO es la celda de la ciudad, actualizamos el tipo de unidad en la celda
+            // (Si spawnea en la ciudad, NO sobrescribimos 'Ciudad' con 'Artillero')
+            if (spawnCell.typeUnitOnCell != TypeUnit.Ciudad && spawnCell.typeUnitOnCell != TypeUnit.Poblado)
             {
-               ciudadCell.typeUnitOnCell = nuevoArtillero.statsBase.nombreUnidad;
+                spawnCell.typeUnitOnCell = nuevoArtillero.statsBase.nombreUnidad;
             }
         }
         jugador.ArmyManager.RegisterUnit(nuevoArtillero);
@@ -132,11 +146,14 @@ public class UnitRecruiter : MonoBehaviour
 
         if (jugador == null) return;
         
+        // REMOVIDO BLOQUEO
+        /*
         if (ciudadCell.unitOnCell != null && ciudadCell.unitOnCell != unidadCreadora)
         {
             Debug.Log("Poblado ocupado, no se puede crear unidad.");
             return;
         }
+        */
 
         Dictionary<ResourceType, int> coste = caballeroUnitPrefab.statsBase.GetProductCost();
 
@@ -151,28 +168,32 @@ public class UnitRecruiter : MonoBehaviour
             return;
         }
 
+        Vector2Int spawnCoords = GetValidSpawnPosition(ciudadCoords, unidadCreadora);
+        if (spawnCoords == new Vector2Int(-999, -999))
+        {
+             Debug.Log("⚠️ No hay espacio para instanciar Caballero.");
+             return;
+        }
+
         bool gasto = jugador.SpendResources(coste);
         if (!gasto) return;
 
-        Debug.Log("Caballero creado con éxito en la celda " + ciudadCoords);
+        CellData spawnCell = BoardManager.Instance.GetCell(spawnCoords);
+        Vector3 spawnPos = spawnCell.visualTile.transform.position + Vector3.up * 0.5f;
 
-        Vector3 spawnPos = unidadCreadora.transform.position + Vector3.up * 1.0f;
         GameObject nuevoCaballeroGO = Instantiate(caballeroPrefab, spawnPos, Quaternion.identity);
-
         Unit nuevoCaballero = nuevoCaballeroGO.GetComponent<Unit>();
+        
         if (nuevoCaballero != null)
         {
             nuevoCaballero.ownerID = unidadCreadora.ownerID;
-            nuevoCaballero.misCoordenadasActuales = unidadCreadora.misCoordenadasActuales;
+            nuevoCaballero.misCoordenadasActuales = spawnCoords;
             nuevoCaballero.startWithZeroMovement = true;
             
-             // --- FIX: Asegurar que la Celda Lógica sepa que ahora hay una unidad ---
-            ciudadCell.unitOnCell = nuevoCaballero;
-            
-             // Solo cambiamos el TIPO si NO es ciudad/poblado
-            if (ciudadCell.typeUnitOnCell != TypeUnit.Ciudad && ciudadCell.typeUnitOnCell != TypeUnit.Poblado)
+            spawnCell.unitOnCell = nuevoCaballero;
+            if (spawnCell.typeUnitOnCell != TypeUnit.Ciudad && spawnCell.typeUnitOnCell != TypeUnit.Poblado)
             {
-                ciudadCell.typeUnitOnCell = nuevoCaballero.statsBase.nombreUnidad;
+                spawnCell.typeUnitOnCell = nuevoCaballero.statsBase.nombreUnidad;
             }
         }
 
@@ -210,11 +231,14 @@ public class UnitRecruiter : MonoBehaviour
 
         if (jugador == null) return;
 
+        // REMOVIDO BLOQUEO
+        /*
         if (ciudadCell.unitOnCell != null && ciudadCell.unitOnCell != unidadCreadora)
         {
             Debug.Log("Poblado ocupado, no se puede crear unidad.");
             return;
         }
+        */
 
         Dictionary<ResourceType, int> coste = colonoUnitPrefab.statsBase.GetProductCost();
 
@@ -229,28 +253,32 @@ public class UnitRecruiter : MonoBehaviour
             return;
         }
 
+        Vector2Int spawnCoords = GetValidSpawnPosition(ciudadCoords, unidadCreadora);
+        if (spawnCoords == new Vector2Int(-999, -999))
+        {
+             Debug.Log("⚠️ No hay espacio para instanciar Colono.");
+             return;
+        }
+
         bool gasto = jugador.SpendResources(coste);
         if (!gasto) return;
 
-        Debug.Log("Colono creado con éxito en la celda " + ciudadCoords);
+        CellData spawnCell = BoardManager.Instance.GetCell(spawnCoords);
+        Vector3 spawnPos = spawnCell.visualTile.transform.position + Vector3.up * 0.5f;
 
-        Vector3 spawnPos = unidadCreadora.transform.position + Vector3.up * 1.0f;
         GameObject nuevoColonoGO = Instantiate(colonoPrefab, spawnPos, Quaternion.identity);
-
         Unit nuevoColono = nuevoColonoGO.GetComponent<Unit>();
+        
         if (nuevoColono != null)
         {
             nuevoColono.ownerID = unidadCreadora.ownerID;
-            nuevoColono.misCoordenadasActuales = unidadCreadora.misCoordenadasActuales;
+            nuevoColono.misCoordenadasActuales = spawnCoords;
             nuevoColono.startWithZeroMovement = true;
 
-             // --- FIX: Asegurar que la Celda Lógica sepa que ahora hay una unidad ---
-            ciudadCell.unitOnCell = nuevoColono;
-
-            // Solo cambiamos el TIPO si NO es ciudad/poblado
-            if (ciudadCell.typeUnitOnCell != TypeUnit.Ciudad && ciudadCell.typeUnitOnCell != TypeUnit.Poblado)
+            spawnCell.unitOnCell = nuevoColono;
+            if (spawnCell.typeUnitOnCell != TypeUnit.Ciudad && spawnCell.typeUnitOnCell != TypeUnit.Poblado)
             {
-                ciudadCell.typeUnitOnCell = nuevoColono.statsBase.nombreUnidad;
+                spawnCell.typeUnitOnCell = nuevoColono.statsBase.nombreUnidad;
             }
         }
 
@@ -259,19 +287,58 @@ public class UnitRecruiter : MonoBehaviour
 
     private Player GetOwnerPlayer(int ownerID)
     {
-        // Asumiendo que 0 es Humano y 1 es IA (como en tu GameManager.CollectTurnResources)
-        if (ownerID == 0)
+        // Asumiendo que 0 es Humano y 1 es IA
+        if (ownerID == 0) return GameManager.Instance.humanPlayer;
+        else if (ownerID == 1) return GameManager.Instance.IAPlayer;
+        
+        Debug.LogError($"UnitRecruiter: ownerID desconocido ({ownerID}).");
+        return null;
+    }
+
+    /// <summary>
+    /// Busca una posición para spawnear:
+    /// 1. La propia ciudad si está vacía de UNIDADES MÓVILES.
+    /// 2. Un vecino libre si la ciudad está ocupada.
+    /// </summary>
+    public static Vector2Int GetValidSpawnPosition(Vector2Int center, Unit cityUnit)
+    {
+        CellData centerCell = BoardManager.Instance.GetCell(center);
+        
+        // 1. Chequear Centro
+        // Es válido si NO tiene unidad, O si la unidad es la propia ciudad (factory)
+        // PERO cuidado: si ya spawneamos una unidad encima, unitOnCell será esa unidad, no la ciudad.
+        // Así que: si unitOnCell == cityUnit (la ciudad misma), está libre para spawn.
+        // Si unitOnCell == null, libre.
+        // Si unitOnCell != cityUnit && unitOnCell != null => Ocupado por otra tropa.
+        
+        if (centerCell.unitOnCell == null || centerCell.unitOnCell == cityUnit)
         {
-            return GameManager.Instance.humanPlayer;
+            return center;
         }
-        else if (ownerID == 1) // O el ID que use tu IA
+
+        // 2. Si está ocupado, buscar vecinos libres
+        foreach (Vector2Int dir in GameManager.axialNeighborDirections)
         {
-            return GameManager.Instance.IAPlayer;
+            Vector2Int neighborPos = center + dir;
+            CellData neighbor = BoardManager.Instance.GetCell(neighborPos);
+            
+            if (neighbor != null)
+            {
+                // Condiciones: 
+                // - Sin unidad
+                // - Que sea transitable (no agua/montaña impasable si aplica) - Asumimos ResourceType check si necesario
+                // - No ser territorio enemigo (opcional, pero seguro)
+                
+                // NOTA: Si el vecino tiene una ciudad/poblado, unitOnCell será esa ciudad.
+                // No queremos spawnear ENCIMA de otro poblado vecino.
+                if (neighbor.unitOnCell == null && neighbor.resource != ResourceType.Desierto) // Asumiendo Desierto no transitable? O solo visual.
+                {
+                    return neighborPos;
+                }
+            }
         }
-        else
-        {
-            Debug.LogError($"UnitRecruiter: ownerID desconocido ({ownerID}). No se puede cobrar recursos.");
-            return null;
-        }
+
+        // 3. Fallo total
+        return new Vector2Int(-999, -999);
     }
 }
