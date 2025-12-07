@@ -590,7 +590,7 @@ public class SimpleClickTester : MonoBehaviour
             if (ciudad != null)
             {
                 ciudad.ownerID = unitCerebro.ownerID;
-                //jugador.ArmyManager.RegisterUnit(ciudad);
+                jugador.ArmyManager.RegisterUnit(ciudad);
             }
 
             ciudad.misCoordenadasActuales = cellDondeEstamos.coordinates;
