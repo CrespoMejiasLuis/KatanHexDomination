@@ -47,14 +47,14 @@ public class BoardManager : MonoBehaviour
     {
         if (gridData == null)
         {
-            Debug.LogError("⚠️ gridData está vacío o no inicializado.");
+            //Debug.LogError("⚠️ gridData está vacío o no inicializado.");
             return;
         }
 
         int width = gridData.GetLength(0);
         int height = gridData.GetLength(1);
 
-        Debug.Log($"📋 Imprimiendo tablero {width}x{height}");
+        //Debug.Log($"📋 Imprimiendo tablero {width}x{height}");
 
         for (int x = 0; x < width; x++)
         {
@@ -67,7 +67,7 @@ public class BoardManager : MonoBehaviour
                 else
                     row += "_ "; // vacío
             }
-            Debug.Log($"Fila {x}: {row}");
+           // Debug.Log($"Fila {x}: {row}");
         }
     }
     public int Distance(Vector2Int a, Vector2Int b)
