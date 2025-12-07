@@ -64,6 +64,11 @@ public class UnitRecruiter : MonoBehaviour
 
         Dictionary<ResourceType, int> coste = artilleroUnitPrefab.statsBase.GetProductCost();
 
+        if(jugador.numPoblados > 1)
+        {
+            coste = artilleroUnitPrefab.actualizarCostes(coste, jugador);
+        }
+
         if (!jugador.CanAfford(coste))
         {
             Debug.Log("No hay recursos suficientes para construir Artillero.");
@@ -134,6 +139,11 @@ public class UnitRecruiter : MonoBehaviour
         }
 
         Dictionary<ResourceType, int> coste = caballeroUnitPrefab.statsBase.GetProductCost();
+
+        if(jugador.numPoblados > 1)
+        {
+            coste = caballeroUnitPrefab.actualizarCostes(coste, jugador);
+        }
 
         if (!jugador.CanAfford(coste))
         {
@@ -207,6 +217,11 @@ public class UnitRecruiter : MonoBehaviour
         }
 
         Dictionary<ResourceType, int> coste = colonoUnitPrefab.statsBase.GetProductCost();
+
+        if(jugador.numPoblados > 1)
+        {
+            coste = colonoUnitPrefab.actualizarCostes(coste, jugador);
+        }
 
         if (!jugador.CanAfford(coste))
         {

@@ -125,7 +125,7 @@ public class UIManager : MonoBehaviour
 
     public void UpdateResourceTexts(int playerID, Dictionary<ResourceType, int> resources)
     {
-        if (playerID != 0) return; // Solo actualizamos la UI para el jugador humano (0)
+        if (playerID == -1) return; // Solo actualizamos la UI para el jugador humano (0)
         
         if (resources == null) return;
 

@@ -217,7 +217,7 @@ public class Unit : MonoBehaviour
     public bool RecursosNecesarios(Unit unitPrefabToRecruit)
     {
         //1.Obtener referenccia al jugador
-        Player activePlayer = GameManager.Instance.humanPlayer;
+        Player activePlayer = GameManager.Instance.GetPlayer(unitPrefabToRecruit.ownerID);
 
         if (activePlayer == null) return false;
 
@@ -231,6 +231,11 @@ public class Unit : MonoBehaviour
         }
 
         Dictionary<ResourceType, int> productionCost = stats.GetProductCost();
+
+        if(activePlayer.numPoblados > 1)
+        {
+            productionCost = actualizarCostes(productionCost, activePlayer);
+        }
 
         return activePlayer.CanAfford(productionCost);
     }
