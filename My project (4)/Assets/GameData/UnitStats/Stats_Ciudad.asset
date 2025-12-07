@@ -23,3 +23,6 @@ MonoBehaviour:
   costeTrigo: 2
   costeArcilla: 0
   costeOveja: 0
+  attackSound: {fileID: 0}
+  attackSoundDelay: 0.5
+  buildSound: {fileID: 8300000, guid: eae4a0f46a70974418b3231e57fd46bc, type: 3}

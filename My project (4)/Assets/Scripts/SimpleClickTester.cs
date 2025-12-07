@@ -596,6 +596,11 @@ public class SimpleClickTester : MonoBehaviour
             {
                 ciudad.ownerID = unitCerebro.ownerID;
                 jugador.ArmyManager.RegisterUnit(ciudad);
+
+                if (ciudad.statsBase != null && ciudad.statsBase.buildSound != null)
+                {
+                    AudioSource.PlayClipAtPoint(ciudad.statsBase.buildSound, Camera.main.transform.position);
+                }
             }
 
             ciudad.misCoordenadasActuales = cellDondeEstamos.coordinates;

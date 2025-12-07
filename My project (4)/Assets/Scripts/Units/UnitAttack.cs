@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections;
 [RequireComponent(typeof(Animator))]
 public class UnitAttack : MonoBehaviour
 {
@@ -45,11 +46,24 @@ public class UnitAttack : MonoBehaviour
         int dano = unitData.statsBase.ataque;
         if (audioSource != null && hitSound != null)
         {
-            audioSource.PlayOneShot(hitSound);
+           StartCoroutine(PlayAttackSoundWithDelay());
         }
         objetivo.RecibirDano(dano);
         unitData.movimientosRestantes = 0;
 
         Debug.Log($"{unitData.statsBase.nombreUnidad} atacó a {objetivo.statsBase.nombreUnidad} e hizo {dano} de daño");
+    }
+
+
+    private IEnumerator PlayAttackSoundWithDelay()
+    {
+        if(unitData.statsBase != null)
+        {
+            yield return new WaitForSeconds(unitData.statsBase.attackSoundDelay);
+            if(audioSource!=null && hitSound!=null)
+            {
+                audioSource.PlayOneShot(hitSound);
+            }
+        }
     }
 }

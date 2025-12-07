@@ -93,6 +93,11 @@ public class UnitBuilder : MonoBehaviour
             pobladoUnit.ownerID = unitCerebro.ownerID;
             jugador.ArmyManager.RegisterUnit(pobladoUnit);
             //jugador.ArmyManager.RegisterUnit(pobladoUnit);
+
+            if (pobladoUnit.statsBase.buildSound != null)
+            {
+                AudioSource.PlayClipAtPoint(pobladoUnit.statsBase.buildSound, Camera.main.transform.position);
+            }
         }
 
         // 5. ACTUALIZAR EL BOARDMANAGER 
