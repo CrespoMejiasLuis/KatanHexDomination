@@ -59,13 +59,9 @@ public class PlayerIA : Player
             yield return null;
         }
 
-        // 5. FIN
-        Debug.Log("🔴 IA: Todas las unidades terminaron. Fin de turno.");
-        GameManager.Instance.EndAITurn();
-        
-        // Simulamos tiempo de ejecucion de las acciones
-        yield return new WaitForSeconds(2f); 
+        yield return new WaitForSeconds(3f); // pausa para "pensar"
 
+        // 5. FIN
         Debug.Log("🔴 IA: Fin de turno. Pasando al jugador.");
         GameManager.Instance.EndAITurn(); 
     }
@@ -165,7 +161,7 @@ public class PlayerIA : Player
         }
 
         // --- C. TROPAS DE COMBATE ---
-        if(unit.statsBase.nombreUnidad == TypeUnit.Artillero || unit.statsBase.nombreUnidad == TypeUnit.Caballero || unit.statsBase.nombreUnidad == TypeUnit.Caballeria)
+        if(unit.statsBase.nombreUnidad == TypeUnit.Artillero || unit.statsBase.nombreUnidad == TypeUnit.Caballero)
         {
 
             goal.Add("Seguro", 1);///mirar
