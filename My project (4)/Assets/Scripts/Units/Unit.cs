@@ -142,29 +142,46 @@ public class Unit : MonoBehaviour
         CellData currentCell = BoardManager.Instance.GetCell(misCoordenadasActuales);
         if(currentCell != null && currentCell.unitOnCell == this)
         {
-             // Chequear si hay OTRO (poblado) físicamente ahí
-            Collider[] colliders = Physics.OverlapSphere(transform.position, 0.5f);
-            Unit otherUnit = null;
-             foreach(var c in colliders)
-            {
-                Unit u = c.GetComponentInParent<Unit>();
-                if(u != null && u != this)
-                {
-                    otherUnit = u;
-                    break;
-                }
-            }
+             // Chequear si hay OTRA unidad (ej: poblado) lógicamente ahí
+             Unit otherUnit = null;
 
-            if(otherUnit != null)
-            {
-                currentCell.unitOnCell = otherUnit;
-                currentCell.typeUnitOnCell = otherUnit.statsBase.nombreUnidad;
-            }
-            else
-            {
-                currentCell.unitOnCell = null;
-                currentCell.typeUnitOnCell = TypeUnit.None;
-            }
+             // 1. Buscar en el jugador humano
+             if(GameManager.Instance != null && GameManager.Instance.humanPlayer != null)
+             {
+                 foreach(Unit u in GameManager.Instance.humanPlayer.ArmyManager.GetAllUnits())
+                 {
+                     if(u != null && u != this && u.misCoordenadasActuales == misCoordenadasActuales)
+                     {
+                         otherUnit = u;
+                         break;
+                     }
+                 }
+             }
+
+             // 2. Buscar en la IA (si no hemos encontrado nada aún)
+             if(otherUnit == null && GameManager.Instance != null && GameManager.Instance.IAPlayer != null)
+             {
+                 foreach(Unit u in GameManager.Instance.IAPlayer.ArmyManager.GetAllUnits())
+                 {
+                     if(u != null && u != this && u.misCoordenadasActuales == misCoordenadasActuales)
+                     {
+                         otherUnit = u;
+                         break;
+                     }
+                 }
+             }
+ 
+             if(otherUnit != null)
+             {
+                 currentCell.unitOnCell = otherUnit;
+                 currentCell.typeUnitOnCell = otherUnit.statsBase.nombreUnidad;
+                 Debug.Log($"[Fix] Casilla {misCoordenadasActuales} restaurada a: {otherUnit.name}");
+             }
+             else
+             {
+                 currentCell.unitOnCell = null;
+                 currentCell.typeUnitOnCell = TypeUnit.None;
+             }
         }
 
         GameManager.OnPlayerTurnStart -= OnTurnStart;

@@ -213,6 +213,14 @@ public class SimpleClickTester : MonoBehaviour
                         return;
                     }
                 }
+                if (targetCell != null && (targetCell.typeUnitOnCell == TypeUnit.Poblado|| targetCell.typeUnitOnCell == TypeUnit.Ciudad))
+                {
+                    if (targetCell.owner  != unidadSeleccionada.ownerID)
+                    {
+                        IntentarAtacar(targetCell.unitOnCell);
+                        return;
+                    }
+                }
 
                 if (unidadSeleccionada != null)
                 {
