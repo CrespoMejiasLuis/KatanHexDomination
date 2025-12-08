@@ -43,7 +43,7 @@ public class GoapAgent : MonoBehaviour
         {
             if (currentAction.Perform(gameObject))
             {
-                Debug.Log($"✅ ACCIÓN COMPLETADA: {currentAction.GetType().Name}. Pasando a la siguiente.");
+                Debug.Log($"[OK] ACCIÓN COMPLETADA: {currentAction.GetType().Name}. Pasando a la siguiente.");
                 currentAction.running = false;
             }
             return;
@@ -70,12 +70,12 @@ public class GoapAgent : MonoBehaviour
                 // Solo reintentar si no hemos superado el límite
                 if (failedPlanAttempts < MAX_PLAN_ATTEMPTS && lastGoal != null)
                 {
-                    Debug.Log($"⚠️ GOAP: Reintento {failedPlanAttempts}/{MAX_PLAN_ATTEMPTS} - Recalculando plan...");
+                    Debug.Log($"[WARNING] GOAP: Reintento {failedPlanAttempts}/{MAX_PLAN_ATTEMPTS} - Recalculando plan...");
                     SetGoal(lastGoal);
                 }
                 else
                 {
-                    Debug.LogWarning($"❌ GOAP: {name} falló {failedPlanAttempts} veces. Abandonando objetivo para evitar bucle infinito.");
+                    Debug.LogWarning($"[ERROR] GOAP: {name} falló {failedPlanAttempts} veces. Abandonando objetivo para evitar bucle infinito.");
                     failedPlanAttempts = 0;
                     // La unidad queda idle hasta que PlayerIA le asigne nuevo objetivo en el próximo turno
                 }
@@ -86,7 +86,7 @@ public class GoapAgent : MonoBehaviour
         // 3. ESTADO: PLAN TERMINADO (Cola vacía y sin acción en curso)
         if (IsActing)
         {
-            Debug.Log($"🎉 GOAP: {name} ha completado su plan exitosamente.");
+            Debug.Log($"[SUCCESS] GOAP: {name} ha completado su plan exitosamente.");
             IsActing = false;
         }
     }
@@ -98,23 +98,23 @@ public class GoapAgent : MonoBehaviour
         if (!GoalsAreEqual(lastGoal, goal))
         {
             failedPlanAttempts = 0;
-            Debug.Log($"🎯 GOAP: {name} recibe NUEVO objetivo (reseteando intentos fallidos)");
+            Debug.Log($"[GOAL] GOAP: {name} recibe NUEVO objetivo (reseteando intentos fallidos)");
         }
         
         lastGoal = new Dictionary<string, int>(goal);
         
-        Debug.Log($"╔═══════════════════════════════════════════════════╗");
-        Debug.Log($"║ 🎯 GOAP AGENT: {name} recibe nuevo objetivo       ");
-        Debug.Log($"╚═══════════════════════════════════════════════════╝");
+        Debug.Log($"====================================================");
+        Debug.Log($"[GOAL] GOAP AGENT: {name} recibe nuevo objetivo");
+        Debug.Log($"====================================================");
         
         // 1. Construir la vision actual del mundo
         UpdateWorldState();
 
-        string stateLog = "🌍 ESTADO DEL MUNDO: ";
+        string stateLog = "[WORLD] ESTADO DEL MUNDO: ";
         foreach(var kvp in worldState) stateLog += $"[{kvp.Key}:{kvp.Value}] ";
         Debug.Log(stateLog);
 
-        string goalLog = "🎯 OBJETIVO ASIGNADO: ";
+        string goalLog = "[GOAL] OBJETIVO ASIGNADO: ";
         foreach(var kvp in goal) goalLog += $"[{kvp.Key}:{kvp.Value}] ";
         Debug.Log(goalLog);
 
@@ -127,7 +127,7 @@ public class GoapAgent : MonoBehaviour
             currentAction = null;
             IsActing = true;
 
-            Debug.Log($"✅ GOAP AGENT: Plan generado para {name} con {plan.Count} pasos:");
+            Debug.Log($"[PLAN] GOAP AGENT: Plan generado para {name} con {plan.Count} pasos:");
             int stepNum = 1;
             foreach(var action in plan)
             {
@@ -137,7 +137,7 @@ public class GoapAgent : MonoBehaviour
         }
         else
         {
-            Debug.LogWarning($"❌ GOAP AGENT: {name} NO pudo encontrar un plan para el objetivo:");
+            Debug.LogWarning($"[NO PLAN] GOAP AGENT: {name} NO pudo encontrar un plan para el objetivo:");
             foreach(var kv in goal)
             {
                 Debug.LogWarning($"   - Requiere: [{kv.Key}] = {kv.Value}");

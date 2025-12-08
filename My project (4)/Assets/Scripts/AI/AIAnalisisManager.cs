@@ -309,11 +309,11 @@ public class AIAnalysisManager : MonoBehaviour
         if (found)
         {
             CellData selectedCell = BoardManager.Instance.gridData[bestCoords.x + (BoardManager.Instance.gridRadius - 1), bestCoords.y + (BoardManager.Instance.gridRadius - 1)];
-            Debug.Log($"🎯 Mejor posición encontrada: {bestCoords} | Recurso: {selectedCell?.resource} | Score: {bestScore:F2}");
+            Debug.Log($"[TARGET] Mejor posición encontrada: {bestCoords} | Recurso: {selectedCell?.resource} | Score: {bestScore:F2}");
             return bestCoords;
         }
         
-        Debug.LogWarning("⚠️ No se encontró ninguna posición válida para expansión");
+        Debug.LogWarning("[WARNING] No se encontró ninguna posición válida para expansión");
         return null;
     }
 
@@ -480,7 +480,7 @@ public class AIAnalysisManager : MonoBehaviour
 
         if (found)
         {
-            Debug.Log($"🛡️ Posición defensiva encontrada: {bestCoords} (Amenaza: {bestScore:F1})");
+            Debug.Log($"[DEFENSE] Posición defensiva encontrada: {bestCoords} (Amenaza: {bestScore:F1})");
             return bestCoords;
         }
 
@@ -541,7 +541,7 @@ public class AIAnalysisManager : MonoBehaviour
 
         if (bestTarget != null)
         {
-            Debug.Log($"⚔️ Objetivo de ataque encontrado: {bestTarget.name} en {bestTarget.misCoordenadasActuales}");
+            Debug.Log($"[ATTACK] Objetivo de ataque encontrado: {bestTarget.name} en {bestTarget.misCoordenadasActuales}");
         }
 
         return bestTarget;
