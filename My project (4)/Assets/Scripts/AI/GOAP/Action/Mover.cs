@@ -22,9 +22,12 @@ public class MoverAction : GoapAction
         rangeInTiles = 1; // Un paso adyacente
         requiresInRange = false;
 
-        // Configuración GOAP: Moverse cumple el objetivo de "estar en rango"
+        // 🎯 MEJORA: Mover también puede satisfacer "Seguro" (acercarse a enemigos o huir)
         if (!Effects.ContainsKey("EstaEnRango"))
             Effects.Add("EstaEnRango", 1);
+            
+        if (!Effects.ContainsKey("Seguro"))
+            Effects.Add("Seguro", 1);
     }
 
     public override bool CheckProceduralPrecondition(GameObject agent)

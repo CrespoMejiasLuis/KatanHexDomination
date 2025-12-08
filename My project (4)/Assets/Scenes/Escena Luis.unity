@@ -16384,10 +16384,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   aiAnalysis: {fileID: 1403644515}
   myPlayer: {fileID: 0}
-  warThreshold: 8000
-  militarizationThreshold: 300
-  peaceThreshold: 495
-  demilitarizationThreshold: 100
+  warThreshold: 100
+  militarizationThreshold: 20
+  exitWarThreshold: 50
+  exitMilitarizationThreshold: 10
   opportunismFactor: 1.5
 --- !u!4 &1847502791
 Transform:

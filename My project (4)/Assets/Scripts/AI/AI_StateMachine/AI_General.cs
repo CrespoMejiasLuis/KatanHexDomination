@@ -163,12 +163,21 @@ public class AI_General : MonoBehaviour
     }
     public bool IsEconomyCritical()
     {
-        if (myPlayer == null) return true;
+        if (myPlayer == null) 
+        {
+            Debug.LogWarning("⚠️ IsEconomyCritical: myPlayer es null");
+            return true;
+        }
 
-        var res = myPlayer.GetResources(); 
-        if (res.ContainsKey(ResourceType.Trigo) && res[ResourceType.Trigo] < 2) return true;
+        var res = myPlayer.GetResources();
+        bool critical = res.ContainsKey(ResourceType.Trigo) && res[ResourceType.Trigo] < 2;
         
-        return false;
+        if (critical)
+        {
+            Debug.Log($"⚠️ ECONOMÍA CRÍTICA: Trigo={res[ResourceType.Trigo]} < 2");
+        }
+        
+        return critical;
     }
     
     // 🎯 MEJORA: Ratio Ejército/Economía para decisiones inteligentes

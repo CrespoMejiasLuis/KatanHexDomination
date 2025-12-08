@@ -12,6 +12,8 @@ public class MilitarizationState : AIState
 
     public override void Execute(float threatLevel)
     {
+        Debug.Log($"🔍 MILITARIZATION Execute: threatLevel={threatLevel:F0}, warThreshold={context.warThreshold}");
+        
         // 1. SEGURIDAD: Si economía crítica, forzar retirada
         if (context.IsEconomyCritical())
         {
@@ -20,10 +22,12 @@ public class MilitarizationState : AIState
             return;
         }
 
-        // 2. ESCALADA: Si amenaza crítica, ir a guerra
+        Debug.Log($"🔍 Economía OK. Chequeando amenaza: {threatLevel} > {context.warThreshold}?");
+        
+        // 2. ESCALADA: Si amenaza crítica, ir a guerra (PRIORIDAD MÁXIMA)
         if (threatLevel > context.warThreshold)
         {
-            Debug.Log("[WARNING] MILITARIZATION: Amenaza crítica detectada. Escalando a Guerra.");
+            Debug.Log($"⚔️ MILITARIZATION: Amenaza crítica ({threatLevel:F0} > {context.warThreshold}). Escalando a Guerra.");
             context.ChangeState(new WarState(context));
             return;
         }
@@ -37,16 +41,18 @@ public class MilitarizationState : AIState
             return;
         }
 
+        // 4. LÍMITE DE RATIO: Solo si amenaza NO es alta
         // 🎯 MEJORA: Límite de militarización alcanzado (ratio ejército/economía)
         float ratio = context.GetMilitaryToEconomyRatio();
-        if (ratio >= 2.0f)
+        if (ratio >= 2.0f && threatLevel < context.warThreshold * 0.8f)
         {
-            Debug.Log($"💪 MILITARIZATION: Límite de ratio alcanzado ({ratio:F1} ≥ 2.0). Pasando a Development.");
+            Debug.Log($"💪 MILITARIZATION: Límite de ratio alcanzado ({ratio:F1} ≥ 2.0) y amenaza moderada ({threatLevel:F0}). Pasando a Development.");
             context.CurrentOrder = TacticalAction.Development;
             context.ChangeState(new EconomyState(context));
             return;
         }
 
+        // 5. AMENAZA NEUTRALIZADA: Amenaza baja + ejército decente
         // 🎯 MEJORA: Amenaza neutralizada + ejército decente
         if (threatLevel < 30f && ratio >= 1.2f)
         {
@@ -56,9 +62,9 @@ public class MilitarizationState : AIState
             return;
         }
 
-        // 4. OPTIMIZACIÓN: Si tenemos ejército suficiente y amenaza controlada
-        float militaryPower = context.CalculateMyMilitaryPower();
+        // 6. OPTIMIZACIÓN: Ejército muy superior + amenaza controlada
         // 🔧 FIX ALTO #6: Comparar con exitWarThreshold para consistencia
+        float militaryPower = context.CalculateMyMilitaryPower();
         if (militaryPower > threatLevel * 1.5f && threatLevel < context.exitWarThreshold)
         {
             Debug.Log($"💪 MILITARIZATION: Ejército suficiente ({militaryPower:F0} > {threatLevel:F0}*1.5). Volviendo a Development.");

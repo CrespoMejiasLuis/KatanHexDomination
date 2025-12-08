@@ -188,30 +188,45 @@ public class PlayerIA : Player
         // --- C. TROPAS DE COMBATE ---
         if(unit.statsBase.nombreUnidad == TypeUnit.Artillero || unit.statsBase.nombreUnidad == TypeUnit.Caballero)
         {
+            GoapAgent combatAgent = unit.GetComponent<GoapAgent>();
+            
             switch(generalBrain.CurrentOrder)
             {
                 // 🎯 MEJORA: Tropas en expansión temprana patrullan
                 case TacticalAction.EarlyExpansion:
                     Debug.Log($"🛡️ {unit.name} en EarlyExpansion: Patrullando territorio");
-                    goal.Add("Seguro", 1);
+                    goal.Add("Patrullando", 1);  // ← CAMBIO: Usar objetivo específico de patrullaje
                     break;
 
                 // 🎯 MEJORA: Tropas en desarrollo patrullan
                 case TacticalAction.Development:
                     Debug.Log($"🚫 {unit.name} en Development: Patrullando territorio");
-                    goal.Add("Seguro", 1);
+                    goal.Add("Patrullando", 1);  // ← CAMBIO: Usar objetivo específico de patrullaje
                     break;
 
                 case TacticalAction.BuildArmy:
                     // Durante militarización, posicionarse/patrullar
                     Debug.Log($"🛡️ {unit.name} en BuildArmy: Preparación militar");
-                    goal.Add("Seguro", 1);
+                    goal.Add("Patrullando", 1);  // ← CAMBIO: Usar objetivo específico de patrullaje
                     break;
 
                 case TacticalAction.ActiveDefense:
                 case TacticalAction.Assault:
-                    // Lógica existente para defensa/ataque activo
-                    Debug.Log($"⚔️ {unit.name} en combate: Objetivo Seguro (atacar/defender)");
+                    // 🎯 MEJORA: Establecer destino hacia enemigo más cercano
+                    if (combatAgent != null)
+                    {
+                        Unit nearestEnemy = FindNearestEnemy(unit);
+                        if (nearestEnemy != null)
+                        {
+                            combatAgent.targetDestination = nearestEnemy.misCoordenadasActuales;
+                            Debug.Log($"⚔️ {unit.name} en combate: Moverse hacia enemigo en {nearestEnemy.misCoordenadasActuales}");
+                        }
+                        else
+                        {
+                            Debug.Log($"⚔️ {unit.name} en combate: Sin enemigos detectados, mantenerse en posición");
+                        }
+                    }
+                    
                     goal.Add("Seguro", 1);
                     break;
             }
@@ -249,5 +264,34 @@ public class PlayerIA : Player
 
         // Si nadie esta actuando
         return true; 
+    }
+    
+    // 🎯 HELPER: Buscar enemigo más cercano
+    private Unit FindNearestEnemy(Unit fromUnit)
+    {
+        if (fromUnit == null) return null;
+        
+        var allUnits = FindObjectsOfType<Unit>();
+        Unit nearestEnemy = null;
+        float minDistance = float.MaxValue;
+        
+        foreach (var unit in allUnits)
+        {
+            // Solo enemigos
+            if (unit.ownerID == fromUnit.ownerID) continue;
+            
+            // Calcular distancia manhattan
+            int dx = Mathf.Abs(unit.misCoordenadasActuales.x - fromUnit.misCoordenadasActuales.x);
+            int dy = Mathf.Abs(unit.misCoordenadasActuales.y - fromUnit.misCoordenadasActuales.y);
+            float distance = dx + dy;
+            
+            if (distance < minDistance)
+            {
+                minDistance = distance;
+                nearestEnemy = unit;
+            }
+        }
+        
+        return nearestEnemy;
     }
 }
