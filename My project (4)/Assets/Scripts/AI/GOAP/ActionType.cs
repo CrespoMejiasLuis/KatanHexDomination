@@ -6,6 +6,8 @@ public enum ActionType{
     Crear_Unidad,
     Atacar, 
     Saquear, 
-    Huir
-     
+    Huir,
+    Patrol,
+    StandGuard,
+    MoveToCombat
 }
