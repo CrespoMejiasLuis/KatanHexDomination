@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6fc73d60226d2e741a725e4f61cbcc98, type: 3}
   m_Name: Stats_Artillero
   m_EditorClassIdentifier: 
-  nombreUnidad: 5
+  nombreUnidad: 4
   prefabModelo: {fileID: 7520341672977643540, guid: b0e8c80702d87fb4f9c231b669dcffd3, type: 3}
   vidaMaxima: 30
   ataque: 30
@@ -23,3 +23,6 @@ MonoBehaviour:
   costeTrigo: 1
   costeArcilla: 0
   costeOveja: 2
+  attackSound: {fileID: 0}
+  attackSoundDelay: 0.5
+  buildSound: {fileID: 0}

@@ -4,9 +4,7 @@ public enum TypeUnit
     Camino,
     Poblado,
     Ciudad,
-    Soldado,
     Artillero,
     Caballero,
-    Caballeria,
     Colono
 }

@@ -24,18 +24,18 @@ public class PatrolAction : GoapAction
         }
 
         // Configuración básica
-        actionType = ActionType.Mover;
+        actionType = ActionType.Patrol;  // ← FIX: Usar el enum correcto
         cost = 10.0f;
         rangeInTiles = 0;
-        requiresInRange = true;
+        requiresInRange = false;  // ← FIX: No requiere estar en rango, es MOVIMIENTO
 
-        // Añadir efectos y precondiciones DESPUÉS de que base.Awake() haya llenado los diccionarios
-        // Esto permite que las configuraciones del Inspector se mantengan y añadimos las nuestras
+        // Añadir efectos DESPUÉS de que base.Awake() haya llenado los diccionarios
         if (!Effects.ContainsKey("Patrullando"))
             Effects.Add("Patrullando", 1);
 
-        if (!Preconditions.ContainsKey("EstaEnRango"))
-            Preconditions.Add("EstaEnRango", 1);
+        // ❌ ELIMINADO: No debe tener precondición "EstaEnRango" porque es una acción de MOVIMIENTO
+        // Esta precondición creaba un deadlock: necesitas moverte para estar en rango,
+        // pero necesitas estar en rango para poder moverte
     }
 
     public override bool CheckProceduralPrecondition(GameObject agent)

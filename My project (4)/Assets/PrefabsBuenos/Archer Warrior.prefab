@@ -21,6 +21,7 @@ GameObject:
   - component: {fileID: -8869332494726666963}
   - component: {fileID: -6684953185402941963}
   - component: {fileID: -3026584288431037088}
+  - component: {fileID: -1635282035493010929}
   m_Layer: 9
   m_Name: Archer Warrior
   m_TagString: Player
@@ -324,14 +325,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1d035718f472e7e418fd4b5b7eabeeb6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  actionType: 1
+  actionType: 8
   cost: 10
   target: {fileID: 0}
-  rangeInTiles: 0
-  requiresInRange: 1
-  preConditionsConfig:
-  - key: EstaEnRango
-    value: 1
+  rangeInTiles: 1
+  requiresInRange: 0
+  preConditionsConfig: []
   afterEffectsConfig:
   - key: Patrullando
     value: 1
@@ -348,13 +347,37 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: afb329a358d6f274b918ac9c133e02b3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  actionType: 0
-  cost: 10
+  actionType: 9
+  cost: 15
   target: {fileID: 0}
   rangeInTiles: 1
-  requiresInRange: 1
-  preConditionsConfig: []
+  requiresInRange: 0
+  preConditionsConfig:
+  - key: Patrullando
+    value: 1
   afterEffectsConfig: []
+  running: 0
+--- !u!114 &-1635282035493010929
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2069702640224040037}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 420a0bea454e758429da38a937f207e0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  actionType: 10
+  cost: 1
+  target: {fileID: 0}
+  rangeInTiles: 1
+  requiresInRange: 0
+  preConditionsConfig: []
+  afterEffectsConfig:
+  - key: IsAtCpmbatPosition
+    value: 1
   running: 0
 --- !u!1001 &3606888303413714095
 PrefabInstance:

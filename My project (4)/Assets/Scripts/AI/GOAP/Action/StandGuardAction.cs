@@ -13,7 +13,7 @@ public class StandGuardAction : GoapAction
         base.Awake();
 
         // Configuración básica
-        actionType = ActionType.Mover;
+        actionType = ActionType.StandGuard;  // ← Enum específico
         cost = 15.0f; // Coste mayor que PatrolAction (preferir patrullar si es posible)
         rangeInTiles = 0;
         requiresInRange = false; // ¡No requiere movimiento! Ya estamos donde debemos estar

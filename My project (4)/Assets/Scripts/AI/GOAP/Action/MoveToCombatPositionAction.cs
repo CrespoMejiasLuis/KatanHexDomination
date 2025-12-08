@@ -16,7 +16,7 @@ public class MoveToCombatPositionAction : GoapAction
 
         path = new List<Vector2Int>();
 
-        actionType = ActionType.Mover;
+        actionType = ActionType.MoveToCombat;  // ← Enum específico
         cost = 1.0f; // Bajo costo para que sea preferido
         rangeInTiles = 1;
         requiresInRange = false;

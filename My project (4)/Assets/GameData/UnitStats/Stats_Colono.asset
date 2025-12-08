@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6fc73d60226d2e741a725e4f61cbcc98, type: 3}
   m_Name: Stats_Colono
   m_EditorClassIdentifier: 
-  nombreUnidad: 8
+  nombreUnidad: 6
   prefabModelo: {fileID: 1921159432317833422, guid: ad180da489fdff0458b48dd98d8a7689, type: 3}
   vidaMaxima: 20
   ataque: 0
@@ -23,3 +23,6 @@ MonoBehaviour:
   costeTrigo: 1
   costeArcilla: 0
   costeOveja: 1
+  attackSound: {fileID: 0}
+  attackSoundDelay: 0.5
+  buildSound: {fileID: 0}

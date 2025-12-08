@@ -72,39 +72,58 @@ public class PlayerIA : Player
     private void AssignGoapGoals()
     {
         List<Unit> allUnits = myArmyManager.GetAllUnits();
+        
+        Debug.Log($"🎯 AssignGoapGoals: Iniciando asignación para {allUnits.Count} unidades");
 
         foreach (Unit unit in allUnits)
         {
-            if (unit == null) continue;
+            if (unit == null)
+            {
+                Debug.LogWarning("⚠️ Unidad null detectada en la lista, saltando...");
+                continue;
+            }
+            
+            Debug.Log($"🔍 Procesando unidad: {unit.name} (Tipo: {unit.statsBase.nombreUnidad})");
 
             // Obtener el Agente GOAP de la unidad
             GoapAgent agent = unit.GetComponent<GoapAgent>();
             if (agent == null)
             {
-                Debug.LogWarning($"La unidad {unit.name} de la IA no tiene GoapAgent.");
+                Debug.LogWarning($"❌ La unidad {unit.name} de la IA no tiene GoapAgent.");
                 continue;
             }
 
             // Calcular el objetivo para esta unidad
             Dictionary<string, int> goal = CalculateGoapGoal(unit);
+            
+            Debug.Log($"📋 Objetivo calculado para {unit.name}: {goal.Count} entradas");
 
             // Asignar el objetivo al agente (esto dispara el Planner)
             if (goal != null && goal.Count > 0)
             {
+                Debug.Log($"✅ Asignando objetivo a {unit.name}");
                 agent.SetGoal(goal);
             }
+            else
+            {
+                Debug.LogWarning($"⚠️ No se pudo calcular objetivo para {unit.name}");
+            }
         }
+        
+        Debug.Log($"🏁 AssignGoapGoals: Asignación finalizada");
     }
 
     //calcula objetivo de cada unidad
     private Dictionary<string, int> CalculateGoapGoal(Unit unit)
     {
         Dictionary<string, int> goal = new Dictionary<string, int>();
-
+        
+        Debug.Log($"🧮 CalculateGoapGoal para {unit.name}: nombreUnidad={unit.statsBase.nombreUnidad} (int: {(int)unit.statsBase.nombreUnidad})");
 
         // --- A. CIUDADES / RECLUTADORES ---
         if (unit.statsBase.nombreUnidad == TypeUnit.Poblado || unit.statsBase.nombreUnidad == TypeUnit.Ciudad)
         {
+            Debug.Log($"✅ {unit.name} es Poblado/Ciudad");
             switch(generalBrain.CurrentOrder){
                 case TacticalAction.EarlyExpansion:
                     goal.Add("ColonoProducido", 1);
@@ -150,8 +169,22 @@ public class PlayerIA : Player
         }
 
         // --- B. COLONOS (Constructores) ---
-        if (unit.statsBase.nombreUnidad == TypeUnit.Colono)
+        // 🔧 FIX CRÍTICO: Unity guarda valores int de enums en prefabs
+        // Si cambias el enum, los valores viejos persisten hasta regenerar prefabs
+        int colonoEnumValue = (int)TypeUnit.Colono;
+        int unidadValue = (int)unit.statsBase.nombreUnidad;
+        
+        Debug.Log($"🔍 Comprobando si {unit.name} es Colono: {unidadValue} == {colonoEnumValue} (TypeUnit.Colono) ? {unidadValue == colonoEnumValue}");
+        Debug.Log($"📊 Valores de enum - None:{(int)TypeUnit.None}, Camino:{(int)TypeUnit.Camino}, Poblado:{(int)TypeUnit.Poblado}, Ciudad:{(int)TypeUnit.Ciudad}, Artillero:{(int)TypeUnit.Artillero}, Caballero:{(int)TypeUnit.Caballero}, Colono:{(int)TypeUnit.Colono}");
+        
+        // WORKAROUND: Hasta regenerar prefabs, comparar por valor int directo
+        // Si unidadValue == 8 y colonoEnumValue == 6, es un Colono con valor obsoleto
+        bool esColono = (unidadValue == colonoEnumValue) || (unidadValue == 8); // 8 = valor obsoleto de Colono
+        
+        if (esColono)
         {
+            Debug.Log($"✅ {unit.name} detectado como COLONO (workaround aplicado), orden actual: {generalBrain.CurrentOrder}");
+            
             // En expansión, desarrollo y militarización queremos construir si es posible
             if (generalBrain.CurrentOrder == TacticalAction.EarlyExpansion || 
                 generalBrain.CurrentOrder == TacticalAction.Development ||
@@ -184,6 +217,9 @@ public class PlayerIA : Player
             
             return goal;
         }
+        
+        Debug.Log($"⚠️ {unit.name} NO es Colono, Poblado ni Ciudad. Comprobando tropas...");
+
 
         // --- C. TROPAS DE COMBATE ---
         if(unit.statsBase.nombreUnidad == TypeUnit.Artillero || unit.statsBase.nombreUnidad == TypeUnit.Caballero)

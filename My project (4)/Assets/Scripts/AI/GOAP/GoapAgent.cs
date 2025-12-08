@@ -318,5 +318,25 @@ public class GoapAgent : MonoBehaviour
         }
 
         worldState.Add("Seguro", isSafe ? 1 : 0);
+        
+        // --- 4. ESTADO DE PATRULLA ---
+        // Para que PatrolAction y StandGuardAction funcionen:
+        // Si ya estamos patrullando (no hay amenaza y salud OK), marcamos como patrullando
+        // De lo contrario, necesitamos alcanzar ese estado
+        bool isPatrolling = isSafe; // Ya estamos seguros = podemos patrullar
+        worldState.Add("Patrullando", isPatrolling ? 1 : 0);
+        
+        // --- 5. ESTADO DE POSICIÓN DE COMBATE ---
+        // Para MoveToCombatPositionAction:
+        // Si estamos en una posición táctica (cerca del objetivo asignado), lo marcamos
+        bool isAtCombatPosition = false;
+        if (targetDestination != Vector2Int.zero)
+        {
+            // Considerar que estamos en posición si estamos en el destino o adyacentes
+            int distance = Mathf.Abs(unit.misCoordenadasActuales.x - targetDestination.x) +
+                          Mathf.Abs(unit.misCoordenadasActuales.y - targetDestination.y);
+            isAtCombatPosition = (distance <= 1);
+        }
+        worldState.Add("IsAtCombatPosition", isAtCombatPosition ? 1 : 0);
     }
 }
