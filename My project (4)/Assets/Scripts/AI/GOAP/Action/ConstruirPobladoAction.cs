@@ -42,6 +42,9 @@ public class ConstruirPobladoAction : GoapAction
 
     public override bool CheckProceduralPrecondition(GameObject agent)
     {
+        // 🔍 DEBUG: Log de entrada para diagnosticar por qué esta acción no pasa el filtro
+        Debug.Log($"🔍 [DEBUG] ConstruirPoblado.CheckProceduralPrecondition START para {agent?.name}");
+        
         // === LOG 1: Validación de Referencias ===
         if (playerAgent == null)
         {
@@ -78,22 +81,32 @@ public class ConstruirPobladoAction : GoapAction
 
         Unit unit = GetComponent<Unit>();
 
-        // === LOG 2: Actualización de Costos ===
-        if(playerAgent.numPoblados > 1)
-        {
-            CostoConstruccion = unit.actualizarCostes(CostoConstruccion, playerAgent);
-            Debug.Log($"🔍 ConstruirPoblado [{unitAgent.name}]: Costos actualizados (numPoblados: {playerAgent.numPoblados})");
-        }
-
-        // === LOG 3: Validación de Recursos ===
+        // 🔧 FIX: Eliminado cálculo redundante de costes. 
+        // GoapAgent.UpdateWorldState() ya calculó si hay recursos (TieneRecursosParaPoblado).
+        // Esta precondición ahora solo valida condiciones geométricas/específicas del tile.
+        
+        // === LOG 2: Validación de Recursos (usando coste base estándar) ===
+        // NOTA: No aplicamos actualizarCostes() aquí para evitar desincronización.
+        // El worldState ya fue evaluado con los costes correctos en GoapAgent.
+        
+        // 🔍 DEBUG: Mostrar targetDestination
+        Debug.Log($"🔍 [DEBUG] ConstruirPoblado [{unitAgent.name}]: targetDestination = {goapAgent.targetDestination}");
+        
+        // 🔍 DEBUG: Mostrar recursos del jugador
+        string recursosActuales = string.Join(", ", System.Enum.GetValues(typeof(ResourceType))
+            .Cast<ResourceType>()
+            .Where(rt => rt != ResourceType.Desierto)
+            .Select(rt => $"{rt}:{playerAgent.GetResourceAmount(rt)}"));
+        Debug.Log($"🔍 [DEBUG] ConstruirPoblado [{unitAgent.name}]: Recursos jugador = {recursosActuales}");
+        
         if (!playerAgent.CanAfford(CostoConstruccion))
         {
             string costStr = string.Join(", ", CostoConstruccion.Select(kv => $"{kv.Key}:{kv.Value}"));
-            Debug.LogWarning($"❌ ConstruirPoblado [{unitAgent.name}]: Recursos insuficientes. Necesita: {costStr}");
+            Debug.LogWarning($"❌ ConstruirPoblado [{unitAgent.name}]: Recursos insuficientes. Necesita: {costStr} (coste base)");
             return false;
         }
 
-        Debug.Log($"✅ ConstruirPoblado [{unitAgent.name}]: Recursos disponibles");
+        Debug.Log($"✅ ConstruirPoblado [{unitAgent.name}]: Recursos disponibles (coste base verificado)");
 
         // === LOG 4: Validación de Destino ===
         CellData cellData = BoardManager.Instance.GetCell(goapAgent.targetDestination);
@@ -109,6 +122,9 @@ public class ConstruirPobladoAction : GoapAction
             Debug.LogWarning($"❌ ConstruirPoblado [{unitAgent.name}]: VisualTile es null en destino {goapAgent.targetDestination}");
             return false;
         }
+
+        // 🔍 DEBUG: Mostrar estado del tile
+        Debug.Log($"🔍 [DEBUG] ConstruirPoblado [{unitAgent.name}]: Tile {goapAgent.targetDestination} - Owner: {cellData.owner}, UnitOnCell: {cellData.typeUnitOnCell}");
 
         // === LOG 5: Validación de Ocupación ===
         if (cellData.typeUnitOnCell == TypeUnit.Poblado || cellData.typeUnitOnCell == TypeUnit.Ciudad)

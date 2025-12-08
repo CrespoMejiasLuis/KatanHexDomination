@@ -196,18 +196,19 @@ public class GoapAgent : MonoBehaviour
         // --- 2. ESTADO DE RECURSOS (Clave para construir) ---
         if (playerAgent != null)
         {
-            // Chequear si el jugador tiene suficientes recursos para construir UN poblado
-            // (1 Madera, 1 Oveja, 1 Trigo, 1 Arcilla)
+            // 🔧 FIX: Coste de poblados SIN incremento lineal
+            // El coste se mantiene constante en el valor base
             Dictionary<ResourceType, int> pobladoCost = new Dictionary<ResourceType, int>
             {
                 { ResourceType.Madera, 1 }, { ResourceType.Oveja, 1 },
                 { ResourceType.Trigo, 1 }, { ResourceType.Arcilla, 1 }
             };
 
-            if(playerAgent.numPoblados > 1)
-            {
-                pobladoCost = unit.actualizarCostes(pobladoCost, playerAgent);
-            }
+            // ELIMINADO: Escalado lineal que causaba costes prohibitivos
+            // if(playerAgent.numPoblados > 1)
+            // {
+            //     pobladoCost = unit.actualizarCostes(pobladoCost, playerAgent);
+            // }
 
             bool canAffordPoblado = playerAgent.CanAfford(pobladoCost);
 
