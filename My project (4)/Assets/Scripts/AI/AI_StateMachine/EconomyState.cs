@@ -17,7 +17,7 @@ public class EconomyState : AIState
             int settlementCount = CountSettlements();
             int expansionCount = CountExpansionUnits();
             
-            if (expansionCount >= 5 || settlementCount >= 3)
+            if (expansionCount >= 5 || settlementCount >= 5)
             {
                 context.CurrentOrder = TacticalAction.Development;
                 Debug.Log($"🏗️ ECONOMY OnEnter: Entrando en DEVELOPMENT ({expansionCount} unidades expansión, {settlementCount} asentamientos)");
@@ -106,16 +106,28 @@ public class EconomyState : AIState
     // --- LÓGICA FASE 2: Mejorar Ciudades / Tecnologías ---
     private void ExecuteDevelopmentLogic()
     {
-        // Aquí ya no buscamos expandirnos. 
-        // Simplemente mantenemos el orden 'Development'.
-        // El script 'PlayerIA.cs' leerá este orden y asignará objetivos de "UpgradeCiudad" o "Recruit".
+        // 🎯 MEJORA: Expansión continua si todos son ciudades
+        int totalSettlements = CountSettlements();
+        int totalCities = CountCities();
         
-        // Opcional: Podrías chequear si perdiste unidades y necesitas volver a expandirte
-        /*
-        if (CountExpansionUnits() < 3) {
-            context.CurrentOrder = TacticalAction.EarlyExpansion;
+        // Si TODOS los asentamientos ya son ciudades Y tenemos recursos
+        if (totalSettlements > 0 && totalCities == totalSettlements)
+        {
+            // Verificar si todavía necesitamos más asentamientos para ganar
+            // Asumimos victoria con 10 puntos (ajustar según tu juego)
+            int pointsToWin = 10;
+            int currentPoints = totalCities; // Simplificado: cada ciudad = 1 punto
+            
+            if (currentPoints < pointsToWin)
+            {
+                Debug.Log($"🏗️ DEVELOPMENT: Todas las ciudades mejoradas ({totalCities}/{totalSettlements}). Volviendo a expansión para ganar ({currentPoints}/{pointsToWin} puntos).");
+                context.CurrentOrder = TacticalAction.EarlyExpansion;
+                return;
+            }
         }
-        */
+        
+        // Comportamiento normal: mantener desarrollo
+        // PlayerIA leerá 'Development' y asignará objetivos de upgrade o producción
     }
 
     public override void OnExit() { }
