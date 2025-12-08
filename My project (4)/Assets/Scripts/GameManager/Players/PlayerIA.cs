@@ -175,23 +175,42 @@ public class PlayerIA : Player
                     break;
 
                 case TacticalAction.BuildArmy:
-                    // Durante militarización, producir unidades militares
-                    if (unit.statsBase.nombreUnidad == TypeUnit.Ciudad)
-                    {
-                        goal.Add("CaballeroProducido", 1);  // Ciudades → Caballeros
-                    }
-                    else // Poblados
-                    {
-                        goal.Add("ArqueroProducido", 1);  // Poblados → Arqueros (más baratos)
-                    }
-                    break;
-
                 case TacticalAction.Assault:
-                    goal.Add("ArqueroProducido", 1);
-                    break;
-
                 case TacticalAction.ActiveDefense:
-                    goal.Add("CaballeroProducido", 1);
+                    // 🎯 MEJORA: Solo el asentamiento más cercano a la amenaza produce unidades
+                    Unit bestSettlement = SelectBestSettlementForMilitaryProduction();
+                    
+                    if (bestSettlement == null || bestSettlement != unit)
+                    {
+                        // Este asentamiento NO es el prioritario para producción militar
+                        Debug.Log($"⏭️ {unit.name} saltado (no es el asentamiento prioritario para producción militar)");
+                        // No asignar objetivo de producción militar
+                        return goal; // Retornar goal vacío
+                    }
+                    
+                    // Este ES el asentamiento prioritario, producir según el modo
+                    Debug.Log($"🏭 {unit.name} ES el asentamiento prioritario, produciendo unidades militares");
+                    
+                    if (generalBrain.CurrentOrder == TacticalAction.BuildArmy)
+                    {
+                        // Durante militarización, producir unidades variadas
+                        if (unit.statsBase.nombreUnidad == TypeUnit.Ciudad)
+                        {
+                            goal.Add("CaballeroProducido", 1);  // Ciudades → Caballeros
+                        }
+                        else // Poblados
+                        {
+                            goal.Add("ArqueroProducido", 1);  // Poblados → Arqueros
+                        }
+                    }
+                    else if (generalBrain.CurrentOrder == TacticalAction.Assault)
+                    {
+                        goal.Add("ArqueroProducido", 1);
+                    }
+                    else if (generalBrain.CurrentOrder == TacticalAction.ActiveDefense)
+                    {
+                        goal.Add("CaballeroProducido", 1);
+                    }
                     break;
 
                 
@@ -483,5 +502,99 @@ public class PlayerIA : Player
 
         Debug.LogWarning($"⚠️ FindAdjacentFreeCell: No se pudo determinar mejor celda");
         return null;
+    }
+
+    // 🎯 Obtiene el nivel de amenaza cerca de un asentamiento específico
+    private float GetThreatLevelNearSettlement(Unit settlement)
+    {
+        if (settlement == null || generalBrain == null || generalBrain.aiAnalysis == null)
+        {
+            return 0f;
+        }
+
+        // Verificar que sea un asentamiento
+        if (settlement.statsBase.nombreUnidad != TypeUnit.Poblado && 
+            settlement.statsBase.nombreUnidad != TypeUnit.Ciudad)
+        {
+            return 0f;
+        }
+
+        // Usar el mismo sistema que AI_General para calcular amenaza local
+        var aiAnalysis = generalBrain.aiAnalysis;
+        if (aiAnalysis.threatMap == null) return 0f;
+
+        float maxThreat = 0f;
+        int radius = 3; // Radio de búsqueda (mismo que patrullaje)
+        int gridRadius = BoardManager.Instance != null ? BoardManager.Instance.gridRadius : 10;
+
+        // Convertir a coordenadas de mapa
+        int centerX = settlement.misCoordenadasActuales.x + (gridRadius - 1);
+        int centerY = settlement.misCoordenadasActuales.y + (gridRadius - 1);
+
+        // Buscar amenaza máxima en el radio
+        for (int dx = -radius; dx <= radius; dx++)
+        {
+            for (int dy = -radius; dy <= radius; dy++)
+            {
+                int x = centerX + dx;
+                int y = centerY + dy;
+
+                if (x >= 0 && y >= 0 && 
+                    x < aiAnalysis.threatMap.GetLength(0) && 
+                    y < aiAnalysis.threatMap.GetLength(1))
+                {
+                    float cellThreat = aiAnalysis.threatMap[x, y];
+                    if (cellThreat > maxThreat)
+                    {
+                        maxThreat = cellThreat;
+                    }
+                }
+            }
+        }
+
+        return maxThreat;
+    }
+
+    // 🎯 Selecciona el mejor asentamiento para producción militar basándose en amenaza cercana
+    private Unit SelectBestSettlementForMilitaryProduction()
+    {
+        List<Unit> allUnits = myArmyManager.GetAllUnits();
+        Unit bestSettlement = null;
+        float maxThreat = -1f;
+
+        foreach (Unit unit in allUnits)
+        {
+            if (unit == null) continue;
+
+            // Solo considerar asentamientos
+            if (unit.statsBase.nombreUnidad != TypeUnit.Poblado && 
+                unit.statsBase.nombreUnidad != TypeUnit.Ciudad)
+            {
+                continue;
+            }
+
+            // Calcular amenaza local
+            float threatLevel = GetThreatLevelNearSettlement(unit);
+            
+            Debug.Log($"🎯 Amenaza cerca de {unit.name} ({unit.statsBase.nombreUnidad}): {threatLevel:F1}");
+
+            // Actualizar el mejor si tiene más amenaza
+            if (threatLevel > maxThreat)
+            {
+                maxThreat = threatLevel;
+                bestSettlement = unit;
+            }
+        }
+
+        if (bestSettlement != null)
+        {
+            Debug.Log($"✅ {bestSettlement.name} seleccionado como mejor productor (amenaza: {maxThreat:F1})");
+        }
+        else
+        {
+            Debug.LogWarning("⚠️ No se encontró ningún asentamiento válido para producción");
+        }
+
+        return bestSettlement;
     }
 }
