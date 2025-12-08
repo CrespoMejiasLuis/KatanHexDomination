@@ -317,16 +317,13 @@ public class GoapAgent : MonoBehaviour
             }
         }
 
-        worldState.Add("Seguro", isSafe ? 1 : 0);
+        // ❌ ELIMINADO: "Seguro" y "Patrullando" NO deben estar en worldState
+        // Son OBJETIVOS que las acciones GOAP deben cumplir, no hechos del mundo
+        // 
+        // worldState.Add("Seguro", isSafe ? 1 : 0);
+        // worldState.Add("Patrullando", isPatrolling ? 1 : 0);
         
-        // --- 4. ESTADO DE PATRULLA ---
-        // Para que PatrolAction y StandGuardAction funcionen:
-        // Si ya estamos patrullando (no hay amenaza y salud OK), marcamos como patrullando
-        // De lo contrario, necesitamos alcanzar ese estado
-        bool isPatrolling = isSafe; // Ya estamos seguros = podemos patrullar
-        worldState.Add("Patrullando", isPatrolling ? 1 : 0);
-        
-        // --- 5. ESTADO DE POSICIÓN DE COMBATE ---
+        // --- 4. ESTADO DE POSICIÓN DE COMBATE ---
         // Para MoveToCombatPositionAction:
         // Si estamos en una posición táctica (cerca del objetivo asignado), lo marcamos
         bool isAtCombatPosition = false;
@@ -338,5 +335,29 @@ public class GoapAgent : MonoBehaviour
             isAtCombatPosition = (distance <= 1);
         }
         worldState.Add("IsAtCombatPosition", isAtCombatPosition ? 1 : 0);
+
+        // --- 5. ESTADO DE OBJETIVO HOSTIL ---
+        // 🎯 FIX CRÍTICO: Para AttackAction
+        // Detectar si hay un enemigo adyacente (distancia <= rango de ataque)
+        bool hasHostileTarget = false;
+        if (BoardManager.Instance != null && GameManager.Instance != null)
+        {
+            List<CellData> adjacentCells = BoardManager.Instance.GetAdjacents(unit.misCoordenadasActuales);
+            
+            foreach (var cellData in adjacentCells)
+            {
+                if (cellData != null && cellData.unitOnCell != null)
+                {
+                    Unit otherUnit = cellData.unitOnCell;
+                    // Es enemigo si pertenece a otro jugador
+                    if (otherUnit.ownerID != unit.ownerID)
+                    {
+                        hasHostileTarget = true;
+                        break;
+                    }
+                }
+            }
+        }
+        worldState.Add("TieneObjetivoHostil", hasHostileTarget ? 1 : 0);
     }
 }

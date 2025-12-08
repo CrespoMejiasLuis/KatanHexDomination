@@ -437,8 +437,6 @@ MonoBehaviour:
   rangeInTiles: 1
   requiresInRange: 1
   preConditionsConfig:
-  - key: TieneObjetivoHostil
-    value: 1
   - key: EnRangoDeAtaque
     value: 1
   afterEffectsConfig:
@@ -606,6 +604,8 @@ MonoBehaviour:
   preConditionsConfig: []
   afterEffectsConfig:
   - key: IsAtCombatPosition
+    value: 1
+  - key: EnRangoDeAtaque
     value: 1
   running: 0
 --- !u!1 &8143801363787596157

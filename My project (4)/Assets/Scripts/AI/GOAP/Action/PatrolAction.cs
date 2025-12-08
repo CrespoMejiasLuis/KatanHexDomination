@@ -42,6 +42,7 @@ public class PatrolAction : GoapAction
     {
         if (goapAgent == null || unitAgent == null || analysisManager == null)
         {
+            Debug.Log($"❌ PatrolAction: Componentes nulos en {agent.name}");
             return false;
         }
 
@@ -49,17 +50,23 @@ public class PatrolAction : GoapAction
         float healthPercent = unitAgent.vidaActual / (float)unitAgent.statsBase.vidaMaxima;
         if (healthPercent < 0.4f)
         {
+            Debug.Log($"❌ PatrolAction: {unitAgent.name} tiene poca vida ({healthPercent:P})");
             return false; // Mejor usar HuirAction
         }
 
         // Buscar un punto de patrulla adecuado
         Player myPlayer = GameManager.Instance.GetPlayer(unitAgent.ownerID);
-        if (myPlayer == null) return false;
+        if (myPlayer == null)
+        {
+            Debug.Log($"❌ PatrolAction: Player nulo para {unitAgent.name}");
+            return false;
+        }
 
         Vector2Int? patrolPos = analysisManager.GetPatrolPosition(myPlayer.playerID, unitAgent.misCoordenadasActuales);
         
         if (!patrolPos.HasValue)
         {
+            Debug.Log($"❌ PatrolAction: No hay posiciones de patrulla disponibles para {unitAgent.name}");
             return false; // No hay posiciones de patrulla disponibles
         }
         
@@ -69,13 +76,21 @@ public class PatrolAction : GoapAction
         // (el objetivo se considera cumplido)
         if (patrolTarget == unitAgent.misCoordenadasActuales)
         {
+            Debug.Log($"⭕ PatrolAction: {unitAgent.name} ya está en posición de patrulla {patrolTarget}");
             return false; // Ya estamos patrullando en posición
         }
 
         // Validar que el punto es accesible
         CellData targetCell = BoardManager.Instance.GetCell(patrolTarget);
-        if (targetCell == null || targetCell.unitOnCell != null)
+        if (targetCell == null)
         {
+            Debug.Log($"❌ PatrolAction: Celda {patrolTarget} es nula para {unitAgent.name}");
+            return false;
+        }
+        
+        if (targetCell.unitOnCell != null)
+        {
+            Debug.Log($"❌ PatrolAction: Celda {patrolTarget} ocupada por {targetCell.unitOnCell.name}, rechazando patrulla para {unitAgent.name}");
             return false;
         }
 
@@ -88,7 +103,7 @@ public class PatrolAction : GoapAction
         // Actualizar la blackboard del agente con el destino
         goapAgent.targetDestination = patrolTarget;
 
-        Debug.Log($"🛡️ PatrolAction: {unitAgent.name} asignado a patrullar en {patrolTarget}");
+        Debug.Log($"✅ PatrolAction: {unitAgent.name} asignado a patrullar en {patrolTarget}");
         return true;
     }
 

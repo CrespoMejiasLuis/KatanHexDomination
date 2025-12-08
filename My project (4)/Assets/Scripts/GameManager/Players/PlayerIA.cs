@@ -218,6 +218,7 @@ public class PlayerIA : Player
             return goal;
         }
         
+        Debug.Log($"✅ {unit.name} NO es Colono. Checkando tropas (Artillero={TypeUnit.Artillero}, Caballero={TypeUnit.Caballero}, unit={unit.statsBase.nombreUnidad})...");
         Debug.Log($"⚠️ {unit.name} NO es Colono, Poblado ni Ciudad. Comprobando tropas...");
 
 
@@ -248,22 +249,39 @@ public class PlayerIA : Player
 
                 case TacticalAction.ActiveDefense:
                 case TacticalAction.Assault:
-                    // 🎯 MEJORA: Establecer destino hacia enemigo más cercano
+                    // 🎯 MEJORA: Buscar celda adyacente libre al enemigo más cercano
                     if (combatAgent != null)
                     {
                         Unit nearestEnemy = FindNearestEnemy(unit);
                         if (nearestEnemy != null)
                         {
-                            combatAgent.targetDestination = nearestEnemy.misCoordenadasActuales;
-                            Debug.Log($"⚔️ {unit.name} en combate: Moverse hacia enemigo en {nearestEnemy.misCoordenadasActuales}");
+                            // 🔧 FIX: Buscar celda adyacente LIBRE al enemigo (no la celda del enemigo)
+                            Vector2Int? targetPos = FindAdjacentFreeCell(nearestEnemy.misCoordenadasActuales, unit);
+                            
+                            if (targetPos.HasValue)
+                            {
+                                combatAgent.targetDestination = targetPos.Value;
+                                Debug.Log($"⚔️ {unit.name} en combate: Moverse a {targetPos.Value} (adyacente a enemigo en {nearestEnemy.misCoordenadasActuales})");
+                            }
+                            else
+                            {
+                                // Si no hay celdas libres, patrullar territorio
+                                Debug.Log($"⚠️ {unit.name}: No hay celdas libres cerca del enemigo, patrullando");
+                                goal.Add("Patrullando", 1);
+                                return goal;
+                            }
                         }
                         else
                         {
-                            Debug.Log($"⚔️ {unit.name} en combate: Sin enemigos detectados, mantenerse en posición");
+                            Debug.Log($"⚔️ {unit.name} en combate: Sin enemigos detectados, patrullando");
+                            goal.Add("Patrullando", 1);
+                            return goal;
                         }
                     }
                     
-                    goal.Add("Seguro", 1);
+                    // 🔧 FIX CRÍTICO: El objetivo de combate es ESTAR EN RANGO, no "estar seguro"
+                    // Esto permitirá la cadena: MoveToCombatPositionAction → AttackAction
+                    goal.Add("EnRangoDeAtaque", 1);
                     break;
             }
             
@@ -329,5 +347,54 @@ public class PlayerIA : Player
         }
         
         return nearestEnemy;
+    }
+
+    // 🎯 HELPER: Buscar celda adyacente libre a una posición objetivo
+    private Vector2Int? FindAdjacentFreeCell(Vector2Int targetPos, Unit forUnit)
+    {
+        if (BoardManager.Instance == null) return null;
+
+        // Obtener celdas adyacentes
+        List<CellData> adjacentCells = BoardManager.Instance.GetAdjacents(targetPos);
+        
+        // Filtrar las que no están ocupadas ni son del jugador humano
+        List<Vector2Int> freeCells = new List<Vector2Int>();
+        
+        foreach (var cellData in adjacentCells)
+        {
+            if (cellData == null) continue;
+            
+            // Validar que esté libre
+            bool isFree = (cellData.unitOnCell == null);
+            
+            // Validar que no sea un poblado/ciudad enemigo
+            bool isNotEnemySettlement = (cellData.owner == -1 || cellData.owner == forUnit.ownerID);
+            
+            if (isFree && isNotEnemySettlement)
+            {
+                freeCells.Add(cellData.coordinates);
+            }
+        }
+        
+        // Si hay celdas libres, elegir la más cercana a mi unidad
+        if (freeCells.Count > 0)
+        {
+            Vector2Int bestCell = freeCells[0];
+            int minDist = BoardManager.Instance.Distance(forUnit.misCoordenadasActuales, freeCells[0]);
+            
+            for (int i = 1; i < freeCells.Count; i++)
+            {
+                int dist = BoardManager.Instance.Distance(forUnit.misCoordenadasActuales, freeCells[i]);
+                if (dist < minDist)
+                {
+                    minDist = dist;
+                    bestCell = freeCells[i];
+                }
+            }
+            
+            return bestCell;
+        }
+        
+        return null;
     }
 }

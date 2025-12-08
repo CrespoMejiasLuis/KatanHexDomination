@@ -22,9 +22,12 @@ public class MoverAction : GoapAction
         rangeInTiles = 1; // Un paso adyacente
         requiresInRange = false;
 
-        // 🎯 MEJORA: Mover también puede satisfacer "Seguro" (acercarse a enemigos o huir)
+        // 🎯 MEJORA: Mover pone al agente en rango de ataque
+        // IMPORTANTE: Debe coincidir con la precondición de AttackAction (ver Inspector Unity)
         if (!Effects.ContainsKey("EstaEnRango"))
             Effects.Add("EstaEnRango", 1);
+        if (!Effects.ContainsKey("EnRangoDeAtaque"))
+            Effects.Add("EnRangoDeAtaque", 1);
             
         if (!Effects.ContainsKey("Seguro"))
             Effects.Add("Seguro", 1);

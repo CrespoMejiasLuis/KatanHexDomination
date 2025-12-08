@@ -24,6 +24,11 @@ public class MoveToCombatPositionAction : GoapAction
         // Esta acción cumple el objetivo de "estar en posición de combate"
         if (!Effects.ContainsKey("IsAtCombatPosition"))
             Effects.Add("IsAtCombatPosition", 1);
+        
+        // 🎯 FIX: Marcar que estamos en rango de ataque para que AttackAction pueda ejecutarse
+        // IMPORTANTE: Debe coincidir con la precondición de AttackAction en Unity Inspector
+        if (!Effects.ContainsKey("EnRangoDeAtaque"))
+            Effects.Add("EnRangoDeAtaque", 1);
     }
 
     public override bool CheckProceduralPrecondition(GameObject agent)

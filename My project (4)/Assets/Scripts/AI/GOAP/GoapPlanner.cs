@@ -132,8 +132,34 @@ public class GoapPlanner
 
         foreach(var act in usableActions)
         {
-            if(InState(parent.state, act.Preconditions))
+            // 🔍 LOG: Verificar precondiciones
+            bool meetsPrecons = InState(parent.state, act.Preconditions);
+            
+            if (!meetsPrecons && act.Preconditions.Count > 0)
             {
+                Debug.Log($"❌ GOAP: {act.GetType().Name} rechazada - Precondiciones no cumplidas:");
+                foreach(var precon in act.Preconditions)
+                {
+                    bool exists = parent.state.ContainsKey(precon.Key);
+                    if (!exists)
+                    {
+                        Debug.Log($"   [{precon.Key}] requerido={precon.Value}, actual=NO_EXISTE");
+                    }
+                    else
+                    {
+                        int actualValue = parent.state[precon.Key];
+                        if (actualValue != precon.Value)
+                        {
+                            Debug.Log($"   [{precon.Key}] requerido={precon.Value}, actual={actualValue}");
+                        }
+                    }
+                }
+            }
+            
+            if(meetsPrecons)
+            {
+                Debug.Log($"✅ GOAP: {act.GetType().Name} ACEPTADA - Construyendo nodo");
+                
                 Dictionary<string, int> newState = simulateEffects(parent.state, act.Effects);
 
                 Node newNode = new Node(parent, parent.cost + act.cost, newState, act);
