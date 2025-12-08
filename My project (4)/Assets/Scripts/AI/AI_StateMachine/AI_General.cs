@@ -9,17 +9,17 @@ public class AI_General : MonoBehaviour
     
     // 🔧 FIX ALTO #6: Umbrales de ENTRADA (triggering)
     [Tooltip("Amenaza necesaria para entrar en guerra (ciudad enemiga + tropas)")]
-    public float warThreshold = 500f;
+    public float warThreshold = 100f;  // 🔧 Reducido para amenaza LOCAL (~1 ciudad + algo)
     
     [Tooltip("Amenaza moderada para empezar militarización (2-3 unidades enemigas)")]
-    public float militarizationThreshold = 250f;  // 🔧 Reducido de 300 a 250
+    public float militarizationThreshold = 20f;  // 🔧 Reducido de 300 a 250
     
     // 🔧 FIX ALTO #6: Umbrales de SALIDA (con histéresis)
     [Tooltip("Amenaza baja para salir de guerra y volver a economía")]
-    public float exitWarThreshold = 150f;  // Más bajo que militarizationThreshold
+    public float exitWarThreshold = 50f;  // Más bajo que militarizationThreshold
     
     [Tooltip("Amenaza muy baja para salir de militarización")]
-    public float exitMilitarizationThreshold = 80f;  // Muy bajo para confirmar paz
+    public float exitMilitarizationThreshold = 10f;  // Muy bajo para confirmar paz
     
     public float opportunismFactor = 1.5f;
     private AIState currentStrategicState;

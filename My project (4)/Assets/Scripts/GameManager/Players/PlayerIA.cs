@@ -152,51 +152,66 @@ public class PlayerIA : Player
         // --- B. COLONOS (Constructores) ---
         if (unit.statsBase.nombreUnidad == TypeUnit.Colono)
         {
-            // En militarización TAMBIÉN queremos expandirnos si es posible (economía de guerra)
+            // En expansión, desarrollo y militarización queremos construir si es posible
             if (generalBrain.CurrentOrder == TacticalAction.EarlyExpansion || 
                 generalBrain.CurrentOrder == TacticalAction.Development ||
                 generalBrain.CurrentOrder == TacticalAction.BuildArmy)
             {
-                // 1. Encontrar el mejor lugar (Datos para la acción)
+                // 1. Encontrar el mejor lugar
                 Vector2Int? bestSpot = aiAnalysis.GetBestPositionForExpansion(unit, this);
                 GoapAgent agent = unit.GetComponent<GoapAgent>();
 
                 if (bestSpot.HasValue && agent != null)
                 {
-                    // Asignar el destino calculado
                     agent.targetDestination = bestSpot.Value;
-                    
                     Debug.Log($"🏗️ Colono en {unit.misCoordenadasActuales} asignado a construir en {bestSpot.Value}");
-
-                    // 2. Establecer el Objetivo GOAP
                     goal.Add("PobladoConstruido", 1);
                 }
                 else
                 {
-                    Debug.LogWarning($"[WARNING] No se encontró ubicación válida para colono en {unit.misCoordenadasActuales}");
+                    // 🎯 MEJORA: Si no hay sitio, mantenerse seguro
+                    Debug.Log($"🛡️ Colono sin sitios disponibles. Mantenerse seguro.");
+                    goal.Add("Seguro", 1);
                 }
             }
+            // 🎯 MEJORA: En guerra, colonos deben huir/refugiarse
+            else if (generalBrain.CurrentOrder == TacticalAction.Assault ||
+                     generalBrain.CurrentOrder == TacticalAction.ActiveDefense)
+            {
+                Debug.Log($"⚠️ Colono en zona de guerra. Huyendo a seguridad.");
+                goal.Add("Seguro", 1); // Activará HuirAction si vida < 40%
+            }
+            
             return goal;
         }
 
         // --- C. TROPAS DE COMBATE ---
         if(unit.statsBase.nombreUnidad == TypeUnit.Artillero || unit.statsBase.nombreUnidad == TypeUnit.Caballero)
         {
-            GoapAgent combatAgent = unit.GetComponent<GoapAgent>();
-            if (combatAgent == null) return goal;
-
             switch(generalBrain.CurrentOrder)
             {
+                // 🎯 MEJORA: Tropas en expansión temprana patrullan
+                case TacticalAction.EarlyExpansion:
+                    Debug.Log($"🛡️ {unit.name} en EarlyExpansion: Patrullando territorio");
+                    goal.Add("Seguro", 1);
+                    break;
+
+                // 🎯 MEJORA: Tropas en desarrollo patrullan
+                case TacticalAction.Development:
+                    Debug.Log($"🚫 {unit.name} en Development: Patrullando territorio");
+                    goal.Add("Seguro", 1);
+                    break;
+
                 case TacticalAction.BuildArmy:
-                    // Durante militarización, posicionarse cerca de nuestras ciudades
-                    // Por ahora, simplemente usar un objetivo de combate genérico
-                    goal.Add("EstaEnRango", 1); // "EstaEnRango" es el efecto de MoverAction
-                    Debug.Log($"🛡️ {unit.name} asignado a preparación militar (Posición)");
+                    // Durante militarización, posicionarse/patrullar
+                    Debug.Log($"🛡️ {unit.name} en BuildArmy: Preparación militar");
+                    goal.Add("Seguro", 1);
                     break;
 
                 case TacticalAction.ActiveDefense:
                 case TacticalAction.Assault:
                     // Lógica existente para defensa/ataque activo
+                    Debug.Log($"⚔️ {unit.name} en combate: Objetivo Seguro (atacar/defender)");
                     goal.Add("Seguro", 1);
                     break;
             }

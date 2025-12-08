@@ -51,16 +51,16 @@ public class EconomyState : AIState
         int settlementCount = CountSettlements();
         
         // Solo militarizar si:
-        // - Hay amenaza real (>50)
-        // -  Y estamos vulnerables (ratio < 1.0)
+        // - Hay amenaza real (>30 con amenaza LOCAL)
+        // - Y estamos vulnerables (ratio < 1.0)
         // - Y tenemos mínimo 2 asentamientos
-        if (totalThreat > 50f && ratio < 1.0f && settlementCount >= 2)
+        if (totalThreat > 30f && ratio < 1.0f && settlementCount >= 2)
         {
             Debug.Log($"🪖 ECONOMY: Amenaza ({totalThreat:F0}) + vulnerable (ratio {ratio:F1} < 1.0). Iniciando militarización.");
             context.ChangeState(new MilitarizationState(context));
             return;
         }
-        else if (totalThreat > 50f && settlementCount < 2)
+        else if (totalThreat > 30f && settlementCount < 2)
         {
             Debug.Log($"[WARNING] ECONOMY: Amenaza {totalThreat:F0} pero solo {settlementCount} asentamiento(s). Continuar expansión primero.");
             // Seguir en expansión aunque haya amenaza

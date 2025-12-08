@@ -68,8 +68,32 @@ public class UnitMovement : MonoBehaviour
             return false;
         }
 
-        // 4. (FUTURO) Comprobar si la casilla está ocupada
-        if (cellDestino.unitOnCell != null) return false;
+        // 4. Comprobar si la casilla es un poblado o ciudad ENEMIGO
+        if (cellDestino.typeUnitOnCell == TypeUnit.Poblado || cellDestino.typeUnitOnCell == TypeUnit.Ciudad)
+        {
+            // Verificar si el poblado/ciudad pertenece a otro jugador
+            if (cellDestino.owner != unitCerebro.ownerID)
+            {
+                Debug.Log("No puedes entrar en un poblado o ciudad enemigo");
+                return false;
+            }
+            // Si es propio, permitir el movimiento (las unidades pueden entrar a sus propios poblados)
+        }
+
+        // 5. Comprobar si la casilla está ocupada por otra unidad (que no sea poblado/ciudad propio)
+        if (cellDestino.unitOnCell != null)
+        {
+            // Si hay una unidad en la casilla que NO es un poblado/ciudad propio, bloquear
+            if (cellDestino.unitOnCell.ownerID != unitCerebro.ownerID)
+            {
+                return false; // Casilla ocupada por enemigo
+            }
+            // Si es un poblado/ciudad propio, se puede compartir la casilla
+            if (cellDestino.typeUnitOnCell != TypeUnit.Poblado && cellDestino.typeUnitOnCell != TypeUnit.Ciudad)
+            {
+                return false; // Casilla ocupada por otra unidad propia que no es estructura
+            }
+        }
 
         // 5. ¡Todo OK! Gastar el recurso e iniciar el movimiento
         unitCerebro.GastarPuntoDeMovimiento(costeMovimiento); 
