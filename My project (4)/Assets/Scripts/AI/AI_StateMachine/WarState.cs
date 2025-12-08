@@ -28,19 +28,9 @@ public class WarState : AIState
             return;
         }
         
-        // 3. DECISIÓN TÁCTICA: ¿Ataque o Defensa?
-        float myPower = context.CalculateMyMilitaryPower();
-
-        // Si soy más fuerte que la amenaza, ataco a la yugular (Asalto)
-        if (myPower > threatLevel)
-        {
-            context.CurrentOrder = TacticalAction.Assault;
-        }
-        else
-        {
-            // Si soy más débil, me protejo (Defensa Activa)
-            context.CurrentOrder = TacticalAction.ActiveDefense;
-        }
+        // 3. DECISIÓN TÁCTICA: SIEMPRE ASALTO
+        // El usuario solicitó no entrar en estado defensivo desde WarState.
+        context.CurrentOrder = TacticalAction.Assault;
     }
 
     public override void OnExit() { }
