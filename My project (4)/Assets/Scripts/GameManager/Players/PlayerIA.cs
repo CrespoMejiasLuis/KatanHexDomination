@@ -205,7 +205,7 @@ public class PlayerIA : Player
                     }
                     else if (generalBrain.CurrentOrder == TacticalAction.Assault)
                     {
-                        goal.Add("ArqueroProducido", 1);
+                        goal.Add("CaballeroProducido", 1);
                     }
                     else if (generalBrain.CurrentOrder == TacticalAction.ActiveDefense)
                     {
@@ -584,7 +584,6 @@ public class PlayerIA : Player
             // Calcular amenaza local
             float threatLevel = GetThreatLevelNearSettlement(unit);
             
-            Debug.Log($"🎯 Amenaza cerca de {unit.name} ({unit.statsBase.nombreUnidad}): {threatLevel:F1}");
 
             // Actualizar el mejor si tiene más amenaza
             if (threatLevel > maxThreat)

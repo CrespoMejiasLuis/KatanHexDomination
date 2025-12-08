@@ -484,7 +484,7 @@ MonoBehaviour:
   - key: ColonoProducido
     value: 1
   running: 0
-  unitTypeToProduce: 8
+  unitTypeToProduce: 6
   unitPrefab: {fileID: 1921159432317833422, guid: ad180da489fdff0458b48dd98d8a7689, type: 3}
 --- !u!114 &1731706071281577165
 MonoBehaviour:
@@ -510,7 +510,7 @@ MonoBehaviour:
   - key: CaballeroProducido
     value: 1
   running: 0
-  unitTypeToProduce: 6
+  unitTypeToProduce: 5
   unitPrefab: {fileID: 7491848878131134450, guid: 7e504df8b9b239c48a52baf30848dfa5, type: 3}
 --- !u!114 &-2913280912465604076
 MonoBehaviour:
@@ -536,7 +536,7 @@ MonoBehaviour:
   - key: ArqueroProducido
     value: 1
   running: 0
-  unitTypeToProduce: 5
+  unitTypeToProduce: 4
   unitPrefab: {fileID: 2069702640224040037, guid: d00117277c9d3cf4d982c31e98c887a8, type: 3}
 --- !u!1 &3333576536738103707
 GameObject:
