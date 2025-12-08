@@ -301,13 +301,14 @@ public class PlayerIA : Player
 
                 case TacticalAction.ActiveDefense:
                 case TacticalAction.Assault:
-                    // 🎯 PASO 1: Verificar si ya está adyacente a un enemigo
-                    Unit adjacentEnemy = FindAdjacentEnemy(unit);
+                    // 🎯 PASO 1: Verificar si ya está en RANGO de un enemigo
+                    // (Soporte para Arqueros con rango > 1)
+                    Unit enemyInReach = FindEnemyInAttackRange(unit);
                     
-                    if (adjacentEnemy != null)
+                    if (enemyInReach != null)
                     {
                         // ✅ YA ESTÁ EN POSICIÓN DE COMBATE - Listo para atacar
-                        Debug.Log($"⚔️ {unit.name} está adyacente a {adjacentEnemy.name} - LISTO PARA ATACAR");
+                        Debug.Log($"⚔️ {unit.name} tiene en rango a {enemyInReach.name} - LISTO PARA ATACAR");
                         // No cambiar targetDestination, mantener posición actual
                         // El objetivo "EnRangoDeAtaque" activará AttackAction
                         goal.Add("ObjetivoDerrotado", 1);
@@ -343,9 +344,6 @@ public class PlayerIA : Player
                             return goal;
                         }
                     }
-                    
-                    // 🔧 FIX CRÍTICO: El objetivo de combate es ESTAR EN RANGO, no "estar seguro"
-                    // Esto permitirá la cadena: MoveToCombatPositionAction → AttackAction
                     goal.Add("EnRangoDeAtaque", 1);
                     break;
             }
@@ -412,25 +410,35 @@ public class PlayerIA : Player
         return nearestEnemy;
     }
 
-    // 🎯 HELPER: Buscar si hay un enemigo adyacente a esta unidad
-    private Unit FindAdjacentEnemy(Unit fromUnit)
+    // 🎯 HELPER MEJORADO: Buscar si hay un enemigo en RANGO DE ATAQUE REAL
+    // Verifica el rango de la unidad (importante para Arqueros)
+    private Unit FindEnemyInAttackRange(Unit fromUnit)
     {
         if (fromUnit == null || BoardManager.Instance == null) return null;
 
-        // Obtener celdas adyacentes a la unidad
-        List<CellData> adjacents = BoardManager.Instance.GetAdjacents(fromUnit.misCoordenadasActuales);
+        int range = fromUnit.statsBase.rangoAtaque;
+        List<CellData> potentialTargets;
 
-        foreach (var cellData in adjacents)
+        // Optimización: Si rango es 1, usar GetAdjacents (más rápido)
+        if (range <= 1)
+        {
+            potentialTargets = BoardManager.Instance.GetAdjacents(fromUnit.misCoordenadasActuales);
+        }
+        else
+        {
+            potentialTargets = BoardManager.Instance.GetCellsInRange(fromUnit.misCoordenadasActuales, range);
+        }
+
+        foreach (var cellData in potentialTargets)
         {
             if (cellData.unitOnCell != null && cellData.unitOnCell.ownerID != fromUnit.ownerID)
             {
-                // Hay un enemigo en esta celda adyacente
-                Debug.Log($"🔍 {fromUnit.name} tiene enemigo adyacente: {cellData.unitOnCell.name} en {cellData.coordinates}");
+                Debug.Log($"🎯 {fromUnit.name} (Rango:{range}) tiene enemigo a tiro: {cellData.unitOnCell.name}");
                 return cellData.unitOnCell;
             }
         }
 
-        return null; // No hay enemigos adyacentes
+        return null; // Nadie en rango
     }
 
     // 🎯 Encuentra una celda adyacente libre alrededor del objetivo enemigo

@@ -21,12 +21,11 @@ public class MoveToCombatPositionAction : GoapAction
         rangeInTiles = 1;
         requiresInRange = false;
 
-        // Esta acción cumple el objetivo de "estar en posición de combate"
         if (!Effects.ContainsKey("IsAtCombatPosition"))
             Effects.Add("IsAtCombatPosition", 1);
         
         // 🎯 FIX: Marcar que estamos en rango de ataque para que AttackAction pueda ejecutarse
-        // IMPORTANTE: Debe coincidir con la precondición de AttackAction en Unity Inspector
+        // Esto permite que el planificador encadene Mover -> Atacar
         if (!Effects.ContainsKey("EnRangoDeAtaque"))
             Effects.Add("EnRangoDeAtaque", 1);
     }
@@ -52,12 +51,11 @@ public class MoveToCombatPositionAction : GoapAction
             return false;
         }
 
-        // Usar pathfinding con mapa de amenazas
-        float[,] threatMap = GameManager.Instance.aiAnalysis.threatMap;
-
         if (Pathfinding.Instance != null)
         {
-            path = Pathfinding.Instance.FindSmartPath(start, goal, threatMap);
+            // 🎯 USAR NUEVO PATHFINDING DE COMBATE
+            // Ignora amenazas y evita unidades
+            path = Pathfinding.Instance.FindPathForCombat(start, goal);
             
             if (path == null || path.Count <= 0)
             {

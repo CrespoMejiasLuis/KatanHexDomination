@@ -1,4 +1,4 @@
-using UnityEngine;
+Ôªøusing UnityEngine;
 using System;
 using System.Collections.Generic;
 
@@ -82,7 +82,7 @@ public class Pathfinding : MonoBehaviour
         int h = BoardManager.Instance.gridData.GetLength(1); // Alto
         if (threatMap == null)
         {
-            // Creamos un mapa de ceros del tamaÒo correcto
+            // Creamos un mapa de ceros del tamaÔøΩo correcto
             threatMap = new float[w, h];
         }
         int width = threatMap.GetLength(0);
@@ -100,15 +100,15 @@ public class Pathfinding : MonoBehaviour
 
         openSet = new List<Vector2Int>();
 
-        // Õndices del array
+        // ÔøΩndices del array
         Vector2Int startIdx = GetGridIndex(start);
         Vector2Int goalIdx = GetGridIndex(goal);
 
-        // Validar lÌmites antes de empezar
+        // Validar lÔøΩmites antes de empezar
         if (startIdx.x < 0 || startIdx.x >= width || startIdx.y < 0 || startIdx.y >= height ||
             goalIdx.x < 0 || goalIdx.x >= width || goalIdx.y < 0 || goalIdx.y >= height)
         {
-            Debug.LogError($"Pathfinding: Inicio {start} o Meta {goal} fuera de lÌmites.");
+            Debug.LogError($"Pathfinding: Inicio {start} o Meta {goal} fuera de lÔøΩmites.");
             return new List<Vector2Int>();
         }
 
@@ -143,18 +143,18 @@ public class Pathfinding : MonoBehaviour
             }
 
             openSet.RemoveAt(bestIndex);
-            currentIdx = GetGridIndex(current); // Recalcular Ìndice actual
+            currentIdx = GetGridIndex(current); // Recalcular ÔøΩndice actual
 
             foreach (Vector2Int neighbor in GetNeigthbors(current))
             {
                 Vector2Int neighborIdx = GetGridIndex(neighbor);
 
-                // Chequeo de seguridad de Ìndices
+                // Chequeo de seguridad de ÔøΩndices
                 if (neighborIdx.x < 0 || neighborIdx.x >= width || neighborIdx.y < 0 || neighborIdx.y >= height)
                     continue;
 
                 CellData neighborCell = BoardManager.Instance.GetCell(neighbor);
-                if (neighborCell == null) continue; // No es transitable (agua, vacÌo)
+                if (neighborCell == null) continue; // No es transitable (agua, vacÔøΩo)
 
                 // Calcular coste
                 float baseCost = (float)neighborCell.cost;
@@ -163,7 +163,7 @@ public class Pathfinding : MonoBehaviour
 
                 if (tentativeGScore < gScore[neighborIdx.x, neighborIdx.y])
                 {
-                    // °Camino encontrado! Guardamos de dÛnde venimos
+                    // ÔøΩCamino encontrado! Guardamos de dÔøΩnde venimos
                     cameFrom[neighborIdx.x, neighborIdx.y] = current;
                     gScore[neighborIdx.x, neighborIdx.y] = tentativeGScore;
                     fScore[neighborIdx.x, neighborIdx.y] = tentativeGScore + Heuristic(neighbor, goal);
@@ -176,8 +176,8 @@ public class Pathfinding : MonoBehaviour
             }
         }
 
-        Debug.LogWarning("Pathfinding: No se encontrÛ camino.");
-        return new List<Vector2Int>(); // Retorna lista vacÌa si falla
+        Debug.LogWarning("Pathfinding: No se encontrÔøΩ camino.");
+        return new List<Vector2Int>(); // Retorna lista vacÔøΩa si falla
     }
 
     private List<Vector2Int> ReconstructPath(Vector2Int current, Vector2Int start)
@@ -197,7 +197,7 @@ public class Pathfinding : MonoBehaviour
 
             if (previous.x == -9999)
             {
-                Debug.LogError("Error reconstruyendo camino: EslabÛn perdido.");
+                Debug.LogError("Error reconstruyendo camino: EslabÔøΩn perdido.");
                 break;
             }
 
@@ -209,5 +209,111 @@ public class Pathfinding : MonoBehaviour
 
         totalPath.Reverse(); // Invertir para ir de Inicio -> Fin
         return totalPath;
+    }
+
+    // Pathfinding espec√≠fico para combate: ignora amenazas y trata unidades como obst√°culos
+    public List<Vector2Int> FindPathForCombat(Vector2Int start, Vector2Int goal)
+    {
+        int w = BoardManager.Instance.gridData.GetLength(0); // Ancho
+        int h = BoardManager.Instance.gridData.GetLength(1); // Alto
+        
+        int width = w;
+        int height = h;
+
+        // Reiniciar estructuras
+        gScore = InitializeScore(width, height);
+        fScore = InitializeScore(width, height);
+        cameFrom = new Vector2Int[width, height];
+
+        // Inicializar cameFrom con un valor centinela claro
+        for (int x = 0; x < width; x++)
+            for (int y = 0; y < height; y++)
+                cameFrom[x, y] = new Vector2Int(-9999, -9999);
+
+        openSet = new List<Vector2Int>();
+
+        // √çndices del array
+        Vector2Int startIdx = GetGridIndex(start);
+        Vector2Int goalIdx = GetGridIndex(goal);
+
+        // Validar l√≠mites antes de empezar
+        if (startIdx.x < 0 || startIdx.x >= width || startIdx.y < 0 || startIdx.y >= height ||
+            goalIdx.x < 0 || goalIdx.x >= width || goalIdx.y < 0 || goalIdx.y >= height)
+        {
+            Debug.LogError($"Pathfinding: Inicio {start} o Meta {goal} fuera de l√≠mites.");
+            return new List<Vector2Int>();
+        }
+
+        gScore[startIdx.x, startIdx.y] = 0;
+        fScore[startIdx.x, startIdx.y] = Heuristic(start, goal);
+        openSet.Add(start);
+
+        while (openSet.Count > 0)
+        {
+            // Encontrar nodo con menor F
+            Vector2Int current = openSet[0];
+            Vector2Int currentIdx = GetGridIndex(current);
+            float lowestF = fScore[currentIdx.x, currentIdx.y];
+            int bestIndex = 0;
+
+            for (int i = 1; i < openSet.Count; i++)
+            {
+                Vector2Int nodeIdx = GetGridIndex(openSet[i]);
+                float f = fScore[nodeIdx.x, nodeIdx.y];
+                if (f < lowestF)
+                {
+                    lowestF = f;
+                    current = openSet[i];
+                    bestIndex = i;
+                }
+            }
+
+            // Si llegamos al destino
+            if (current == goal)
+            {
+                return ReconstructPath(current, start);
+            }
+
+            openSet.RemoveAt(bestIndex);
+            currentIdx = GetGridIndex(current); // Recalcular √≠ndice actual
+
+            foreach (Vector2Int neighbor in GetNeigthbors(current))
+            {
+                Vector2Int neighborIdx = GetGridIndex(neighbor);
+
+                // Chequeo de seguridad de √≠ndices
+                if (neighborIdx.x < 0 || neighborIdx.x >= width || neighborIdx.y < 0 || neighborIdx.y >= height)
+                    continue;
+
+                CellData neighborCell = BoardManager.Instance.GetCell(neighbor);
+                if (neighborCell == null) continue; // No es transitable (agua, vac√≠o)
+
+                // COMBAT PATHFINDING: Bloquear celdas con unidades (excepto el destino)
+                if (neighbor != goal && neighborCell.unitOnCell != null)
+                {
+                    continue; // Saltar celdas ocupadas por unidades
+                }
+
+                // Calcular coste (solo coste base del terreno, SIN amenazas)
+                float baseCost = (float)neighborCell.cost;
+                float tentativeGScore = gScore[currentIdx.x, currentIdx.y] + baseCost;
+
+                if (tentativeGScore < gScore[neighborIdx.x, neighborIdx.y])
+                {
+                    // ¬°Camino encontrado! Guardamos de d√≥nde venimos
+                    cameFrom[neighborIdx.x, neighborIdx.y] = current;
+                    gScore[neighborIdx.x, neighborIdx.y] = tentativeGScore;
+                    fScore[neighborIdx.x, neighborIdx.y] = tentativeGScore + Heuristic(neighbor, goal);
+
+                    if (!openSet.Contains(neighbor))
+                    {
+                        openSet.Add(neighbor);
+                    }
+                }
+            }
+        }
+
+        Debug.LogWarning("Pathfinding: No se encontr√≥ camino para combate.");
+        return new List<Vector2Int>(); // Retorna lista vac√≠a si falla
     }
 }

@@ -24,6 +24,10 @@ public class AttackAction : GoapAction
         // Efecto para satisfacer objetivos de seguridad (ActiveDefense/Assault)
         if (!Effects.ContainsKey("Seguro"))
             Effects.Add("Seguro", 1);
+
+        // 🎯 FIX: Cumplir el objetivo de combate principal
+        if (!Effects.ContainsKey("ObjetivoDerrotado"))
+            Effects.Add("ObjetivoDerrotado", 1);
     }
 
     //---------------------------------------------------------

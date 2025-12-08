@@ -359,5 +359,9 @@ public class GoapAgent : MonoBehaviour
             }
         }
         worldState.Add("TieneObjetivoHostil", hasHostileTarget ? 1 : 0);
+        
+        // 🎯 FIX CRÍTICO: "EnRangoDeAtaque" requerido por AttackAction
+        // Si hay un enemigo adyacente, estamos en rango de ataque
+        worldState.Add("EnRangoDeAtaque", hasHostileTarget ? 1 : 0);
     }
 }
