@@ -730,6 +730,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   actionDelay: 0.2
   targetDestination: {x: 0, y: 0}
+  warTarget: {fileID: 0}
 --- !u!114 &7749918412725306342
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -778,7 +779,7 @@ MonoBehaviour:
   - key: ColonoProducido
     value: 1
   running: 0
-  unitTypeToProduce: 8
+  unitTypeToProduce: 6
   unitPrefab: {fileID: 1921159432317833422, guid: ad180da489fdff0458b48dd98d8a7689, type: 3}
 --- !u!114 &5037406065566823922
 MonoBehaviour:
@@ -804,7 +805,7 @@ MonoBehaviour:
   - key: CaballeroProducido
     value: 1
   running: 0
-  unitTypeToProduce: 6
+  unitTypeToProduce: 5
   unitPrefab: {fileID: 7491848878131134450, guid: 7e504df8b9b239c48a52baf30848dfa5, type: 3}
 --- !u!114 &-311797382700386542
 MonoBehaviour:
