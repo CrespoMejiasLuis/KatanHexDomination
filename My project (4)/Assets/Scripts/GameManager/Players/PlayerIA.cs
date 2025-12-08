@@ -68,9 +68,16 @@ public class PlayerIA : Player
         GameManager.Instance.EndAITurn(); 
     }
 
+
+    // 🔒 Celdas reservadas durante este turno (evita que múltiples unidades apunten a la misma celda)
+    private HashSet<Vector2Int> reservedCellsThisTurn = new HashSet<Vector2Int>();
+
     // Itera sobre todas las unidades y les asigna un objetivo GOAP basado en la estrategia actual.
     private void AssignGoapGoals()
     {
+        // 🔄 Limpiar reservas del turno anterior
+        reservedCellsThisTurn.Clear();
+        
         List<Unit> allUnits = myArmyManager.GetAllUnits();
         
         Debug.Log($"🎯 AssignGoapGoals: Iniciando asignación para {allUnits.Count} unidades");
@@ -93,8 +100,25 @@ public class PlayerIA : Player
                 continue;
             }
 
+            // 🔧 FIX: NO recalcular si ya tiene un objetivo de combate válido
+            bool shouldRecalculate = ShouldRecalculateGoal(unit, agent);
+            
+            if (!shouldRecalculate)
+            {
+                Debug.Log($"⏭️ {unit.name} mantiene su objetivo actual (ya en ruta)");
+                continue;
+            }
+
             // Calcular el objetivo para esta unidad
             Dictionary<string, int> goal = CalculateGoapGoal(unit);
+            
+            // 🔒 Si la unidad recibió un destino de combate, reservar la celda
+            GoapAgent agentAfterCalc = unit.GetComponent<GoapAgent>();
+            if (agentAfterCalc != null && agentAfterCalc.targetDestination != Vector2Int.zero)
+            {
+                reservedCellsThisTurn.Add(agentAfterCalc.targetDestination);
+                Debug.Log($"🔒 Celda {agentAfterCalc.targetDestination} reservada por {unit.name}");
+            }
             
             Debug.Log($"📋 Objetivo calculado para {unit.name}: {goal.Count} entradas");
 
@@ -108,9 +132,18 @@ public class PlayerIA : Player
             {
                 Debug.LogWarning($"⚠️ No se pudo calcular objetivo para {unit.name}");
             }
+
         }
         
         Debug.Log($"🏁 AssignGoapGoals: Asignación finalizada");
+    }
+
+    // 🎯 Determina si debemos recalcular el objetivo para esta unidad
+    // SIMPLICADO: TODAS las unidades recalculan cada turno para máxima adaptación dinámica
+    private bool ShouldRecalculateGoal(Unit unit, GoapAgent agent)
+    {
+        Debug.Log($"♻️ {unit.name} recalcula objetivo (recalculación universal)");
+        return true;
     }
 
     //calcula objetivo de cada unidad
@@ -249,7 +282,20 @@ public class PlayerIA : Player
 
                 case TacticalAction.ActiveDefense:
                 case TacticalAction.Assault:
-                    // 🎯 MEJORA: Buscar celda adyacente libre al enemigo más cercano
+                    // 🎯 PASO 1: Verificar si ya está adyacente a un enemigo
+                    Unit adjacentEnemy = FindAdjacentEnemy(unit);
+                    
+                    if (adjacentEnemy != null)
+                    {
+                        // ✅ YA ESTÁ EN POSICIÓN DE COMBATE - Listo para atacar
+                        Debug.Log($"⚔️ {unit.name} está adyacente a {adjacentEnemy.name} - LISTO PARA ATACAR");
+                        // No cambiar targetDestination, mantener posición actual
+                        // El objetivo "EnRangoDeAtaque" activará AttackAction
+                        goal.Add("ObjetivoDerrotado", 1);
+                        return goal;
+                    }
+                    
+                    // 🎯 PASO 2: No está adyacente, buscar enemigo y moverse
                     if (combatAgent != null)
                     {
                         Unit nearestEnemy = FindNearestEnemy(unit);
@@ -323,21 +369,19 @@ public class PlayerIA : Player
     // 🎯 HELPER: Buscar enemigo más cercano
     private Unit FindNearestEnemy(Unit fromUnit)
     {
-        if (fromUnit == null) return null;
+        if (fromUnit == null || BoardManager.Instance == null) return null;
         
         var allUnits = FindObjectsOfType<Unit>();
         Unit nearestEnemy = null;
-        float minDistance = float.MaxValue;
+        int minDistance = int.MaxValue;
         
         foreach (var unit in allUnits)
         {
             // Solo enemigos
             if (unit.ownerID == fromUnit.ownerID) continue;
             
-            // Calcular distancia manhattan
-            int dx = Mathf.Abs(unit.misCoordenadasActuales.x - fromUnit.misCoordenadasActuales.x);
-            int dy = Mathf.Abs(unit.misCoordenadasActuales.y - fromUnit.misCoordenadasActuales.y);
-            float distance = dx + dy;
+            // 🔧 FIX: Usar distancia hexagonal correcta (no Manhattan)
+            int distance = BoardManager.Instance.Distance(unit.misCoordenadasActuales, fromUnit.misCoordenadasActuales);
             
             if (distance < minDistance)
             {
@@ -349,52 +393,95 @@ public class PlayerIA : Player
         return nearestEnemy;
     }
 
-    // 🎯 HELPER: Buscar celda adyacente libre a una posición objetivo
+    // 🎯 HELPER: Buscar si hay un enemigo adyacente a esta unidad
+    private Unit FindAdjacentEnemy(Unit fromUnit)
+    {
+        if (fromUnit == null || BoardManager.Instance == null) return null;
+
+        // Obtener celdas adyacentes a la unidad
+        List<CellData> adjacents = BoardManager.Instance.GetAdjacents(fromUnit.misCoordenadasActuales);
+
+        foreach (var cellData in adjacents)
+        {
+            if (cellData.unitOnCell != null && cellData.unitOnCell.ownerID != fromUnit.ownerID)
+            {
+                // Hay un enemigo en esta celda adyacente
+                Debug.Log($"🔍 {fromUnit.name} tiene enemigo adyacente: {cellData.unitOnCell.name} en {cellData.coordinates}");
+                return cellData.unitOnCell;
+            }
+        }
+
+        return null; // No hay enemigos adyacentes
+    }
+
+    // 🎯 Encuentra una celda adyacente libre alrededor del objetivo enemigo
+    // Con recalculación cada turno, solo verificamos celdas FÍSICAMENTE libres
     private Vector2Int? FindAdjacentFreeCell(Vector2Int targetPos, Unit forUnit)
     {
-        if (BoardManager.Instance == null) return null;
+        Debug.Log($"🔍 FindAdjacentFreeCell: Buscando celda libre adyacente a {targetPos} para {forUnit.name}");
+
+        if (BoardManager.Instance == null)
+        {
+            Debug.LogError("❌ BoardManager.Instance es null");
+            return null;
+        }
 
         // Obtener celdas adyacentes
-        List<CellData> adjacentCells = BoardManager.Instance.GetAdjacents(targetPos);
-        
-        // Filtrar las que no están ocupadas ni son del jugador humano
-        List<Vector2Int> freeCells = new List<Vector2Int>();
-        
-        foreach (var cellData in adjacentCells)
+        List<CellData> adjacents = BoardManager.Instance.GetAdjacents(targetPos);
+        Debug.Log($"📊 FindAdjacentFreeCell: {adjacents.Count} celdas adyacentes encontradas");
+
+        if (adjacents.Count == 0)
         {
-            if (cellData == null) continue;
-            
-            // Validar que esté libre
-            bool isFree = (cellData.unitOnCell == null);
-            
-            // Validar que no sea un poblado/ciudad enemigo
-            bool isNotEnemySettlement = (cellData.owner == -1 || cellData.owner == forUnit.ownerID);
-            
-            if (isFree && isNotEnemySettlement)
+            Debug.LogWarning($"⚠️ FindAdjacentFreeCell: No hay celdas adyacentes a {targetPos}");
+            return null;
+        }
+
+        // Filtrar celdas válidas (libres y neutrales)
+        List<CellData> validCells = new List<CellData>();
+
+        foreach (var cellData in adjacents)
+        {
+            bool isFree = cellData.unitOnCell == null;
+            bool isNeutral = cellData.owner == -1;
+            bool notReserved = !reservedCellsThisTurn.Contains(cellData.coordinates);
+
+            Debug.Log($"  Celda {cellData.coordinates}: Libre={isFree}, Neutral={isNeutral}, NoReservada={notReserved}");
+
+            if (isFree && isNeutral && notReserved)
             {
-                freeCells.Add(cellData.coordinates);
+                validCells.Add(cellData);
             }
         }
-        
-        // Si hay celdas libres, elegir la más cercana a mi unidad
-        if (freeCells.Count > 0)
+
+        Debug.Log($"✅ FindAdjacentFreeCell: {validCells.Count} celdas válidas encontradas");
+
+        if (validCells.Count == 0)
         {
-            Vector2Int bestCell = freeCells[0];
-            int minDist = BoardManager.Instance.Distance(forUnit.misCoordenadasActuales, freeCells[0]);
-            
-            for (int i = 1; i < freeCells.Count; i++)
-            {
-                int dist = BoardManager.Instance.Distance(forUnit.misCoordenadasActuales, freeCells[i]);
-                if (dist < minDist)
-                {
-                    minDist = dist;
-                    bestCell = freeCells[i];
-                }
-            }
-            
-            return bestCell;
+            Debug.LogWarning($"⚠️ FindAdjacentFreeCell: No hay celdas libres alrededor de {targetPos}");
+            return null;
         }
-        
+
+        // ⭐ Seleccionar la celda más cercana al atacante usando distancia hexagonal
+        CellData bestCell = null;
+        int shortestDistance = int.MaxValue;
+
+        foreach (var cell in validCells)
+        {
+            int distance = BoardManager.Instance.Distance(forUnit.misCoordenadasActuales, cell.coordinates);
+            if (distance < shortestDistance)
+            {
+                shortestDistance = distance;
+                bestCell = cell;
+            }
+        }
+
+        if (bestCell != null)
+        {
+            Debug.Log($"🎯 Mejor celda elegida: {bestCell.coordinates} (distancia: {shortestDistance})");
+            return bestCell.coordinates;
+        }
+
+        Debug.LogWarning($"⚠️ FindAdjacentFreeCell: No se pudo determinar mejor celda");
         return null;
     }
 }
