@@ -156,6 +156,29 @@ public class EconomyState : AIState
         return count;
     }
 
+    // --- HELPER: Cuenta solo CIUDADES (asentamientos mejorados) ---
+    private int CountCities()
+    {
+        if (context.myPlayer == null || context.myPlayer.ArmyManager == null) 
+            return 0;
+
+        int count = 0;
+        var myUnits = context.myPlayer.ArmyManager.GetAllUnits();
+
+        foreach (var unit in myUnits)
+        {
+            if (unit != null && unit.statsBase != null)
+            {
+                if (unit.statsBase.nombreUnidad == TypeUnit.Ciudad)
+                {
+                    count++;
+                }
+            }
+        }
+
+        return count;
+    }
+
     // --- HELPER (Igual que antes) ---
     private int CountExpansionUnits()
     {
