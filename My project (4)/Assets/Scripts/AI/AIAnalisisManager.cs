@@ -13,6 +13,9 @@ public class AIAnalysisManager : MonoBehaviour
     public float decayFactor = 0.5f;
     public float strategicSecureMultiplier = 5.0f; // Valor alto para forzar la decisión
 
+    [Header("Estado Global")]
+    public bool isAtWar = false; // <-- NUEVO: Controla si la IA está en guerra total
+
     [Header("Configuración de Expansión")]
     public int minDistanceBetweenCities = 2; // Distancia mínima en casillas (Regla Catan)
     public float distancePenalty = 0.5f;     // Cuánto valor pierde una casilla por cada paso de distancia

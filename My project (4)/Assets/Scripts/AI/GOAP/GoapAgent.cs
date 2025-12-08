@@ -16,6 +16,7 @@ public class GoapAgent : MonoBehaviour
     // --- DATOS COMPARTIDOS (Blackboard) ---
     [HideInInspector]
     public Vector2Int targetDestination;
+    public Unit warTarget; // <-- Objetivo específico para modo guerra
     private Dictionary<string, int> lastGoal;
 
     // 🔧 FIX CRÍTICO #1: Protección contra re-planning infinito
@@ -181,6 +182,24 @@ public class GoapAgent : MonoBehaviour
         Unit unit = GetComponent<Unit>();
         // Asumimos que GameManager.Instance.GetPlayer() devuelve el objeto PlayerIA/Player
         Player playerAgent = GameManager.Instance.GetPlayer(unit.ownerID);
+
+        // --- 0. LÓGICA DE GUERRA (Solo Caballeros) ---
+        Unit globalWarTarget = null;
+        if (GameManager.Instance.aiAnalysis != null && 
+            GameManager.Instance.aiAnalysis.isAtWar && 
+            unit.statsBase.nombreUnidad == TypeUnit.Caballero)
+        {
+            // Buscar target GLOBAL (en todo el mapa)
+            globalWarTarget = GameManager.Instance.aiAnalysis.GetBestAttackTarget(unit.ownerID, unit.misCoordenadasActuales);
+            
+            if (globalWarTarget != null)
+            {
+                // Forzamos el destino hacia el enemigo
+                targetDestination = globalWarTarget.misCoordenadasActuales;
+                warTarget = globalWarTarget; // Guardamos referencia para la Acción
+                Debug.Log($"⚔️ [WAR] Caballero {name} entra en modo GUERRA. Objetivo: {globalWarTarget.name} en {targetDestination}");
+            }
+        }
 
         // --- 1. ESTADO DE POSICIÓN ---
         

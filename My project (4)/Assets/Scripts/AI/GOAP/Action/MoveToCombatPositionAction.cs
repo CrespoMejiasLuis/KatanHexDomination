@@ -59,7 +59,15 @@ public class MoveToCombatPositionAction : GoapAction
             
             if (path == null || path.Count <= 0)
             {
-                return false;
+               // 🔴 FIX: Si es objetivo de guerra, permitimos path incluso si el destino final está ocupado (porque vamos a atacar)
+               if(goapAgent != null && goapAgent.warTarget != null && goapAgent.warTarget.misCoordenadasActuales == goal)
+               {
+                   // Reintentar pathfinding ignorando bloqueo final? 
+                   // De hecho, FindPathForCombat YA debería permitirlo si el chequeo de "neighbor != goal" en Pathfinding.cs funciona.
+                   // Asumiremos que si devuelve 0 es que realmente no hay camino posible (muros, agua, etc).
+                   return false; 
+               }
+               return false;
             }
 
             return true;

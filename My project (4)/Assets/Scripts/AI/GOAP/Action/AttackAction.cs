@@ -5,12 +5,15 @@ public class AttackAction : GoapAction
 {
     private UnitAttack unitAttackComponent;
     private AIAnalysisManager analysisManager; // Referencia al analizador
+    private GoapAgent goapAgent;
 
     protected override void Awake()
     {
         base.Awake();
 
         unitAttackComponent = GetComponent<UnitAttack>();
+        goapAgent = GetComponent<GoapAgent>();
+
         if (GameManager.Instance != null && GameManager.Instance.aiAnalysis != null)
         {
             analysisManager = GameManager.Instance.aiAnalysis;
@@ -70,6 +73,17 @@ public class AttackAction : GoapAction
             return false;
         }
 
+        // 🔴 MODIFICACION GUERRA: Permitir planear ataque aunque estemos lejos
+        // Si es nuestro objetivo de guerra, IGNORAMOS el check de rango procedimental
+        // (El Movimiento se encargará de acercarnos)
+        if (goapAgent != null && goapAgent.warTarget == targetUnit)
+        {
+             // Estamos autorizados a proceder aunque 'PuedeAtacar' de false por distancia
+             // PERO debemos actualizar rangeInTiles para que el planner sepa a dónde ir
+             rangeInTiles = unitAgent.statsBase.rangoAtaque;
+             return true; 
+        }
+
         // Usamos la lógica precisa de tu UnitAttack para validar el rango.
         if (!unitAttackComponent.PuedeAtacar(targetUnit))
         {
@@ -98,6 +112,17 @@ public class AttackAction : GoapAction
             return true;
         }
 
+        // 🔴 CHECK FINAL DE RANGO ANTES DE DISPARAR
+        // Aunque el plan nos haya dejado pasar, aquí SI debemos estar cerca
+        if (!unitAttackComponent.PuedeAtacar(targetUnit))
+        {
+            // Si llegamos aqui y no podemos atacar, es que el movimiento falló o algo pasó.
+            // Terminamos la acción sin hacer nada (o podríamos fallar el plan)
+            Debug.Log($"[ATTACK] {agent.name} intentó atacar a {target.name} pero estaba fuera de rango.");
+            running = false;
+            return true;
+        }
+
         Debug.Log($"⚔️ GOAP: {agent.name} atacando a {target.name}.");
 
         // 1. Ejecutar el ataque real
@@ -117,6 +142,12 @@ public class AttackAction : GoapAction
     //---------------------------------------------------------
     private Unit FindBestTarget()
     {
+        // 1. Prioridad Absoluta: War Target
+        if (goapAgent != null && goapAgent.warTarget != null && goapAgent.warTarget.vidaActual > 0)
+        {
+             return goapAgent.warTarget;
+        }
+
         var enemyUnits = FindObjectsOfType<Unit>()
             .Where(u => u.ownerID != unitAgent.ownerID)
             .ToList();
