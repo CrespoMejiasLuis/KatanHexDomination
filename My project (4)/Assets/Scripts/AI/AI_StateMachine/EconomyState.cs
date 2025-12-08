@@ -30,7 +30,7 @@ public class EconomyState : AIState
         }
         else
         {
-            Debug.Log($"✅ ECONOMY OnEnter: Preservando CurrentOrder existente: {context.CurrentOrder}");
+            Debug.Log($"[OK] ECONOMY OnEnter: Preservando CurrentOrder existente: {context.CurrentOrder}");
         }
     }
 
@@ -39,28 +39,32 @@ public class EconomyState : AIState
         // 1. CHEQUEO DE GUERRA (Prioridad Máxima)
         if (totalThreat > context.warThreshold)
         {
-            Debug.Log("⚠️ ECONOMY: Amenaza crítica detectada. Entrando en Guerra.");
+            Debug.Log("[WARNING] ECONOMY: Amenaza crítica detectada. Entrando en Guerra.");
             context.ChangeState(new WarState(context));
             return;
         }
         
+        
         // 2. CHEQUEO DE MILITARIZACIÓN (Amenaza moderada)
-        if (totalThreat > context.militarizationThreshold)
+        // 🎯 MEJORA: Decisión multi-factor en vez de umbral fijo
+        float ratio = context.GetMilitaryToEconomyRatio();
+        int settlementCount = CountSettlements();
+        
+        // Solo militarizar si:
+        // - Hay amenaza real (>50)
+        // -  Y estamos vulnerables (ratio < 1.0)
+        // - Y tenemos mínimo 2 asentamientos
+        if (totalThreat > 50f && ratio < 1.0f && settlementCount >= 2)
         {
-            // VERIFICAR: Necesitamos al menos 2 asentamientos antes de militarizarnos
-            int settlementCount = CountSettlements();
-            if (settlementCount >= 2)
-            {
-                Debug.Log($"🪖 ECONOMY: Amenaza moderada ({totalThreat:F0}) + {settlementCount} asentamientos. Iniciando militarización.");
-                context.ChangeState(new MilitarizationState(context));
-                return;
-            }
-            else
-            {
-                Debug.Log($"⚠️ ECONOMY: Amenaza {totalThreat:F0} pero solo {settlementCount} asentamiento(s). Continuar expansión primero.");
-                // Seguir en expansión aunque haya amenaza
-                context.CurrentOrder = TacticalAction.EarlyExpansion;
-            }
+            Debug.Log($"🪖 ECONOMY: Amenaza ({totalThreat:F0}) + vulnerable (ratio {ratio:F1} < 1.0). Iniciando militarización.");
+            context.ChangeState(new MilitarizationState(context));
+            return;
+        }
+        else if (totalThreat > 50f && settlementCount < 2)
+        {
+            Debug.Log($"[WARNING] ECONOMY: Amenaza {totalThreat:F0} pero solo {settlementCount} asentamiento(s). Continuar expansión primero.");
+            // Seguir en expansión aunque haya amenaza
+            context.CurrentOrder = TacticalAction.EarlyExpansion;
         }
 
         // 2. MÁQUINA DE SUB-ESTADOS (Dependiendo del CurrentOrder)

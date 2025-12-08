@@ -56,26 +56,26 @@ public class ConstruirPobladoAction : GoapAction
             }
             else
             {
-                Debug.LogWarning($"❌ ConstruirPoblado [{unitAgent?.name}]: GameManager.Instance es null");
+                Debug.LogWarning($"[ERROR] ConstruirPoblado [{unitAgent?.name}]: GameManager.Instance es null");
                 return false;
             }
         }
 
         if (playerAgent == null)
         {
-            Debug.LogWarning($"❌ ConstruirPoblado [{unitAgent?.name}]: No se pudo obtener playerAgent");
+            Debug.LogWarning($"[ERROR] ConstruirPoblado [{unitAgent?.name}]: No se pudo obtener playerAgent");
             return false;
         }
 
         if (goapAgent == null)
         {
-            Debug.LogWarning($"❌ ConstruirPoblado [{unitAgent?.name}]: GoapAgent es null");
+            Debug.LogWarning($"[ERROR] ConstruirPoblado [{unitAgent?.name}]: GoapAgent es null");
             return false;
         }
 
         if (BoardManager.Instance == null)
         {
-            Debug.LogWarning($"❌ ConstruirPoblado [{unitAgent?.name}]: BoardManager.Instance es null");
+            Debug.LogWarning($"[ERROR] ConstruirPoblado [{unitAgent?.name}]: BoardManager.Instance es null");
             return false;
         }
 
@@ -102,24 +102,24 @@ public class ConstruirPobladoAction : GoapAction
         if (!playerAgent.CanAfford(CostoConstruccion))
         {
             string costStr = string.Join(", ", CostoConstruccion.Select(kv => $"{kv.Key}:{kv.Value}"));
-            Debug.LogWarning($"❌ ConstruirPoblado [{unitAgent.name}]: Recursos insuficientes. Necesita: {costStr} (coste base)");
+            Debug.LogWarning($"[ERROR] ConstruirPoblado [{unitAgent.name}]: Recursos insuficientes. Necesita: {costStr} (coste base)");
             return false;
         }
 
-        Debug.Log($"✅ ConstruirPoblado [{unitAgent.name}]: Recursos disponibles (coste base verificado)");
+        Debug.Log($"[OK] ConstruirPoblado [{unitAgent.name}]: Recursos disponibles (coste base verificado)");
 
         // === LOG 4: Validación de Destino ===
         CellData cellData = BoardManager.Instance.GetCell(goapAgent.targetDestination);
 
         if (cellData == null)
         {
-            Debug.LogWarning($"❌ ConstruirPoblado [{unitAgent.name}]: CellData es null en destino {goapAgent.targetDestination}");
+            Debug.LogWarning($"[ERROR] ConstruirPoblado [{unitAgent.name}]: CellData es null en destino {goapAgent.targetDestination}");
             return false;
         }
 
         if (cellData.visualTile == null)
         {
-            Debug.LogWarning($"❌ ConstruirPoblado [{unitAgent.name}]: VisualTile es null en destino {goapAgent.targetDestination}");
+            Debug.LogWarning($"[ERROR] ConstruirPoblado [{unitAgent.name}]: VisualTile es null en destino {goapAgent.targetDestination}");
             return false;
         }
 
@@ -129,14 +129,14 @@ public class ConstruirPobladoAction : GoapAction
         // === LOG 5: Validación de Ocupación ===
         if (cellData.typeUnitOnCell == TypeUnit.Poblado || cellData.typeUnitOnCell == TypeUnit.Ciudad)
         {
-            Debug.LogWarning($"❌ ConstruirPoblado [{unitAgent.name}]: Casilla {goapAgent.targetDestination} ya tiene edificio ({cellData.typeUnitOnCell})");
+            Debug.LogWarning($"[ERROR] ConstruirPoblado [{unitAgent.name}]: Casilla {goapAgent.targetDestination} ya tiene edificio ({cellData.typeUnitOnCell})");
             return false;
         }
 
         // Asignamos el objeto físico para que GoapAction.IsInRange() funcione
         target = cellData.visualTile.gameObject;
 
-        Debug.Log($"✅ ConstruirPoblado [{unitAgent.name}]: Todas las precondiciones cumplidas. Target asignado: {goapAgent.targetDestination}");
+        Debug.Log($"[OK] ConstruirPoblado [{unitAgent.name}]: Todas las precondiciones cumplidas. Target asignado: {goapAgent.targetDestination}");
         return true;
     }
 

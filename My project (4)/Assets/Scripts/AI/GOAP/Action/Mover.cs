@@ -37,25 +37,25 @@ public class MoverAction : GoapAction
         // === LOG 1: Validaciones Básicas ===
         if (goapAgent == null)
         {
-            Debug.LogWarning($"❌ MoverAction [{unitAgent?.name}]: GoapAgent es null");
+            Debug.LogWarning($"[ERROR] MoverAction [{unitAgent?.name}]: GoapAgent es null");
             return false;
         }
 
         if (BoardManager.Instance == null)
         {
-            Debug.LogWarning($"❌ MoverAction [{unitAgent?.name}]: BoardManager.Instance es null");
+            Debug.LogWarning($"[ERROR] MoverAction [{unitAgent?.name}]: BoardManager.Instance es null");
             return false;
         }
 
         if (unitAgent == null)
         {
-            Debug.LogWarning($"❌ MoverAction: unitAgent es null");
+            Debug.LogWarning($"[ERROR] MoverAction: unitAgent es null");
             return false;
         }
 
         if (unitAgent.movimientosRestantes <= 0)
         {
-            Debug.LogWarning($"❌ MoverAction [{unitAgent.name}]: Sin movimientos restantes (tiene {unitAgent.movimientosRestantes})");
+            Debug.LogWarning($"[ERROR] MoverAction [{unitAgent.name}]: Sin movimientos restantes (tiene {unitAgent.movimientosRestantes})");
             return false;
         }
 
@@ -65,7 +65,7 @@ public class MoverAction : GoapAction
         // === LOG 2: Validación de Destino ===
         if (start == goal)
         {
-            Debug.Log($"✅ MoverAction [{unitAgent.name}]: Ya está en destino {goal}. Acción no necesaria.");
+            Debug.Log($"[OK] MoverAction [{unitAgent.name}]: Ya está en destino {goal}. Acción no necesaria.");
             return false;
         }
 
@@ -76,7 +76,7 @@ public class MoverAction : GoapAction
 
         if (Pathfinding.Instance == null)
         {
-            Debug.LogWarning($"❌ MoverAction [{unitAgent.name}]: Pathfinding.Instance es null");
+            Debug.LogWarning($"[ERROR] MoverAction [{unitAgent.name}]: Pathfinding.Instance es null");
             return false;
         }
 
@@ -84,11 +84,11 @@ public class MoverAction : GoapAction
 
         if(path == null || path.Count == 0)
         {
-            Debug.LogWarning($"❌ MoverAction [{unitAgent.name}]: NO se encontró camino de {start} a {goal}");
+            Debug.LogWarning($"[ERROR] MoverAction [{unitAgent.name}]: NO se encontró camino de {start} a {goal}");
             return false;
         }
 
-        Debug.Log($"✅ MoverAction [{unitAgent.name}]: Camino encontrado con {path.Count} pasos. Destino: {goal}");
+        Debug.Log($"[OK] MoverAction [{unitAgent.name}]: Camino encontrado con {path.Count} pasos. Destino: {goal}");
         return true;
     }
 

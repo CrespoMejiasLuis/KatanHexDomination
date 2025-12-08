@@ -23,7 +23,7 @@ public class MilitarizationState : AIState
         // 2. ESCALADA: Si amenaza crítica, ir a guerra
         if (threatLevel > context.warThreshold)
         {
-            Debug.Log("⚠️ MILITARIZATION: Amenaza crítica detectada. Escalando a Guerra.");
+            Debug.Log("[WARNING] MILITARIZATION: Amenaza crítica detectada. Escalando a Guerra.");
             context.ChangeState(new WarState(context));
             return;
         }
@@ -33,6 +33,25 @@ public class MilitarizationState : AIState
         if (threatLevel < context.exitMilitarizationThreshold)
         {
             Debug.Log($"🏳️ MILITARIZATION: Amenaza muy baja ({threatLevel:F0} < {context.exitMilitarizationThreshold}). Volviendo a Economía.");
+            context.ChangeState(new EconomyState(context));
+            return;
+        }
+
+        // 🎯 MEJORA: Límite de militarización alcanzado (ratio ejército/economía)
+        float ratio = context.GetMilitaryToEconomyRatio();
+        if (ratio >= 2.0f)
+        {
+            Debug.Log($"💪 MILITARIZATION: Límite de ratio alcanzado ({ratio:F1} ≥ 2.0). Pasando a Development.");
+            context.CurrentOrder = TacticalAction.Development;
+            context.ChangeState(new EconomyState(context));
+            return;
+        }
+
+        // 🎯 MEJORA: Amenaza neutralizada + ejército decente
+        if (threatLevel < 30f && ratio >= 1.2f)
+        {
+            Debug.Log($"🏗️ MILITARIZATION: Amenaza controlada ({threatLevel:F0} < 30) + ratio decente ({ratio:F1} ≥ 1.2). Pasando a Development.");
+            context.CurrentOrder = TacticalAction.Development;
             context.ChangeState(new EconomyState(context));
             return;
         }

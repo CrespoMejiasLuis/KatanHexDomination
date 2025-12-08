@@ -24,7 +24,7 @@ public class UnitRecruiter : MonoBehaviour
     {
         if (artilleroPrefab == null)
         {
-            Debug.LogError("⚠️ No hay prefab de Artillero asignado.");
+            Debug.LogError("[ERROR] No hay prefab de Artillero asignado.");
             return;
         }
 
@@ -33,14 +33,14 @@ public class UnitRecruiter : MonoBehaviour
 
         if (ciudadCell == null)
         {
-            Debug.LogError("⚠️ Celda de la ciudad/poblado inválida.");
+            Debug.LogError("[ERROR] Celda de la ciudad/poblado inválida.");
             return;
         }
 
         Unit artilleroUnitPrefab = artilleroPrefab.GetComponent<Unit>();
         if (artilleroUnitPrefab.statsBase == null)
         {
-            Debug.LogError("⚠️ El Artillero no tiene UnitStats asignado.");
+            Debug.LogError("[ERROR] El Artillero no tiene UnitStats asignado.");
             return;
         }
 
@@ -80,7 +80,7 @@ public class UnitRecruiter : MonoBehaviour
         Vector2Int spawnCoords = GetValidSpawnPosition(ciudadCoords, unidadCreadora);
         if (spawnCoords == new Vector2Int(-999, -999))
         {
-             Debug.Log("⚠️ No hay espacio para instanciar Artillero (ciudad rodeada).");
+             Debug.Log("[WARNING] No hay espacio para instanciar Artillero (ciudad rodeada).");
              return; // Cancelar si no hay sitio
         }
 
@@ -122,7 +122,7 @@ public class UnitRecruiter : MonoBehaviour
     {
         if (caballeroPrefab == null)
         {
-            Debug.LogError("⚠️ No hay prefab de Caballero asignado.");
+            Debug.LogError("[ERROR] No hay prefab de Caballero asignado.");
             return;
         }
 
@@ -131,14 +131,14 @@ public class UnitRecruiter : MonoBehaviour
 
         if (ciudadCell == null)
         {
-            Debug.LogError("⚠️ Celda de la ciudad/poblado inválida.");
+            Debug.LogError("[ERROR] Celda de la ciudad/poblado inválida.");
             return;
         }
 
         Unit caballeroUnitPrefab = caballeroPrefab.GetComponent<Unit>();
         if (caballeroUnitPrefab.statsBase == null)
         {
-            Debug.LogError("⚠️ El Caballero no tiene UnitStats asignado.");
+            Debug.LogError("[ERROR] El Caballero no tiene UnitStats asignado.");
             return;
         }
 
@@ -171,7 +171,7 @@ public class UnitRecruiter : MonoBehaviour
         Vector2Int spawnCoords = GetValidSpawnPosition(ciudadCoords, unidadCreadora);
         if (spawnCoords == new Vector2Int(-999, -999))
         {
-             Debug.Log("⚠️ No hay espacio para instanciar Caballero.");
+             Debug.Log("[WARNING] No hay espacio para instanciar Caballero.");
              return;
         }
 
@@ -207,7 +207,7 @@ public class UnitRecruiter : MonoBehaviour
     {
         if (colonoPrefab == null)
         {
-            Debug.LogError("⚠️ No hay prefab de Colono asignado.");
+            Debug.LogError("[ERROR] No hay prefab de Colono asignado.");
             return;
         }
 
@@ -216,14 +216,14 @@ public class UnitRecruiter : MonoBehaviour
 
         if (ciudadCell == null)
         {
-            Debug.LogError("⚠️ Celda de la ciudad/poblado inválida.");
+            Debug.LogError("[ERROR] Celda de la ciudad/poblado inválida.");
             return;
         }
 
         Unit colonoUnitPrefab = colonoPrefab.GetComponent<Unit>();
         if (colonoUnitPrefab.statsBase == null)
         {
-            Debug.LogError("⚠️ El Colono no tiene UnitStats asignado.");
+            Debug.LogError("[ERROR] El Colono no tiene UnitStats asignado.");
             return;
         }
 
@@ -256,7 +256,7 @@ public class UnitRecruiter : MonoBehaviour
         Vector2Int spawnCoords = GetValidSpawnPosition(ciudadCoords, unidadCreadora);
         if (spawnCoords == new Vector2Int(-999, -999))
         {
-             Debug.Log("⚠️ No hay espacio para instanciar Colono.");
+             Debug.Log("[WARNING] No hay espacio para instanciar Colono.");
              return;
         }
 

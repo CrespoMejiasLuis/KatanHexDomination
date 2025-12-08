@@ -23,7 +23,7 @@ public class GoapPlanner
     public Queue<GoapAction> Plan(GameObject agent, HashSet<GoapAction> availableActions, Dictionary<string, int> worldState, Dictionary<string, int> goal)
     {
         Debug.Log($"═══════════════════════════════════════════════════");
-        Debug.Log($"🧠 GOAP PLANNER: Iniciando planificación para {agent.name}");
+        Debug.Log($"[GOAP] PLANNER: Iniciando planificación para {agent.name}");
         Debug.Log($"Acciones totales disponibles: {availableActions.Count}");
         
         //1.Inicializacion
@@ -55,12 +55,12 @@ public class GoapPlanner
         {
             foreach(var a in usableActions) 
             {
-                Debug.Log($"  ✅ Acción válida: {a.GetType().Name} (Costo: {a.cost})");
+                Debug.Log($"  [OK] Acción válida: {a.GetType().Name} (Costo: {a.cost})");
             }
         }
         else
         {
-            Debug.LogWarning($"❌ NINGUNA acción pasó el filtro procedural!");
+            Debug.LogWarning($"[ERROR] NINGUNA acción pasó el filtro procedural!");
         }
 
         Debug.Log($"═══ ESTADO DEL MUNDO ═══");
@@ -81,7 +81,7 @@ public class GoapPlanner
         //si no se ha podido construir
         if(!succes)
         {
-            Debug.LogWarning($"❌ GOAP PLANNER: NO se encontró un plan válido para {agent.name}");
+            Debug.LogWarning($"[ERROR] GOAP PLANNER: NO se encontró un plan válido para {agent.name}");
             Debug.Log($"═══════════════════════════════════════════════════");
             return null;
         }

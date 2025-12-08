@@ -198,7 +198,7 @@ public class GameManager : MonoBehaviour
                 {
                     cell.isRaided = false;
                     cell.UpdateVisual();
-                    Debug.Log($"✅ Casilla {cell.coordinates} recuperada del saqueo.");
+                    Debug.Log($"[OK] Casilla {cell.coordinates} recuperada del saqueo.");
                 }
             }
         }

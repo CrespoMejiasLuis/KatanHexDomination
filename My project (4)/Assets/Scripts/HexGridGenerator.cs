@@ -65,13 +65,13 @@ public class HexGridGenerator : MonoBehaviour
     {
         if (resourcePrefabs == null || resourcePrefabs.Count < 7) // (6 + Agua)
         {
-            Debug.LogError("🚨 ¡Error de Configuración! Asegúrate de asignar los 7 Prefabs (incluyendo Agua) en el Inspector.");
+            Debug.LogError("[ERROR] ¡Error de Configuración! Asegúrate de asignar los 7 Prefabs (incluyendo Agua) en el Inspector.");
             return;
         }
 
         if (resourcePrefabs.FirstOrDefault(m => m.type == ResourceType.Agua) == null)
         {
-            Debug.LogError("🚨 ¡Error! No se ha asignado un prefab para 'ResourceType.Agua' en 'resourcePrefabs'.");
+            Debug.LogError("[ERROR] ¡Error! No se ha asignado un prefab para 'ResourceType.Agua' en 'resourcePrefabs'.");
         }
     }
 
@@ -144,7 +144,7 @@ public class HexGridGenerator : MonoBehaviour
         GameObject waterPrefab = resourcePrefabs.FirstOrDefault(m => m.type == ResourceType.Agua)?.prefab;
         if (waterPrefab == null)
         {
-            Debug.LogError("🚨 No se encontró el prefab de Agua. Abortando generación.");
+            Debug.LogError("[ERROR] No se encontró el prefab de Agua. Abortando generación.");
             return;
         }
 
@@ -174,7 +174,7 @@ public class HexGridGenerator : MonoBehaviour
         // 4. Inicializar el BoardManager con el radio TOTAL
         if (BoardManager.Instance == null)
         {
-            Debug.LogError("🚨 BoardManager.Instance es NULL.");
+            Debug.LogError("[ERROR] BoardManager.Instance es NULL.");
             return;
         }
         BoardManager.Instance.InitialiceGrid(boardRadius);
@@ -206,7 +206,7 @@ public class HexGridGenerator : MonoBehaviour
             // Fallback por si falta un prefab de tierra (usa agua en su lugar)
             if (prefabToUse == null)
             {
-                Debug.LogWarning($"🚫 No se encontró prefab para: {currentType}. Usando Agua por defecto.");
+                Debug.LogWarning($"[WARNING] No se encontró prefab para: {currentType}. Usando Agua por defecto.");
                 prefabToUse = waterPrefab;
                 currentType = ResourceType.Agua;
             }
@@ -235,7 +235,7 @@ public class HexGridGenerator : MonoBehaviour
             allGeneratedTiles.Add(hexTile);
         }
 
-        Debug.Log($"✅ Tablero de {landTileCount} casillas de tierra y {allCoords.Count - landTileCount} de agua generado.");
+        Debug.Log($"[OK] Tablero de {landTileCount} casillas de tierra y {allCoords.Count - landTileCount} de agua generado.");
 
         BoardManager.Instance.PrintGridData();
     }

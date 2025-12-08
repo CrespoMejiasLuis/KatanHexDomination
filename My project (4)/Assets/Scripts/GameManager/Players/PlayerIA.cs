@@ -173,7 +173,7 @@ public class PlayerIA : Player
                 }
                 else
                 {
-                    Debug.LogWarning($"⚠️ No se encontró ubicación válida para colono en {unit.misCoordenadasActuales}");
+                    Debug.LogWarning($"[WARNING] No se encontró ubicación válida para colono en {unit.misCoordenadasActuales}");
                 }
             }
             return goal;
